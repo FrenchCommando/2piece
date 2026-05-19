@@ -145,6 +145,7 @@ frozen cross-check fixture dumped from it.
   examples/params.json
   tests/    reference.json + reference.test.ts (TS-vs-Python cross-check)
   paper/    2piece-paper.tex  refs.bib   (concise; simple ATM-knot derivation)
+  2piece-paper.pdf  (tracked build output — see PDF note below)
   figures/  committed deterministic SVGs (README + paper share these)
   .github/workflows/  pages.yml  paper.yml
   README.md  NOTES.md  LICENSE  .gitignore
@@ -193,7 +194,22 @@ the only intentional departure from the literal CLAUDE.md.
 - [x] GitHub Actions: `pages.yml` (test+figures-check+build+deploy),
       `paper.yml` (SVG→PDF via librsvg, pdflatex → `2piece-paper` artifact).
 - [x] CLAUDE memory mirrored into `memory/` (repo self-contained).
-- [ ] Initial git commit + push to GitHub (remote not yet set).
+- [x] Committed + force-pushed to GitHub (master, trailer-free, single
+      commit; author = user only). Pages needs Settings→Source=GitHub
+      Actions enabled once.
+
+### Tracked PDF workflow (non-obvious — do not "fix")
+`2piece-paper.pdf` is committed at the **repo root** on purpose. It is
+build output, **not** generated locally or in-repo: the source of truth is
+`paper/2piece-paper.tex`, and `paper.yml` builds the authoritative PDF as
+the `2piece-paper` CI artifact. The user **manually** refreshes the tracked
+copy by downloading that artifact after relevant paper changes.
+
+Consequences, accepted by the user:
+- The tracked PDF can lag `2piece-paper.tex` between manual refreshes
+  (e.g. it will not show the Conclusion until the user re-downloads it).
+- Do **not** add `*.pdf` to `.gitignore`, and do **not** `git rm` it — the
+  user explicitly wants it tracked and self-refreshes it. (Asked twice.)
 
 ### Open / watch
 - DTE input semantics: treated as **business days** (n_bdays=DTE). Documented

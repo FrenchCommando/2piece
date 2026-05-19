@@ -1,9 +1,20 @@
 # Implied volatility at a cubic local-vol knot pinned at the money
 
-A focused note + in-browser tool on one observable question: **how accurate
-are the standard local-volatility → implied-volatility maps, and how does a
-closed-form correction repair them at a cubic-vol knot placed exactly
-at-the-money (k = 0)?**
+A focused note + in-browser tool on a practical question: the standard way
+to parametrise an implied-vol surface is to fit a local-vol cubic and push
+it through the leading-order **BBF0** map. BBF0 can calibrate essentially
+any smile — its weakness is not fit but **arbitrage consistency**: being
+leading-order, the implied vol it returns is not the model's true Dupire
+IV, so a quote-matching surface can still carry small static-arbitrage
+slack. **PHL1** (next order) is much closer to the true Dupire IV and buys
+that arbitrage reassurance, but a single smooth cubic through PHL1 is
+rigid. Adding a **knot** would restore flexibility — except PHL1 develops a
+localised error at the knot (the surface is only C², PHL1's σ₁ needs C³).
+This work removes that error in closed form **for a knot pinned at the
+money (k = 0)**, making "piecewise-cubic-with-ATM-knot + PHL1" a usable
+parametrisation that keeps PHL1's arbitrage reassurance while regaining
+calibration flexibility. BBF0, a harmonic-mean integral, is insensitive to
+the knot and has no knot-specific error.
 
 - **Interactive page** (all computation in your browser):
   https://frenchcommando.github.io/2piece/

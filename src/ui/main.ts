@@ -71,11 +71,23 @@ app.innerHTML = `
 
   <section id="view-about" hidden>
     <h2>What this is</h2>
-    <p>A focused, observable answer to one question: how accurate are the
-    standard local-volatility&nbsp;→&nbsp;implied-volatility maps, and how
-    does a closed-form correction repair them at a cubic-vol knot placed
-    exactly at-the-money (<code>k = 0</code>)? It is the clean subset of a
-    broader study — pinning the knot to ATM is what makes the correction
+    <p>The standard way to parametrise an implied-vol surface is to fit a
+    local-vol cubic and push it through the leading-order <b>BBF0</b> map.
+    BBF0 can calibrate essentially any smile — its weakness is not fit but
+    <b>arbitrage consistency</b>: being leading-order, the implied vol it
+    returns is not the model's true Dupire IV, so a quote-matching surface
+    can still carry small static-arbitrage slack.</p>
+    <p><b>PHL1</b> (next order) is much closer to the true Dupire IV and
+    buys that arbitrage reassurance — but a single smooth cubic through
+    PHL1 is rigid. Adding a <b>knot</b> would restore flexibility, except
+    PHL1 develops a localised error at the knot: the surface is only C²
+    there while PHL1's σ₁ term needs C³ (BBF0, a harmonic-mean integral, is
+    insensitive to the knot and has no knot-specific error).</p>
+    <p>This tool removes that error in closed form <b>for a knot pinned
+    at-the-money</b> (<code>k = 0</code>), making
+    "piecewise-cubic-with-ATM-knot + PHL1" a usable parametrisation that
+    keeps PHL1's arbitrage reassurance while regaining calibration
+    flexibility. Pinning the knot to ATM is what makes the correction
     bounded with no truncation hack.</p>
 
     <h2>Setup</h2>

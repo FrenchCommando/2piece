@@ -2,3 +2,4 @@
 - [stack-decisions](stack-decisions.md) — vanilla TS+Vite; Python dropped, TS is source of truth
 - [example-params](example-params.md) — provenance of the calibrated SPXW examples
 - [theta-options-private](theta-options-private.md) — theta-options is the user's PRIVATE repo; never leak it into public 2piece files
+- [tracked-pdf](tracked-pdf.md) — 2piece-paper.pdf is intentionally tracked + manually refreshed; never gitignore/rm it

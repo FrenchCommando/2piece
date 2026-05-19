@@ -24,22 +24,61 @@ cubic local-volatility knot pinned at the money}
 \maketitle
 
 \begin{abstract}
-Practitioners push a parametric local volatility $\sloc$ through the
-leading-order Berestycki--Busca--Florent (BBF) inverse-harmonic-mean map and
-close the gap with the Henry-Labord\`ere $\sigma_1 T$ correction (PHL1) or the
-Gatheral--Hsu--Laurence--Ouyang--Wang $\sigma_2 T^2$ refinement (GHLOW2).
-These work while $\sloc$ is smooth. A piecewise-cubic $\sloc$ is only
-$C^2$ at its knots --- the cubic coefficient $\gamma=\sloc'''$ jumps --- and
-that single broken derivative produces a localised implied-volatility error
-that none of the smooth-$\sloc$ asymptotics capture. We give the closed-form
-PHL1 correction for the special case of a knot pinned exactly
-at-the-money. At first order in the coefficient jump it is a one-dimensional
-Brownian-bridge integral $\Phi_{BB}(x,0)$ with peak $3\sqrt{2\pi}/128$. The
-at-the-money restriction is what makes the result clean: the general case
-requires an unbounded-polynomial truncation to stay finite, which the
-$w=0$ specialisation removes. We validate against the Dupire PDE on
-parameters calibrated from real SPXW surfaces.
+The standard practice is to parametrise the \emph{local} volatility
+$\sloc$ and push it to implied volatility through the leading-order
+Berestycki--Busca--Florent (BBF) inverse-harmonic-mean map. BBF can
+calibrate essentially any market smile; its weakness is not fit but
+consistency --- being only leading order, the implied vol it returns is
+not the model's true Dupire implied vol, so a surface that matches quotes
+can still carry small static-arbitrage inconsistencies. The
+Henry-Labord\`ere $\sigma_1 T$ correction (PHL1) is the next order and
+much closer to the true Dupire implied vol; moving from BBF to PHL1 buys
+\emph{arbitrage reassurance}, not extra calibration reach. But PHL1 on a
+single smooth cubic is rigid, and admitting a knot --- the natural way to
+recover flexibility --- breaks it: a piecewise-cubic $\sloc$ is only $C^2$
+at its knots (the cubic coefficient $\gamma=\sloc'''$ jumps), while the
+$\sigma_1$ expansion is derived assuming $C^3$, leaving a localised
+residual at the knot. We close that residual in the practically relevant
+case --- a knot pinned exactly at-the-money --- in closed form: at first
+order in the coefficient jump it is a one-dimensional Brownian-bridge
+integral $\Phi_{BB}(x,0)$ with peak $3\sqrt{2\pi}/128$ and no fitted
+constants. This makes ``piecewise-cubic with an at-the-money knot, mapped
+through PHL1'' a usable parametrisation that keeps PHL1's arbitrage
+reassurance while regaining calibration flexibility. The at-the-money
+restriction is essential, not cosmetic: off-the-money the same
+construction needs an unbounded-polynomial truncation, which the $w=0$
+case removes. We validate against the Dupire PDE on parameters calibrated
+from real SPXW surfaces.
 \end{abstract}
+
+\section{Introduction}
+
+Calibrating a volatility surface, practitioners fit a parametric
+\emph{local} volatility (for the monotonicity and regularity an optimiser
+needs) and map it to implied volatility with the leading-order BBF
+inverse-harmonic-mean formula. BBF is flexible enough to calibrate
+essentially any smile, so the motivation for going further is not fit.
+It is \emph{arbitrage reassurance}: BBF is only leading order, so the
+implied vol it returns is not the local-vol model's true Dupire implied
+vol, and a quote-matching surface can still violate static no-arbitrage
+(butterfly, calendar) at the sub-basis-point level that an
+arbitrage-sensitive consumer cannot tolerate. The next-order PHL1 map is
+much closer to the true Dupire implied vol and removes most of that
+inconsistency.
+
+The price of PHL1 is rigidity: a single smooth cubic mapped through PHL1
+spans far fewer smile shapes than the loose BBF fit. The natural fix ---
+a piecewise-cubic $\sloc$ with a knot --- fails, because PHL1's $\sigma_1$
+heat-kernel term is derived for $C^3$ surfaces whereas a piecewise cubic
+is only $C^2$ at a knot; the result is a localised implied-vol residual
+at the knot strike (BBF, a harmonic-mean integral, is insensitive to it).
+This paper removes that residual in closed form for a knot pinned
+at-the-money, so the combination ``piecewise-cubic-with-ATM-knot $+$
+PHL1'' becomes usable: it keeps PHL1's arbitrage reassurance while
+recovering the calibration flexibility a smooth cubic lacks. The
+correction is a parameter-free Brownian-bridge kernel; the at-the-money
+restriction is what keeps it bounded. The remainder derives it and
+validates it against the Dupire PDE.
 
 \section{Setup}
 
@@ -85,8 +124,13 @@ that correction as stated by Gatheral, Hsu, Laurence, Ouyang and Wang
 (Henry-Labord\`ere's own local-to-implied first-order result is the same
 correction in the equivalent Hagan--Woodward midpoint form.) The GHLOW2
 refinement adds a further $\sigma_2 T^2$ term from the same source
-\citep{gatheral2012}. All three are smooth wherever $\sloc$ is smooth and
-inherit a kink at a knot, since \eqref{eq:phl1} sees $\sloc'''$.
+\citep{gatheral2012}. BBF0 is a harmonic mean of $\sloc$: a $C^2$ knot only
+jumps $\sloc'''$, so the integrand $1/\sloc$ stays $C^2$ and $\ivhm$ is
+smooth across the knot --- BBF0 has no knot-specific error, only the generic
+leading-order gap present everywhere. The $\sigma_1$ expansion underlying
+PHL1 (and hence GHLOW2) is, by contrast, derived assuming $\sloc\in C^3$; at
+a $C^2$-only knot it leaves a localised residual --- exactly the term this
+note supplies.
 
 \section{The at-the-money knot correction}
 
@@ -165,8 +209,11 @@ case) the first-knot coefficient jump moved to ATM. The Dupire forward PDE
 (Rannacher start then Crank--Nicolson) is the ground truth.
 
 Figure~\ref{fig:happy}: a smooth monotone-skew smile (SPXW 2025-03-10
-DTE~1, no knot). BBF0 is $\sim$67~bps from the PDE across the band; PHL1 and
-GHLOW2 reduce that to a few bps --- each order helps.
+DTE~1, no knot). BBF0 sits $\sim$67~bps from the Dupire PDE across the
+band while PHL1 and GHLOW2 close to a few bps. The bps gap is not the
+objective in itself --- it is the measure of how far each map is from the
+model's true Dupire implied vol, i.e.\ of the static-arbitrage slack PHL1
+removes relative to BBF0.
 
 Figure~\ref{fig:concave}: a concave (half-circle) converted smile (DTE~3).
 The approximation remains good where vol is positive; the deep wings, where
@@ -209,6 +256,33 @@ $\Phi_{BB}(0,0)=3\sqrt{2\pi}/128$, decaying on both sides after the PHL1
 subtraction --- scaled by $\delta\stot^{3}$.}
 \label{fig:kernel}
 \end{figure}
+
+\section{Conclusion}
+
+BBF calibrates any smile but gives no arbitrage guarantee; PHL1 supplies
+that guarantee but a single smooth cubic through it is too rigid to span
+the smiles BBF can reach. The obvious way to regain flexibility --- a knot
+--- was blocked by one defect: a piecewise cubic is only $C^2$ at a knot
+while PHL1's $\sigma_1$ expansion assumes $C^3$, so PHL1 develops a
+localised residual at the knot strike (BBF, a harmonic-mean integral, is
+insensitive to it and has no knot-specific error). This paper removed that
+single defect for a knot pinned at-the-money, in closed form: a
+one-dimensional Brownian-bridge integral $\Phi_{BB}(x,0)$ with peak
+$3\sqrt{2\pi}/128$ and no fitted constants, which after subtracting the
+variation PHL1 already captures decays on both sides and adds directly to
+PHL1. On parameters calibrated from real SPXW surfaces it tracks the
+Dupire PDE where PHL1 alone is biased, and is inert on smooth smiles.
+
+The consequence is practical, not just numerical: ``piecewise-cubic with
+an at-the-money knot, mapped through PHL1'' is now a usable surface
+parametrisation --- it keeps PHL1's arbitrage reassurance while recovering
+the calibration flexibility a single smooth cubic lacks, the knot adding
+shape freedom exactly where the smile is most curved. The at-the-money
+restriction is essential, not cosmetic: off-the-money the same
+construction leaves an unbounded polynomial requiring an ad-hoc
+truncation; $w=0$ removes that term and fixes the peak by a
+Beta-function moment. Extending the bounded form to $w\neq0$, and to the
+second-order $\Delta\gamma$ term, is the natural next step.
 
 \section{Reproducibility}
 
