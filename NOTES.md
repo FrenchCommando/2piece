@@ -211,6 +211,22 @@ Consequences, accepted by the user:
 - Do **not** add `*.pdf` to `.gitignore`, and do **not** `git rm` it — the
   user explicitly wants it tracked and self-refreshes it. (Asked twice.)
 
+### Closed-form validity masking (deliberate — do not "fix")
+The closed-form maps all divide by `σ_loc` (BBF0 = `k/∫₀ᵏ dy/σ_loc`, the
+rest build on it), so they're only valid where `σ_loc > 0`. The strike band
+is `±~3·σ_total` and `σ_total ∝ 1/√DTE`, so raising DTE widens the band;
+with a steep negative `γ` the cubic crosses zero on a wing and the integrand
+hits a pole (observed: happy preset, DTE≥4, right wing). `computeCurves`
+walks outward from ATM and NaNs every closed-form point at/after the first
+non-positive `σ_loc` (per side) — curves stop at the boundary instead of
+spiking. PDE untouched (no `σ_loc` division); `σ_loc` panel still shows the
+dive so the boundary is visible. Matches the "valid where vol > 0" framing.
+`computeCurves` returns `kValid` (the surviving k-range); the smile/error/
+correction charts default their x-domain to it so the axis trims to the
+valid region when a wing is dropped (σ_loc panel stays full band — it's the
+visual reason). DTE input is clamped to a positive integer in the UI; σ
+(ATM vol — the denominator everywhere) is clamped to a small positive floor.
+
 ### Open / watch
 - DTE input semantics: treated as **business days** (n_bdays=DTE). Documented
   in README. Calendar-vs-business is a known wrinkle inherited from the

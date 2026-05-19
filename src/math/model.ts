@@ -36,6 +36,9 @@ export interface ModelCurves {
   phl1Corrected: number[]; // PHL1 + ATM-knot Phi_BB correction
   pde: number[];
   hasKnot: boolean;
+  /** [min, max] k where the closed-form maps stay valid (sigma_loc > 0).
+   * Equals the full band when nothing is masked. */
+  kValid: [number, number];
   scale: number;
   sigmaTotal: number;
 }
@@ -75,11 +78,37 @@ export function computeCurves(
   for (let i = 0; i < nPoints; i++) k.push(kLo + ((kHi - kLo) * i) / (nPoints - 1));
 
   const sLoc = k.map((kk) => perturbedSigmaLoc(kk, c, inp.delta));
-  const bbf0C = k.map((kk) => bbf0(kk, effectiveCubic(kk, c, inp.delta)));
-  const phl1C = k.map((kk) => phl1(kk, effectiveCubic(kk, c, inp.delta), scale));
+
+  // The closed-form maps all divide by sigma_loc (BBF0 integrates 1/sigma_loc
+  // over [0,k]; PHL1/GHLOW2/correction build on it). Once the cubic crosses
+  // zero on a wing the integrand has a pole and the maps blow up — they are
+  // only valid where sigma_loc > 0. Walk outward from ATM in each direction
+  // and drop (NaN) every point at/after the first non-positive sigma_loc, so
+  // the curves simply stop at the validity boundary. The PDE is unaffected
+  // (it never divides by sigma_loc) and the sigma_loc panel still shows the
+  // dive so the boundary is visible.
+  let atm = 0;
+  for (let i = 1; i < k.length; i++) if (Math.abs(k[i]) < Math.abs(k[atm])) atm = i;
+  const valid = new Array<boolean>(k.length).fill(true);
+  for (let i = atm; i < k.length; i++) {
+    if (sLoc[i] <= 0) {
+      for (let j = i; j < k.length; j++) valid[j] = false;
+      break;
+    }
+  }
+  for (let i = atm; i >= 0; i--) {
+    if (sLoc[i] <= 0) {
+      for (let j = i; j >= 0; j--) valid[j] = false;
+      break;
+    }
+  }
+
+  const mask = (v: number, i: number) => (valid[i] ? v : NaN);
+  const bbf0C = k.map((kk, i) => mask(bbf0(kk, effectiveCubic(kk, c, inp.delta)), i));
+  const phl1C = k.map((kk, i) => mask(phl1(kk, effectiveCubic(kk, c, inp.delta), scale), i));
   const ghl2C = hasKnot
     ? k.map(() => NaN)
-    : k.map((kk) => ghlow2(kk, c, scale));
+    : k.map((kk, i) => mask(ghlow2(kk, c, scale), i));
   const corrC = phl1C.map((p, i) => (hasKnot ? p + knotSpike(k[i], inp.delta, sigmaTotal) : p));
 
   // PDE on a widened grid so Dirichlet boundary mass is negligible.
@@ -93,6 +122,11 @@ export function computeCurves(
   const ivPde = impliedVolFromPrices(kGrid, callPrices).map((v) => v * scale);
   const pde = k.map((kk) => interp(kk, kGrid, ivPde, kLo, kHi));
 
+  const firstValid = valid.indexOf(true);
+  const lastValid = valid.lastIndexOf(true);
+  const kValid: [number, number] =
+    firstValid < 0 ? [kLo, kHi] : [k[firstValid], k[lastValid]];
+
   return {
     k,
     sigmaLoc: sLoc,
@@ -102,6 +136,7 @@ export function computeCurves(
     phl1Corrected: corrC,
     pde,
     hasKnot,
+    kValid,
     scale,
     sigmaTotal,
   };

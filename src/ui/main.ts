@@ -177,9 +177,15 @@ for (const f of FIELDS) {
   const inp = document.createElement('input');
   inp.type = 'number';
   inp.step = f.step;
+  if (f.key === 'dte') inp.min = '1';
+  if (f.key === 'sigma') inp.min = '0';
   inp.addEventListener('input', () => {
-    const v = parseFloat(inp.value);
+    let v = parseFloat(inp.value);
     if (isFinite(v)) {
+      if (f.key === 'dte') v = Math.max(1, Math.round(v)); // DTE is a positive integer count of days
+      // sigma is the ATM vol — it's the denominator everywhere (sigma_total =
+      // sigma/scale, BBF0(0)=sigma); a non-positive value blows the maps up.
+      if (f.key === 'sigma') v = Math.max(1e-6, v);
       state[f.key] = v;
       setPresetSrc('Custom parameters — not from a calibrated snapshot.', false);
       scheduleRecompute();
@@ -283,7 +289,7 @@ function draw(): void {
     xlabel: 'log-moneyness k',
     ylabel: 'implied vol (ann %)',
     atmLine: knot,
-    xDomain: zoomX.get('c-iv') ?? null,
+    xDomain: zoomX.get('c-iv') ?? c.kValid,
     yDomain: zoomY.get('c-iv') ?? null,
   });
 
@@ -310,7 +316,7 @@ function draw(): void {
     ylabel: 'error (bps)',
     zeroLine: true,
     atmLine: knot,
-    xDomain: zoomX.get('c-err') ?? null,
+    xDomain: zoomX.get('c-err') ?? c.kValid,
     yDomain: zoomY.get('c-err') ?? null,
   });
 
@@ -341,7 +347,7 @@ function draw(): void {
       ylabel: 'correction (annualised %)',
       zeroLine: true,
       atmLine: knot,
-      xDomain: zoomX.get('c-ker') ?? null,
+      xDomain: zoomX.get('c-ker') ?? c.kValid,
       yDomain: zoomY.get('c-ker') ?? null,
     },
   );
