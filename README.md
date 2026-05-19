@@ -7,8 +7,9 @@ at-the-money (k = 0)?**
 
 - **Interactive page** (all computation in your browser):
   https://frenchcommando.github.io/2piece/
-- **Research note** (PDF): built by GitHub Actions from `paper/main.tex`
-  (download the `paper-pdf` artifact from the latest *Build paper* run).
+- **Research note** (PDF): built by GitHub Actions from
+  `paper/2piece-paper.tex` (download the `2piece-paper` artifact from the
+  latest *Build paper* run).
 
 This is the simple, cleanly observable subset of a broader unfinished study:
 the general case puts the knot at an arbitrary offset `w = k_knot/σ_total`,
@@ -108,7 +109,8 @@ PHL1+correction(k) = PHL1(k) + δ·σ_total³·Φ_BB^directed(k/σ_total, 0)
 ```
 
 with PHL1 evaluated on the perturbed surface (so the cancellation is exact to
-first order). The full derivation is in [`paper/main.tex`](paper/main.tex).
+first order). The full derivation is in
+[`paper/2piece-paper.tex`](paper/2piece-paper.tex).
 
 ## Figures
 
@@ -166,7 +168,7 @@ src/ui/      main controls chart                                 (the page)
 src/figures/ generate svg                                        (committed figs)
 examples/    params.json   (calibrated SPXW cases)
 tests/       reference.json + cross-check against the Python reference
-paper/       main.tex refs.bib   (LaTeX note; PDF built in CI)
+paper/       2piece-paper.tex refs.bib   (LaTeX note; PDF built in CI)
 figures/     committed deterministic SVGs (README + paper share these)
 memory/      project CLAUDE memory (repo is self-contained)
 NOTES.md     working log: math, decisions, status

@@ -144,7 +144,7 @@ frozen cross-check fixture dumped from it.
     env.d.ts
   examples/params.json
   tests/    reference.json + reference.test.ts (TS-vs-Python cross-check)
-  paper/    main.tex  refs.bib   (concise; simple ATM-knot derivation)
+  paper/    2piece-paper.tex  refs.bib   (concise; simple ATM-knot derivation)
   figures/  committed deterministic SVGs (README + paper share these)
   .github/workflows/  pages.yml  paper.yml
   README.md  NOTES.md  LICENSE  .gitignore
@@ -178,8 +178,8 @@ the only intentional departure from the literal CLAUDE.md.
 
 ## Status / log
 
-- [x] Studied broad paper + reference code (`single_cubic.py`, `pricers.py`,
-      `phi_bb_kernel.py`, `paper/main.md`).
+- [x] Studied the upstream broad paper + its reference Python code
+      (BBF0/PHL1/GHLOW2, the Dupire PDE, the Φ_BB kernel).
 - [x] Calibrated SPXW examples, user-reviewed & approved (keep-for-now).
 - [x] NOTES.md (this file).
 - [x] examples/params.json
@@ -189,9 +189,9 @@ the only intentional departure from the literal CLAUDE.md.
 - [x] TS figure script + committed SVGs (F1 happy 66.6bps, F2 concave
       42.8bps, F3 knot 229.6bps, F4 kernel peak 0.058749).
 - [x] README (formulas + figures + run instructions).
-- [x] LaTeX paper (`paper/main.tex`, concise ATM-knot derivation) + refs.
+- [x] LaTeX paper (`paper/2piece-paper.tex`, concise ATM-knot derivation) + refs.
 - [x] GitHub Actions: `pages.yml` (test+figures-check+build+deploy),
-      `paper.yml` (SVG→PDF via librsvg, pdflatex → `paper-pdf` artifact).
+      `paper.yml` (SVG→PDF via librsvg, pdflatex → `2piece-paper` artifact).
 - [x] CLAUDE memory mirrored into `memory/` (repo self-contained).
 - [ ] Initial git commit + push to GitHub (remote not yet set).
 

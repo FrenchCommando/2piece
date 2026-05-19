@@ -36,11 +36,10 @@ jobs:
       - name: Compile paper
         working-directory: paper
         run: |
-          pdflatex -interaction=nonstopmode -halt-on-error main.tex
-          bibtex main || true
-          pdflatex -interaction=nonstopmode -halt-on-error main.tex
-          pdflatex -interaction=nonstopmode -halt-on-error main.tex
-          cp main.pdf 2piece-paper.pdf
+          pdflatex -interaction=nonstopmode -halt-on-error 2piece-paper.tex
+          bibtex 2piece-paper || true
+          pdflatex -interaction=nonstopmode -halt-on-error 2piece-paper.tex
+          pdflatex -interaction=nonstopmode -halt-on-error 2piece-paper.tex
 
       - uses: actions/upload-artifact@v4
         with:

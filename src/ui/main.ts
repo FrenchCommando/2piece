@@ -131,7 +131,7 @@ app.innerHTML = `
       <li><a href="https://github.com/FrenchCommando/2piece">Source
       repository</a> (self-contained; README has the full formulas)</li>
       <li>Research note (PDF): built by GitHub Actions — the
-      <code>paper-pdf</code> artifact of the latest <i>Build paper</i>
+      <code>2piece-paper</code> artifact of the latest <i>Build paper</i>
       run</li>
     </ul>
 
