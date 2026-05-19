@@ -1,0 +1,226 @@
+\documentclass[11pt]{article}
+\usepackage[margin=1in]{geometry}
+\usepackage{amsmath,amssymb}
+\usepackage{graphicx}
+\usepackage{booktabs}
+\usepackage[colorlinks=true,linkcolor=blue,citecolor=blue,urlcolor=blue]{hyperref}
+\usepackage{natbib}
+\usepackage{caption}
+
+\graphicspath{{figures/}{../figures/}}
+
+\title{A closed-form implied-volatility correction at a\\
+cubic local-volatility knot pinned at the money}
+\author{Martial Ren\\\texttt{martialren@gmail.com}}
+\date{\today}
+
+\newcommand{\sloc}{\sigma_{\mathrm{loc}}}
+\newcommand{\siv}{\sigma_{\mathrm{IV}}}
+\newcommand{\stot}{\sigma_{\mathrm{total}}}
+\newcommand{\ivhm}{\mathrm{iv}_{\mathrm{hm}}}
+\newcommand{\Hev}{\mathrm{H}}
+
+\begin{document}
+\maketitle
+
+\begin{abstract}
+Practitioners push a parametric local volatility $\sloc$ through the
+leading-order Berestycki--Busca--Florent (BBF) inverse-harmonic-mean map and
+close the gap with the Henry-Labord\`ere $\sigma_1 T$ correction (PHL1) or the
+Gatheral--Hsu--Laurence--Ouyang--Wang $\sigma_2 T^2$ refinement (GHLOW2).
+These work while $\sloc$ is smooth. A piecewise-cubic $\sloc$ is only
+$C^2$ at its knots --- the cubic coefficient $\gamma=\sloc'''$ jumps --- and
+that single broken derivative produces a localised implied-volatility error
+that none of the smooth-$\sloc$ asymptotics capture. We give the closed-form
+PHL1 correction for the special case of a knot pinned exactly
+at-the-money. At first order in the coefficient jump it is a one-dimensional
+Brownian-bridge integral $\Phi_{BB}(x,0)$ with peak $3\sqrt{2\pi}/128$. The
+at-the-money restriction is what makes the result clean: the general case
+requires an unbounded-polynomial truncation to stay finite, which the
+$w=0$ specialisation removes. We validate against the Dupire PDE on
+parameters calibrated from real SPXW surfaces.
+\end{abstract}
+
+\section{Setup}
+
+Work in log-moneyness $k=\log(K/F)$, forward measure ($F=1$, $r=0$), single
+maturity. Local volatility is one cubic, in annualised \% units,
+\begin{equation}
+\sloc(k) = \sigma + \beta k + \alpha k^2 + \gamma k^3 .
+\end{equation}
+A knot at the money adds a one-sided jump $\delta$ in the cubic coefficient,
+\begin{equation}
+\sloc(k) = \sigma + \beta k + \alpha k^2 + \gamma k^3
+           + \delta\,k^3\,\Hev(k) ,
+\label{eq:perturb}
+\end{equation}
+with $\Hev$ the Heaviside step. Because $k^3$ and its first two derivatives
+vanish at $k=0$, \eqref{eq:perturb} is $C^2$ at the knot; only $\sloc'''$
+jumps by $\delta$. This is precisely the structure a piecewise-cubic
+calibrator produces, with the knot moved to ATM.
+
+We use the Black $T=1$ convention; $\mathrm{scale}=\sqrt{252/n}\cdot 100$
+maps total vol to annualised \% for $n=\max(1,\mathrm{DTE})$ business days,
+and $\stot=\sigma/\mathrm{scale}$ is the unperturbed ATM total vol.
+
+\paragraph{The asymptotic maps.} The leading-order BBF map
+\citep{berestycki2002} is the inverse harmonic mean
+\begin{equation}
+\ivhm(k)=k\Big/\!\int_0^k \frac{dy}{\sloc(y)},
+\qquad \ivhm(0)=\sloc(0),
+\end{equation}
+whose use as a parametric local-vol-to-implied-vol representation, and its
+structure, are studied in detail by De~Marco \citep{demarco2021}.
+The next-to-leading heat-kernel expansion of Henry-Labord\`ere
+\citep{henrylabordere2008} adds a $\sigma_1\cdot T$ term, giving
+$\siv\approx\ivhm+\sigma_1$. We use the explicit per-strike closed form of
+that correction as stated by Gatheral, Hsu, Laurence, Ouyang and Wang
+\citep[Thm.~2.4]{gatheral2012}, and keep the conventional label
+\textbf{PHL1} for it:
+\begin{equation}
+\sigma_1(k)=\frac{\ivhm(k)^3}{2k^2}
+  \log\!\frac{\sqrt{\sloc(0)\,\sloc(k)}}{\ivhm(k)} .
+\label{eq:phl1}
+\end{equation}
+(Henry-Labord\`ere's own local-to-implied first-order result is the same
+correction in the equivalent Hagan--Woodward midpoint form.) The GHLOW2
+refinement adds a further $\sigma_2 T^2$ term from the same source
+\citep{gatheral2012}. All three are smooth wherever $\sloc$ is smooth and
+inherit a kink at a knot, since \eqref{eq:phl1} sees $\sloc'''$.
+
+\section{The at-the-money knot correction}
+
+The implied-vol response to \eqref{eq:perturb} expands in the jump $\delta$
+about the knotless case. At first order, in dimensionless strike
+$x=k/\stot$,
+\begin{equation}
+\delta\siv(k) \;=\; \delta\cdot\stot^{3}\cdot\Phi_{BB}(x,0)
+\;+\;O(\delta^2).
+\label{eq:expansion}
+\end{equation}
+
+\paragraph{Very simple derivation.}
+First order in $\delta$, the source is $v(y)=2\sigma\,\delta\,y^3\Hev(y)$.
+Inserting it once into the Duhamel expansion of the Dupire call price
+against the constant-$\sigma$ Black heat kernel, the Black strike-gamma
+identity cancels the explicit $\sigma$, and a Gaussian completion turns the
+spatial integral into an expectation under a Brownian bridge pinned at
+$(0,0)$ and $(k,T)$: writing $\lambda=t/T$, the bridge has
+$y\sim\mathcal N(\lambda k,\;\stot^2\lambda(1-\lambda))$. The remaining
+$y$-integral against $y^3\Hev(y)$ is a truncated third moment of a normal,
+\begin{equation}
+f(\eta)=(\eta^3+3\eta)\,\Phi(\eta)+(\eta^2+2)\,\phi(\eta),
+\end{equation}
+with $\Phi,\phi$ the standard normal cdf/pdf. The $\sqrt\lambda$ from the
+Gaussian completion cancels the $1/\sqrt t$ of the strike-gamma, the outer
+time integral collapses to a clean bridge-time integral, and dividing by
+the Black vega gives \eqref{eq:expansion} with
+\begin{equation}
+\boxed{\;\Phi_{BB}(x,0)=\int_0^1\big(\lambda(1-\lambda)\big)^{3/2}
+   f\big(\eta(\lambda;x)\big)\,d\lambda,\qquad
+   \eta(\lambda;x)=x\sqrt{\tfrac{\lambda}{1-\lambda}}.\;}
+\label{eq:phibb}
+\end{equation}
+At the knot centre $\eta\equiv0$, $f(0)=2/\sqrt{2\pi}$, and the integral is
+a Beta function:
+\begin{equation}
+\Phi_{BB}(0,0)=\frac{2}{\sqrt{2\pi}}\,B\!\left(\tfrac52,\tfrac52\right)
+=\frac{3\sqrt{2\pi}}{128}\approx 0.05875 .
+\end{equation}
+
+\paragraph{Why at-the-money.} The general knot at offset
+$w=k_{\mathrm{knot}}/\stot$ keeps a factor $\eta=[\lambda x-(1-\lambda)w]/
+\sqrt{\lambda(1-\lambda)}$; the subtraction below then leaves a polynomial
+that grows without bound and needs an ad-hoc truncation to stay finite.
+Setting $w=0$ removes the $(1-\lambda)w$ term entirely and the correction is
+bounded with no hack --- the reason this note restricts to the ATM knot.
+
+\paragraph{Avoiding double counting.} PHL1 already moves under
+\eqref{eq:perturb} through its own $\ivhm$ and $\sigma_1$. Taylor-expanding
+\eqref{eq:phl1} in $\delta$ at $w=0$ gives, for $x>0$,
+$\ivhm$ varies as $x^3/4$ and $\sigma_1$ as $x/4$ (both zero for $x\le0$).
+Subtracting these so they are not counted twice yields the \emph{directed}
+kernel, which decays on both sides:
+\begin{equation}
+\Phi_{BB}^{\mathrm{dir}}(x,0)=
+\begin{cases}
+\Phi_{BB}(x,0)-\dfrac{x^3}{4}-\dfrac{x}{4}, & x>0,\\[2ex]
+\Phi_{BB}(x,0), & x\le 0.
+\end{cases}
+\end{equation}
+The corrected method, with PHL1 evaluated on the perturbed surface so the
+cancellation is exact to first order, is
+\begin{equation}
+\siv^{\mathrm{PHL1+corr}}(k)=\siv^{\mathrm{PHL1}}(k)
+   +\delta\cdot\stot^{3}\cdot\Phi_{BB}^{\mathrm{dir}}(k/\stot,0).
+\end{equation}
+The bridge integral \eqref{eq:phibb} is evaluated with a 32-point
+Gauss--Legendre rule.
+
+\section{Results}
+
+Parameters come from real SPXW surfaces calibrated with a 20-parameter
+piecewise-cubic local-vol model; we keep the centre cubic and (for the knot
+case) the first-knot coefficient jump moved to ATM. The Dupire forward PDE
+(Rannacher start then Crank--Nicolson) is the ground truth.
+
+Figure~\ref{fig:happy}: a smooth monotone-skew smile (SPXW 2025-03-10
+DTE~1, no knot). BBF0 is $\sim$67~bps from the PDE across the band; PHL1 and
+GHLOW2 reduce that to a few bps --- each order helps.
+
+Figure~\ref{fig:concave}: a concave (half-circle) converted smile (DTE~3).
+The approximation remains good where vol is positive; the deep wings, where
+the option's time value underflows and implied vol is not recoverable, are
+trimmed rather than faked.
+
+Figure~\ref{fig:knot}: the same DTE~1 cubic with a fake ATM knot
+($\delta$ the real first-knot jump, moved to $k=0$). PHL1 is visibly biased
+near the knot; PHL1 plus $\Phi_{BB}^{\mathrm{dir}}$ tracks the PDE.
+
+\begin{figure}[t]
+\centering\includegraphics[width=0.78\textwidth]{F1_happy}
+\caption{Happy case: smile (top), error vs PDE in bps with BBF0 (middle),
+and the same error with BBF0 excluded (bottom) so the PHL1-vs-GHLOW2
+comparison is legible.}
+\label{fig:happy}
+\end{figure}
+
+\begin{figure}[t]
+\centering\includegraphics[width=0.78\textwidth]{F2_concave}
+\caption{Concave case: the converted smile is a half-circle. Panels as in
+Figure~\ref{fig:happy} (smile; error with BBF0; error without BBF0).}
+\label{fig:concave}
+\end{figure}
+
+\begin{figure}[t]
+\centering\includegraphics[width=0.78\textwidth]{F3_knot}
+\caption{Unhappy case: a fake at-the-money knot. PHL1$+$correction
+recovers the PDE that PHL1 alone misses near $k=0$.}
+\label{fig:knot}
+\end{figure}
+
+\begin{figure}[t]
+\centering\includegraphics[width=0.72\textwidth]{F4_kernel}
+\caption{The applied ATM-knot correction
+$\delta\,\stot^{3}\,\Phi_{BB}^{\mathrm{dir}}(k/\stot,0)$ in annualised \%
+for the knot case (exactly the gap added to PHL1 in
+Figure~\ref{fig:knot}). It is the dimensionless directed kernel --- peak
+$\Phi_{BB}(0,0)=3\sqrt{2\pi}/128$, decaying on both sides after the PHL1
+subtraction --- scaled by $\delta\stot^{3}$.}
+\label{fig:kernel}
+\end{figure}
+
+\section{Reproducibility}
+
+All numbers and figures are produced by the open TypeScript core in the
+companion repository, cross-checked against an independent Python reference
+to $10^{-6}$ (closed forms) and $10^{-9}$ (the kernel). The figures are
+deterministic: regenerating them and diffing reproduces this paper exactly.
+
+\paragraph{Credits.} Market data for the calibrated example smiles:
+ThetaData.
+
+\bibliographystyle{plainnat}
+\bibliography{refs}
+
+\end{document}

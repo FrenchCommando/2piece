@@ -1,0 +1,4 @@
+- [project-overview](project-overview.md) — what the 2piece repo is + deliverables
+- [stack-decisions](stack-decisions.md) — vanilla TS+Vite; Python dropped, TS is source of truth
+- [example-params](example-params.md) — provenance of the calibrated SPXW examples
+- [theta-options-private](theta-options-private.md) — theta-options is the user's PRIVATE repo; never leak it into public 2piece files

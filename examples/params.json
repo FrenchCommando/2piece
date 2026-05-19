@@ -1,0 +1,44 @@
+{
+  "_comment": "Calibrated SPXW examples for the 2piece note. sigma/beta/alpha/gamma are coefficients of 1,k,k^2,k^3 of the local-vol cubic in ANNUALISED %, k = log(K/F). delta = gamma discontinuity added at the ATM knot k=0 as delta*k^3*H(k). dte = business days to expiry. Calibrated from real SPXW market data and user-reviewed 2026-05-19 (kept for now); calibration provenance is recorded in the project memory.",
+  "examples": [
+    {
+      "id": "happy",
+      "label": "Happy case — SPXW 2025-03-10 DTE 1 (monotone skew, no knot)",
+      "source": "SPXW 2025-03-10 DTE1 12:00 ET",
+      "dte": 1,
+      "sigma": 31.12869431205608,
+      "beta": -104.84746098573555,
+      "alpha": 3076.241202978902,
+      "gamma": -45158.46287590234,
+      "delta": 0.0
+    },
+    {
+      "id": "concave",
+      "label": "Concave case — SPXW 2025-03-10 DTE 3 (half-circle, no knot)",
+      "source": "SPXW 2025-03-10 DTE3 12:00 ET",
+      "dte": 3,
+      "sigma": 28.303289918533753,
+      "beta": -91.01397782800612,
+      "alpha": -2448.8648048728382,
+      "gamma": 2808.9138721582217,
+      "delta": 0.0
+    },
+    {
+      "id": "knot",
+      "label": "Unhappy case — happy cubic + fake ATM knot at k=0",
+      "source": "Happy cubic (SPXW 2025-03-10 DTE1) with the real first-knot jump moved to k=0",
+      "dte": 1,
+      "sigma": 31.12869431205608,
+      "beta": -104.84746098573555,
+      "alpha": 3076.241202978902,
+      "gamma": -45158.46287590234,
+      "delta": 368618.7394437184
+    }
+  ],
+  "real_first_knot": {
+    "k_p": 0.009370405484440836,
+    "gamma_centre": -45158.46287590234,
+    "gamma_plus": 323460.27656781604,
+    "delta_gamma": 368618.7394437184
+  }
+}
