@@ -140,6 +140,8 @@ app.innerHTML = `
 
     <h2>Links</h2>
     <ul>
+      <li><a href="https://frenchcommando.github.io/2piece/">Interactive
+      page</a> (this tool — canonical URL)</li>
       <li><a href="https://github.com/FrenchCommando/2piece">Source
       repository</a> (self-contained; README has the full formulas)</li>
       <li>Research note (PDF): built by GitHub Actions — the
