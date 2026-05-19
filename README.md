@@ -130,8 +130,8 @@ sits ~67 bps off the PDE; PHL1 and GHLOW2 essentially nail it:
 
 ![Happy](figures/F1_happy.svg)
 
-Concave case — calibrated SPXW 2025-03-10 DTE 3. The converted smile is a
-half-circle; the approximation holds where vol is positive and the deep wings
+Concave case — calibrated SPXW 2025-03-10 DTE 3. The converted smile is
+concave; the approximation holds where vol is positive and the deep wings
 are correctly trimmed:
 
 ![Concave](figures/F2_concave.svg)

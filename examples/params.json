@@ -14,7 +14,7 @@
     },
     {
       "id": "concave",
-      "label": "Concave case — SPXW 2025-03-10 DTE 3 (half-circle, no knot)",
+      "label": "Concave case — SPXW 2025-03-10 DTE 3 (concave, no knot)",
       "source": "SPXW 2025-03-10 DTE3 12:00 ET",
       "dte": 3,
       "sigma": 28.303289918533753,

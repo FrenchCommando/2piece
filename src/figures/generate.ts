@@ -78,7 +78,7 @@ function smileFig(file: string, title: string, inp: ModelInputs, knot: boolean):
 
 // F1 happy, F2 concave (no knot): PDE/BBF0/PHL1/GHLOW2.
 smileFig('F1_happy.svg', 'Happy case — SPXW 2025-03-10 DTE 1 (monotone skew)', byId('happy'), false);
-smileFig('F2_concave.svg', 'Concave case — SPXW 2025-03-10 DTE 3 (half-circle)', byId('concave'), false);
+smileFig('F2_concave.svg', 'Concave case — SPXW 2025-03-10 DTE 3 (concave smile)', byId('concave'), false);
 // F3 unhappy fake knot at k=0: PDE/BBF0/PHL1/PHL1+correction.
 smileFig('F3_knot.svg', 'Unhappy case — fake ATM knot at k=0', byId('knot'), true);
 

@@ -46,7 +46,7 @@ Units: σ,β,α,γ are coefficients of `1,k,k²,k³` in **annualised %**,
 | case | source | DTE | σ | β | α | γ |
 |---|---|---|---|---|---|---|
 | happy (skew) | SPXW 2025-03-10 | 1 | 31.12869431205608 | -104.84746098573555 | 3076.241202978902 | -45158.46287590234 |
-| concave (half-circle) | SPXW 2025-03-10 | 3 | 28.303289918533753 | -91.01397782800612 | -2448.8648048728382 | 2808.9138721582217 |
+| concave | SPXW 2025-03-10 | 3 | 28.303289918533753 | -91.01397782800612 | -2448.8648048728382 | 2808.9138721582217 |
 
 - Happy first knot (real): `k_p = +0.009370405484440836`,
   `Δγ = γ₊ − γ_centre = +368618.7394437184`.
@@ -55,7 +55,7 @@ Units: σ,β,α,γ are coefficients of `1,k,k²,k³` in **annualised %**,
 
 Observed (sanity, matches CLAUDE.md narrative):
 - Happy: BBF0 ~66 bps below PDE at the down-skew wing; PHL1 & GHLOW2 ~nail PDE.
-- Concave: clean half-circle frown peak ≈ 28.5% near k≈-0.03; BBF0 ~43 bps off;
+- Concave: clean concave (frown) peak ≈ 28.5% near k≈-0.03; BBF0 ~43 bps off;
   approximation valid where σ_loc > 0.
 
 ## The math (all in total-vol unless noted)
