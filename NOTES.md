@@ -17,14 +17,21 @@ restricting to the **ATM knot (w=0)** collapses the diverging-polynomial
 hack and gives a clean closed form — that is the whole point of the
 restriction.
 
-Externally, this is the publishable answer to **Costeanu and Pirjol's
-2011 open question** (arXiv:1105.3359, §5.25): they settled the `C⁰`
-knot-residual case (jump in `σ'_loc`) in *normal* IV with universal
-coefficient `(1/16)√(π/2) ≈ 0.0784`; we settle the `C²` case (jump
-in `σ'''_loc = γ`, the natural smoothness class of a piecewise-cubic
-calibrator) in *log-normal Black* IV with `3√(2π)/128 ≈ 0.0588`, via
-the same Duhamel-perturbation structure. See "Literature review
-(scoping)" below for the full positioning.
+Direct technical predecessor: Costeanu–Pirjol 2011 (arXiv:1105.3359)
+set up the Duhamel-perturbation framework for the analogous problem
+one regularity class harsher — `C⁰` (jump in `σ'_loc`) in *normal*
+IV, universal coefficient `(1/16)√(π/2) ≈ 0.0784` — and explicitly
+left the higher-smoothness case open in §5.25 ("does T^{3/2}, T^{5/2}
+arise for smoother jumps?"). This project answers their `C²` slot
+(jump in `σ'''_loc = γ`, the natural class of a piecewise-cubic
+calibrator) in *log-normal Black* IV with `3√(2π)/128 ≈ 0.0588`,
+filling the `T^{3/2}` entry of CP Table 5.1 row n=1, via the same
+Duhamel framework adapted to log-normal coords. The paper carries
+two framings simultaneously: (i) **primary** — closes the
+`C³`-regularity gap in PHL1 (BBF/PHL/GHLOW lineage, top-tier prior
+art); (ii) **secondary but technically tight** — answers CP's §5.25
+open question. See "Literature review (scoping)" for the full
+positioning.
 
 ## Deliverables (from CLAUDE.md)
 
@@ -135,6 +142,102 @@ added on the perturbed side only; left side (k≤0) untouched by construction
 (H(k)). Knot envelope E=exp(-w²)=1 at w=0 (ATM) so it drops out — another
 reason the ATM restriction is clean.
 
+### Sanity check: same machinery reproduces Costeanu–Pirjol's C⁰ constant
+
+The C⁰ case (source `δσ_loc(k) = Δb·k·H(k)`, jump in σ_loc' at ATM)
+runs through the same Brownian-bridge framework with only two
+substitutions: the truncated 3rd moment `f(η) = (η³+3η)Φ(η) +
+(η²+2)φ(η)` becomes the truncated 1st moment `f₁(η) = η·Φ(η) + φ(η)`,
+and the bridge weight `(λ(1-λ))^{3/2}` becomes `(λ(1-λ))^{1/2}` (one
+factor of `√(λ(1-λ))` per `k` in the source). The C⁰ kernel at ATM is
+
+```
+Φ_BB^(1)(0,0) = ∫₀¹ √(λ(1-λ)) · f₁(0) dλ
+             = (π/8) · (1/√(2π))
+             = (1/8)·√(π/2) ≈ 0.15683
+```
+
+(`f₁(0) = φ(0) = 1/√(2π)`; `∫₀¹ √(λ(1-λ)) dλ = B(3/2,3/2) = π/8`.)
+
+CP's published universal coefficient is `(1/16)·√(π/2) ≈ 0.07841` —
+exactly half. The factor of 2 is the source-strength convention, not
+a discrepancy: our `Δb` is the one-sided jump in `σ_loc'`, while CP's
+`Δ(σ²_D)' = 2σ_D·Δ(σ_D)' = 2σ₀·Δb`. After the conversion the IV
+corrections match to all digits:
+
+```
+δσ_BS(0) = Φ_BB^(1)(0,0) · Δb · σ_total
+        = (1/8)·√(π/2) · Δb · σ_total
+        ≡ (1/16)·√(π/2) · Δ(σ²_loc)' · √T          [via Δb = Δ(σ²_loc)'/(2σ₀)]
+```
+
+At F=1, σ_N ≈ σ_BS at ATM (CP eq A.7), so the same closed-form
+constant `(1/16)·√(π/2)` recovers CP's normal-IV eq 5.8 result.
+
+The reference number we matched against is CP's symmetric-model
+**exact solution** (Appendix C of their paper, transcribed in
+`theta-options/local_vol/costeanu_pirjol_2011.md` as the `σ₂(0,t)`
+coefficient `σ₀·(1/2)·√(π/2)·b·√t`). That's the load-bearing
+comparison — exact-solution numbers don't depend on the
+perturbation-theory eq 5.8 at all — and it agrees with our derivation
+above to all digits.
+
+**Implication for the paper:** the Brownian-bridge framework is the
+same Duhamel-perturbation object CP use; it just happens to give the
+`C²`/log-normal answer `3√(2π)/128` when fed a `k³·H(k)` source
+instead of a `k·H(k)` source. This is a *post-hoc* sanity check, not
+part of the contribution — kept in NOTES, not in the paper. The C⁰
+kernel is deliberately not added to `phibb.ts`: it has no production
+use, and a 1-page derivation matching an exact-solution number to all
+digits is verification enough without a code maintenance burden.
+
+**Why our answer is `T^{3/2}`, not `√T`** (Table 5.1 sanity check):
+CP's Table 5.1 lists the *possible* powers of T at each perturbation
+order n; which ones survive depends on the Taylor expansion of the
+perturbation source `(σ²_D − σ²_0)/σ²_0` at u=0. For CP's `C⁰` case
+the *linear* Taylor term `u·sign(u)` is non-zero and CP's eq 5.23
+integral acts on it to give the surviving `√T` term. For our `C²`
+case the perturbation source is `2σ_0·Δγ·k³·H(k)` — linear *and*
+quadratic Taylor coefficients are zero, only the cubic is non-zero
+(and sign-dependent via `H(k)`), so the first surviving entry from
+Table 5.1 row n=1 is the `T^{3/2}` slot. Our `3√(2π)/128` is the
+universal coefficient for that slot. (Asked once 2026-05-20; the
+worry was that our paper might be claiming `√T` and thus
+contradicting Table 5.1 — it isn't, both pieces are mutually
+consistent and pick out adjacent entries of the same row.)
+
+**Side observation (separate from the cross-check):** CP's published
+eq 5.8 reads `σ_N = σ_D + (1/16)√(π/2)·σ_D·√T·Δ(σ²_D)'`. The extra
+`σ_D` factor is **a typo in the original paper**, not in our upstream
+transcription (`theta-options/local_vol/costeanu_pirjol_2011.md`
+faithfully reproduces what's printed in CP). Three independent checks
+confirm:
+- **Dimensional.** `[σ_N]=[σ_D]=price/√time`, `[Δ(σ²_D)']=price/time`,
+  so the formula must produce `[σ_N]=price/√time`. As printed it
+  produces `(price/√time)·√time·(price/time) = price²/time`; without
+  the extra `σ_D` it produces `√time·(price/time) = price/√time`.
+- **Internal consistency with CP's own §5 claim.** CP state that
+  eq 5.8 reproduces the `√T` term in eq 5.6 for the symmetric model
+  (`Δσ'_D = 4b`, so `Δ(σ²_D)' = 2σ_0·Δσ'_D = 8σ_0·b`). Eq 5.8 as
+  printed gives `(1/2)·√(π/2)·σ_0²·b·√T`; eq 5.6's leading √t
+  coefficient is `σ_0·(1/2)·√(π/2)·b·√T`. Without the extra `σ_D`
+  the two agree exactly.
+- **Numerical (σ_0=0.008, b=0.1, the §4.1 example values).**
+  Eq 5.6 leading √t coefficient: `5.01e-4`. Eq 5.8 as printed:
+  `4.01e-6` (off by 125×). Eq 5.8 without the `σ_D`: `5.01e-4`
+  (matches to printed precision).
+
+Convention hypotheses (e.g., Bachelier vs Black) are ruled out by
+the dimensional argument: CP work in normal/Bachelier throughout
+(`dS = σ_D dW`, σ_N on LHS of eq 5.8), no convention can change the
+units count without breaking the formula. The plausible origin of the
+typo is a drafting artefact (a Black-IV analog formula carries a
+`σ_BS` prefactor that doesn't survive the move to normal IV).
+
+Corrected form: `σ_N = σ_D + (1/16)√(π/2)·√T·Δ(σ²_D)'`. Verified
+against the original PDF 2026-05-20. No action needed in the upstream
+notes — they are correctly transcribed; the error is CP's.
+
 Reference impl: an independently-developed Python codebase covering
 BBF0/PHL1/GHLOW2, the Dupire PDE solver, and the Φ_BB kernel (exact paths
 in CLAUDE.md / project memory, deliberately not in this self-contained
@@ -213,27 +316,36 @@ or no-cite.
   background for the "BBF is leading order; what's the residual?"
   framing. **Cite — already in.**
 
-### Direct prior art (cite prominently)
+### Direct technical predecessor (cite prominently)
 
-- **Costeanu–Pirjol 2011**, arXiv:1105.3359 (JP Morgan) — the closest
-  predecessor: same conceptual problem (closed-form correction to the
-  LV→IV asymptotic at an ATM knot in σ_loc, derived by Duhamel
-  perturbation against a constant-σ Black kernel, validated against the
-  Dupire PDE), one regularity class harsher (`C⁰`: jump in `σ'_loc`),
-  in **normal/Bachelier** IV. They get the universal coefficient
-  `(1/16)√(π/2) ≈ 0.0784` on the non-analytic `√T` term, and their
-  §5.25 leaves explicitly **open** whether higher-power-of-T terms
-  appear for higher-smoothness-class jumps. *This paper answers their
-  open question for the `C²` case in log-normal Black IV*: the
-  residual is at `T^{3/2}` (the `σ_total³` factor), the kernel is the
-  Brownian-bridge integral `Φ_BB(x,0)`, and the universal peak
-  constant is `3√(2π)/128 ≈ 0.0588`. The two coefficients are the
-  same Duhamel-perturbation object at adjacent regularity classes;
-  cited as direct predecessor in Related Work, abstract, and
-  conclusion. **Cite — add to bib.** (Prior internal analysis lives in
+- **Costeanu–Pirjol 2011**, arXiv:1105.3359 (JP Morgan) — the direct
+  predecessor whose framework this paper extends. Same Duhamel
+  perturbation of the call price against a constant-σ Black kernel
+  (their eq 5.16 = our log-normal version line-for-line); same
+  ATM-knot setup; their Table 5.1 enumerates the powers of T that
+  arise from each perturbation order, which our `T^{3/2}` result
+  fills (row n=1, the slot one column past their `√T`). They settle
+  the `C⁰` case (jump in `σ'_loc`, *normal/Bachelier* IV) with
+  universal coefficient `(1/16)√(π/2) ≈ 0.0784`; their §5.25
+  explicitly leaves the higher-smoothness case open. This paper
+  answers their open question for the `C²` class (jump in
+  `σ'''_loc = γ`) in *log-normal Black* IV, universal coefficient
+  `3√(2π)/128 ≈ 0.0588`. **Framing decision (2026-05-20, revised):**
+  two-layer framing. *Primary* anchor remains BBF/PHL/GHLOW lineage
+  (top-tier asymptotic-LV literature) — this carries the paper's
+  prestige weight; we extend PHL1 by closing its `C³`-regularity
+  gap. *Secondary but technically tight* anchor is Costeanu–Pirjol:
+  the connection is genuinely load-bearing (shared machinery, same
+  table, answered open question, parallel universal coefficients),
+  not a casual adjacency. So CP appears in abstract (no), intro
+  (yes, one sentence), §Related Work (yes, full paragraph),
+  conclusion (yes, one sentence). Earlier we briefly tried a softer
+  "supporting parallel" framing with CP only in Related Work; that
+  understated the connection once we had verified the typo, the
+  cross-check, and the Table 5.1 slot-filling. **Cite — already in
+  bib.** (Prior internal analysis lives in
   `theta-options/local_vol/costeanu_pirjol_2011.md` and
-  `costeanu_pirjol_relevance.md`; this paper is the publishable subset
-  of that analysis.)
+  `costeanu_pirjol_relevance.md`.)
 
 ### Add to bib + cite (foundational gap)
 
@@ -329,10 +441,11 @@ or no-cite.
 
 A **Related Work** section between §1 Introduction and §2 Setup, 4
 paragraphs:
-1. **Direct prior art: knot residuals at ATM** — Costeanu–Pirjol 2011
+1. **Direct prior art and open question** — Costeanu–Pirjol 2011
    (`C⁰` jump, normal IV, `(1/16)√(π/2)`); this paper answers their
-   §5.25 open question for the `C²` case in log-normal IV with
-   `3√(2π)/128`.
+   §5.25 open question for the `C²` case in log-normal Black IV with
+   `3√(2π)/128`. Two-layer framing: PHL1 primary anchor (prestige),
+   CP technical predecessor with the connection made explicit.
 2. **Higher-order LV→IV asymptotics** — BBF → PHL1 → GHLOW lineage;
    Pagliarani–Pascucci / Lorig–Pagliarani–Pascucci as the modern
    adjoint-expansion alternative, with the `σ ∈ C^N` hypothesis
@@ -348,10 +461,16 @@ paragraphs:
    + Lee moment formula (universal asymptotic wing slope bound, sits
    at the opposite end of the strike axis from the contribution).
 
-The abstract and the conclusion both anchor the contribution to
-Costeanu–Pirjol's open question via the parallel coefficients
-`(1/16)√(π/2)` (their `C⁰` / normal) vs `3√(2π)/128` (this paper's
-`C²` / log-normal).
+**Abstract** stays PHL1-anchored (no CP) — primary identity is the
+`C³`-regularity gap closure. **Intro** gains one sentence noting the
+contribution also answers CP's §5.25 open question for the `C²`
+case. **§Related Work** (paragraph 1 above) carries the full
+exposition — shared Duhamel framework, Table 5.1 slot-filling, both
+universal coefficients side by side. **Conclusion** restates the
+two-coefficient parallel as a one-sentence wrap. Net effect: CP
+appears in three of four places (all except the abstract), framed as
+the direct technical predecessor whose explicit open question this
+paper answers.
 
 ## Status / log
 

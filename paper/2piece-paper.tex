@@ -42,11 +42,7 @@ residual at the knot. We close that residual in the practically relevant
 case --- a knot pinned exactly at-the-money --- in closed form: at first
 order in the coefficient jump it is a one-dimensional Brownian-bridge
 integral $\Phi_{BB}(x,0)$ with peak $3\sqrt{2\pi}/128$ and no fitted
-constants. The constant is the $C^{2}$, log-normal-IV analog of the
-universal $C^{0}$ coefficient $\tfrac{1}{16}\sqrt{\pi/2}$ that
-Costeanu and Pirjol obtained in normal IV --- two members of the same
-Duhamel-perturbation family, at adjacent regularity classes, on
-adjacent powers of $T$. This makes ``piecewise-cubic with an at-the-money knot, mapped
+constants. This makes ``piecewise-cubic with an at-the-money knot, mapped
 through PHL1'' a usable parametrisation that keeps PHL1's arbitrage
 reassurance while regaining calibration flexibility. The at-the-money
 restriction is essential, not cosmetic: off-the-money the same
@@ -80,13 +76,13 @@ This paper removes that residual in closed form for a knot pinned
 at-the-money, so the combination ``piecewise-cubic-with-ATM-knot $+$
 PHL1'' becomes usable: it keeps PHL1's arbitrage reassurance while
 recovering the calibration flexibility a smooth cubic lacks. The
-correction is a parameter-free Brownian-bridge kernel; the at-the-money
-restriction is what keeps it bounded. In doing so it answers, for the
-$C^{2}$ regularity class in log-normal Black IV, the open question
-Costeanu and Pirjol \citep{costeanuPirjol2011} left in their \S5.25
-after settling the $C^{0}$, normal-IV case. The remainder derives the
-correction and validates it against the Dupire forward PDE
-\citep{dupire1994}.
+correction is a parameter-free Brownian-bridge kernel; the
+at-the-money restriction is what keeps it bounded. The same
+derivation answers, for the $C^{2}$ case in log-normal Black IV, the
+open question Costeanu and Pirjol \citep{costeanuPirjol2011} left in
+their \S5.25 after settling the $C^{0}$, normal-IV case. The
+remainder derives the correction and validates it against the Dupire
+forward PDE \citep{dupire1994}.
 
 \section{Related work}
 
@@ -96,26 +92,27 @@ volatility surfaces. The direct predecessor for the knot-residual
 question, the broader asymptotic-map literature, and the orthogonal
 parametric and arbitrage-framing literatures are taken in turn.
 
-\paragraph{Direct prior art: knot residuals at ATM.} The closest
-predecessor is Costeanu--Pirjol \citep{costeanuPirjol2011}, who treat
-the analogous problem one regularity class harsher: a $C^{0}$ local
-vol with a jump in $\sigma'_{\mathrm{loc}}$ at the forward, in
-\emph{normal} (Bachelier) implied vol. They prove that the ATM normal
-IV picks up a non-analytic $\sqrt{T}$ term with universal coefficient
+\paragraph{Direct prior art and open question.} The closest
+predecessor is Costeanu--Pirjol \citep{costeanuPirjol2011}, who set up
+the same Duhamel-perturbation framework for the analogous problem one
+regularity class harsher: a $C^{0}$ local vol with a jump in
+$\sigma'_{\mathrm{loc}}$ at the forward, in \emph{normal} (Bachelier)
+implied vol. They prove that the ATM normal IV picks up a
+non-analytic $\sqrt{T}$ term with universal coefficient
 $\tfrac{1}{16}\sqrt{\pi/2}\approx 0.0784$ proportional to the jump,
-derived by Duhamel perturbation against a constant-$\sigma$ Black
-kernel and validated against an exact solution. Their \S5.25 leaves
-explicitly open whether higher-power-of-$T$ non-analytic terms appear
-for higher-smoothness-class jumps. The present paper answers that
-question for the $C^{2}$ class (the natural smoothness of a
-piecewise-cubic local vol, where only $\sigma'''_{\mathrm{loc}}=\gamma$
-jumps) in \emph{log-normal} Black IV: the residual is at order
-$T^{3/2}$ (carried by the factor $\sigma_{\mathrm{total}}^{3}$), the
-kernel is a one-dimensional Brownian-bridge integral
-$\Phi_{BB}(x,0)$, and its universal peak constant is
-$3\sqrt{2\pi}/128\approx 0.0588$. The two coefficients sit side by side
-as the $C^{0}$ and $C^{2}$ ATM-knot residual constants of the same
-Duhamel--perturbation lineage.
+and their Table~5.1 lists the powers of $T$ that can arise from each
+order of perturbation in the same framework. Their \S5.25 leaves
+explicitly open whether higher powers of $T$ ($T^{3/2}$, $T^{5/2}$,
+\ldots) actually appear for smoother knot regularities. The
+contribution here answers that question for the $C^{2}$ case (the
+natural smoothness of a piecewise-cubic calibrator, where only
+$\sigma'''_{\mathrm{loc}}=\gamma$ jumps) in \emph{log-normal} Black
+IV: the corresponding entry of their Table~5.1 is the $T^{3/2}$ slot
+(row $n=1$, one column past the $\sqrt{T}$ slot they filled), and
+its universal coefficient is $3\sqrt{2\pi}/128\approx 0.0588$ ---
+the $C^{2}$ companion to their $C^{0}$ constant within the same
+Duhamel lineage. The kernel is the one-dimensional Brownian-bridge
+integral $\Phi_{BB}(x,0)$ derived in Section~3 below.
 
 \paragraph{Higher-order LV-to-IV asymptotics.} The PHL1/GHLOW2 line
 derives from the heat-kernel expansion of the call-price PDE: BBF
@@ -366,11 +363,12 @@ shape freedom exactly where the smile is most curved. The at-the-money
 restriction is essential, not cosmetic: off-the-money the same
 construction leaves an unbounded polynomial requiring an ad-hoc
 truncation; $w=0$ removes that term and fixes the peak by a
-Beta-function moment. The peak $3\sqrt{2\pi}/128$ answers the
-$C^{2}$, log-normal case of the open question Costeanu and Pirjol left
-in their \S5.25 after settling the $C^{0}$, normal case at
-$\tfrac{1}{16}\sqrt{\pi/2}$; extending the bounded form to $w\neq0$,
-and to the second-order $\Delta\gamma$ term, is the natural next step.
+Beta-function moment. The peak $3\sqrt{2\pi}/128$ is the $C^{2}$
+companion, in log-normal Black IV, to the $C^{0}$ normal-IV constant
+$\tfrac{1}{16}\sqrt{\pi/2}$ of Costeanu and Pirjol --- adjacent slots
+of the same Duhamel-perturbation table they began. Extending the
+bounded form to $w\neq0$, and to the second-order $\Delta\gamma$
+term, is the natural next step.
 
 \section{Reproducibility}
 
