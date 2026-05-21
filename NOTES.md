@@ -17,6 +17,15 @@ restricting to the **ATM knot (w=0)** collapses the diverging-polynomial
 hack and gives a clean closed form — that is the whole point of the
 restriction.
 
+Externally, this is the publishable answer to **Costeanu and Pirjol's
+2011 open question** (arXiv:1105.3359, §5.25): they settled the `C⁰`
+knot-residual case (jump in `σ'_loc`) in *normal* IV with universal
+coefficient `(1/16)√(π/2) ≈ 0.0784`; we settle the `C²` case (jump
+in `σ'''_loc = γ`, the natural smoothness class of a piecewise-cubic
+calibrator) in *log-normal Black* IV with `3√(2π)/128 ≈ 0.0588`, via
+the same Duhamel-perturbation structure. See "Literature review
+(scoping)" below for the full positioning.
+
 ## Deliverables (from CLAUDE.md)
 
 1. Self-contained git repo (incl. all CLAUDE memory) → GitHub.
@@ -176,6 +185,173 @@ generate figures from the TS core**. So:
 Rationale: a second Python implementation of Φ_BB / near-ATM polynomials /
 the Dupire PDE would silently drift from the TS that actually runs. This is
 the only intentional departure from the literal CLAUDE.md.
+
+## Literature review (scoping)
+
+Scope reminder: the paper is narrowly about (i) the LV→IV asymptotic family
+BBF / PHL1 / GHLOW and (ii) a closed-form first-order correction at an
+ATM-pinned cubic knot. So "relevant" means "directly contextualises one of
+those two pillars or the parametric-LV choice itself". Verdicts below say
+whether each item earns a citation in the paper, just a mention in passing,
+or no-cite.
+
+### Already cited (paper currently uses)
+
+- **Berestycki–Busca–Florent 2002**, *Quantitative Finance* 2(1):61–69 —
+  leading-order time-homogeneous LV→IV map (BBF0, the inverse harmonic
+  mean). The root of everything we do. **Cite — already in.**
+- **Henry-Labordère 2008**, *Analysis, Geometry, and Modeling in Finance*,
+  Chapman & Hall/CRC — heat-kernel derivation of the σ₁·T correction.
+  PHL1 = this. **Cite — already in.**
+- **Gatheral–Hsu–Laurence–Ouyang–Wang 2012**, *Math. Finance*
+  22(4):591–620 (preprint 2009) — explicit closed-form for σ₁ and σ₂; we
+  use the σ₁ formula verbatim and label it PHL1, and use the σ₂ formula
+  for GHLOW2. **Cite — already in.**
+- **De Marco 2021**, *SIAM J. Financial Math.* (preprint arXiv:2007.03585)
+  — exact harmonic-mean representation of IV; pins down what the BBF
+  leading order is approximating and what the next-order gap is. Direct
+  background for the "BBF is leading order; what's the residual?"
+  framing. **Cite — already in.**
+
+### Direct prior art (cite prominently)
+
+- **Costeanu–Pirjol 2011**, arXiv:1105.3359 (JP Morgan) — the closest
+  predecessor: same conceptual problem (closed-form correction to the
+  LV→IV asymptotic at an ATM knot in σ_loc, derived by Duhamel
+  perturbation against a constant-σ Black kernel, validated against the
+  Dupire PDE), one regularity class harsher (`C⁰`: jump in `σ'_loc`),
+  in **normal/Bachelier** IV. They get the universal coefficient
+  `(1/16)√(π/2) ≈ 0.0784` on the non-analytic `√T` term, and their
+  §5.25 leaves explicitly **open** whether higher-power-of-T terms
+  appear for higher-smoothness-class jumps. *This paper answers their
+  open question for the `C²` case in log-normal Black IV*: the
+  residual is at `T^{3/2}` (the `σ_total³` factor), the kernel is the
+  Brownian-bridge integral `Φ_BB(x,0)`, and the universal peak
+  constant is `3√(2π)/128 ≈ 0.0588`. The two coefficients are the
+  same Duhamel-perturbation object at adjacent regularity classes;
+  cited as direct predecessor in Related Work, abstract, and
+  conclusion. **Cite — add to bib.** (Prior internal analysis lives in
+  `theta-options/local_vol/costeanu_pirjol_2011.md` and
+  `costeanu_pirjol_relevance.md`; this paper is the publishable subset
+  of that analysis.)
+
+### Add to bib + cite (foundational gap)
+
+- **Dupire 1994**, *Risk* 7(1):18–20 — the forward PDE we use as ground
+  truth. Currently uncited even though §2/Results call it the Dupire PDE.
+  **Cite — add to bib.**
+- **Hagan–Kumar–Lesniewski–Woodward 2002**, *Wilmott* Sep 84–108 —
+  SABR: a stochastic-vol model with a leading-order singular-perturbation
+  asymptotic for its IV in closed form. The canonical alternative
+  "parametric model + asymptotic" combination, on the SV side rather
+  than the LV side. **Cite — add to bib.**
+
+### Add to bib + cite (alternatives to "parametric LV → IV map")
+
+- **Gatheral 2004 (SVI)** — direct parametric form for the IV smile
+  itself, not the local vol. The other side of the design choice the
+  paper makes. **Cite — add to bib.**
+- **Gatheral–Jacquier 2014**, *Quantitative Finance* 14(1):59–71 —
+  arbitrage-free SVI / SSVI. Important contrast: SVI got "arbitrage
+  reassurance" by constraining the IV-side parametrisation directly,
+  whereas we get it by mapping LV→IV with a better-than-leading-order
+  asymptotic. **Cite — add to bib.**
+- **Andreasen–Huge 2011**, *Risk* Mar 86–89 — fits a piecewise-constant
+  local vol in one implicit-Euler step of the Dupire PDE. Solves a
+  *different* problem: "give me a fitted price surface that is
+  FD-arbitrage-free by construction". Three reasons it doesn't subsume
+  this paper: (i) piecewise-*constant* LV gives no smooth parametric
+  gradients for an optimizer, (ii) FD-arbitrage-free is the discretised
+  no-arbitrage of one implicit Euler step, not the continuous Dupire
+  model's no-arbitrage (`O(ΔT)` scheme bias), (iii) no closed-form
+  `σ_IV(k; θ)` — IV is only available by re-running the FD scheme.
+  Still cited as the direct alternative on the LV side. **Cite — add
+  to bib.**
+
+### Add to bib + cite (modern alternative asymptotics)
+
+- **Pagliarani–Pascucci 2012**, *Cent. Eur. J. Math.* 10(1):250–270 —
+  adjoint-expansion-based density / price approximation in LV models.
+  Modern alternative methodology to PHL/GHLOW heat-kernel expansion;
+  one cite to acknowledge there are non-heat-kernel routes. **Cite —
+  add to bib.**
+- **Lorig–Pagliarani–Pascucci 2017**, *Math. Finance* 27(3):926–960
+  (arXiv:1306.5447) — explicit IV expansions for LSV models from the
+  adjoint-expansion machinery; the modern "closed-form IV expansion"
+  toolkit. Does **not** subsume this paper: their main scheme is a
+  Taylor expansion of the coefficients around a chosen expansion point
+  with the explicit hypothesis `a_α(t,·) ∈ C^N(ℝ^d)`. A piecewise
+  cubic with `Δγ ≠ 0` at the ATM knot has `σ_loc` only `C²` at `k=0`,
+  i.e. the natural expansion point sits exactly where their hypothesis
+  fails. (They mention a Hermite/L² variant for non-smooth coefficients
+  but do not develop it, and L² is the wrong norm for a localised
+  pointwise residual.) Cited as the strongest modern alternative on
+  smooth LV, with the hypothesis-mismatch making explicit why it does
+  not handle the knot case. **Cite — add to bib.**
+
+### Add to bib + cite (wings / arbitrage framing)
+
+- **Lee 2004**, *Math. Finance* 14(3):469–480 — moment formula for IV
+  at extreme strikes: the universal asymptotic slope bound on the
+  deep-wing IV smile of any arbitrage-free model, hence on every map
+  in the family this paper works in. Cited as a one-line "the family
+  is well-posed in the tails" anchor at the opposite end of the
+  strike axis from the ATM contribution; not a claim that this paper
+  says anything about wings. **Cite — add to bib.**
+- **Roper 2010**, *preprint* (Univ. of Sydney) — clean statement of static
+  no-arbitrage conditions on the IV surface (butterfly + calendar). The
+  paper hinges on "PHL1 buys arbitrage reassurance over BBF0"; Roper is
+  what "arbitrage" means there. **Cite — add to bib.**
+
+### Mention if very short, otherwise skip
+
+- **Berestycki–Busca–Florent 2004**, *Comm. Pure Appl. Math.* 57:1352–1373
+  — SV (not LV) variant of the same heat-kernel approach. Methodological
+  cousin to PHL/GHLOW but on a different model class. **Skip** in this
+  paper (would dilute the LV focus); keep in upstream theta-options bib.
+- **Foschi–Pagliarani–Pascucci** / **Pagliarani–Pascucci–Riga 2013**
+  (Lévy adjoint expansion) — adds jumps to the adjoint-expansion story.
+  Out of scope (pure diffusion here). **Skip.**
+
+### Explicitly not relevant (decline)
+
+- **Owen 1956 / Owen 1980 / Genz 2004** — bivariate-normal CDF
+  evaluation. The broader upstream paper needs Φ₂ for the second-order
+  K₂ kernel. The ATM-knot result here uses only Φ and φ, so this
+  numerical lineage is genuinely orthogonal. **Skip.**
+- **Heston / rough-vol family (Bayer–Friz–Gatheral 2016, Forde–Zhang,
+  etc.)** — different model class (SV / fractional); no LV→IV map of
+  the type studied. **Skip.**
+- **Guyon path-dependent volatility 2014** — orthogonal direction
+  (path-dependence, not knot regularity). **Skip.**
+
+### How this lands in the paper (final structure)
+
+A **Related Work** section between §1 Introduction and §2 Setup, 4
+paragraphs:
+1. **Direct prior art: knot residuals at ATM** — Costeanu–Pirjol 2011
+   (`C⁰` jump, normal IV, `(1/16)√(π/2)`); this paper answers their
+   §5.25 open question for the `C²` case in log-normal IV with
+   `3√(2π)/128`.
+2. **Higher-order LV→IV asymptotics** — BBF → PHL1 → GHLOW lineage;
+   Pagliarani–Pascucci / Lorig–Pagliarani–Pascucci as the modern
+   adjoint-expansion alternative, with the `σ ∈ C^N` hypothesis
+   mismatch that explains why their stronger general framework doesn't
+   subsume the knot case; De Marco's harmonic-mean characterisation.
+3. **Direct IV-side parametrisations** — SABR (Hagan et al), SVI /
+   arbitrage-free SVI (Gatheral, Gatheral–Jacquier), Andreasen–Huge —
+   the design choice the paper is implicitly defending; AH gets three
+   distinguishing points (no parametric gradients; FD-no-arb ≠
+   continuous-Dupire-no-arb; no closed-form smile).
+4. **Static arbitrage and asymptotic constraints** — Roper (local
+   no-arbitrage conditions giving meaning to "arbitrage reassurance")
+   + Lee moment formula (universal asymptotic wing slope bound, sits
+   at the opposite end of the strike axis from the contribution).
+
+The abstract and the conclusion both anchor the contribution to
+Costeanu–Pirjol's open question via the parallel coefficients
+`(1/16)√(π/2)` (their `C⁰` / normal) vs `3√(2π)/128` (this paper's
+`C²` / log-normal).
 
 ## Status / log
 

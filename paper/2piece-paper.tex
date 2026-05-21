@@ -42,7 +42,11 @@ residual at the knot. We close that residual in the practically relevant
 case --- a knot pinned exactly at-the-money --- in closed form: at first
 order in the coefficient jump it is a one-dimensional Brownian-bridge
 integral $\Phi_{BB}(x,0)$ with peak $3\sqrt{2\pi}/128$ and no fitted
-constants. This makes ``piecewise-cubic with an at-the-money knot, mapped
+constants. The constant is the $C^{2}$, log-normal-IV analog of the
+universal $C^{0}$ coefficient $\tfrac{1}{16}\sqrt{\pi/2}$ that
+Costeanu and Pirjol obtained in normal IV --- two members of the same
+Duhamel-perturbation family, at adjacent regularity classes, on
+adjacent powers of $T$. This makes ``piecewise-cubic with an at-the-money knot, mapped
 through PHL1'' a usable parametrisation that keeps PHL1's arbitrage
 reassurance while regaining calibration flexibility. The at-the-money
 restriction is essential, not cosmetic: off-the-money the same
@@ -77,8 +81,89 @@ at-the-money, so the combination ``piecewise-cubic-with-ATM-knot $+$
 PHL1'' becomes usable: it keeps PHL1's arbitrage reassurance while
 recovering the calibration flexibility a smooth cubic lacks. The
 correction is a parameter-free Brownian-bridge kernel; the at-the-money
-restriction is what keeps it bounded. The remainder derives it and
-validates it against the Dupire PDE.
+restriction is what keeps it bounded. In doing so it answers, for the
+$C^{2}$ regularity class in log-normal Black IV, the open question
+Costeanu and Pirjol \citep{costeanuPirjol2011} left in their \S5.25
+after settling the $C^{0}$, normal-IV case. The remainder derives the
+correction and validates it against the Dupire forward PDE
+\citep{dupire1994}.
+
+\section{Related work}
+
+The map from a parametric local-vol surface to implied vol through a
+small-time asymptotic is one strand of a wider literature on parametric
+volatility surfaces. The direct predecessor for the knot-residual
+question, the broader asymptotic-map literature, and the orthogonal
+parametric and arbitrage-framing literatures are taken in turn.
+
+\paragraph{Direct prior art: knot residuals at ATM.} The closest
+predecessor is Costeanu--Pirjol \citep{costeanuPirjol2011}, who treat
+the analogous problem one regularity class harsher: a $C^{0}$ local
+vol with a jump in $\sigma'_{\mathrm{loc}}$ at the forward, in
+\emph{normal} (Bachelier) implied vol. They prove that the ATM normal
+IV picks up a non-analytic $\sqrt{T}$ term with universal coefficient
+$\tfrac{1}{16}\sqrt{\pi/2}\approx 0.0784$ proportional to the jump,
+derived by Duhamel perturbation against a constant-$\sigma$ Black
+kernel and validated against an exact solution. Their \S5.25 leaves
+explicitly open whether higher-power-of-$T$ non-analytic terms appear
+for higher-smoothness-class jumps. The present paper answers that
+question for the $C^{2}$ class (the natural smoothness of a
+piecewise-cubic local vol, where only $\sigma'''_{\mathrm{loc}}=\gamma$
+jumps) in \emph{log-normal} Black IV: the residual is at order
+$T^{3/2}$ (carried by the factor $\sigma_{\mathrm{total}}^{3}$), the
+kernel is a one-dimensional Brownian-bridge integral
+$\Phi_{BB}(x,0)$, and its universal peak constant is
+$3\sqrt{2\pi}/128\approx 0.0588$. The two coefficients sit side by side
+as the $C^{0}$ and $C^{2}$ ATM-knot residual constants of the same
+Duhamel--perturbation lineage.
+
+\paragraph{Higher-order LV-to-IV asymptotics.} The PHL1/GHLOW2 line
+derives from the heat-kernel expansion of the call-price PDE: BBF
+\citep{berestycki2002} is leading order, Henry-Labord\`ere
+\citep{henrylabordere2008} adds $\sigma_1$, and Gatheral, Hsu, Laurence,
+Ouyang and Wang \citep{gatheral2012} add $\sigma_2$. An alternative
+methodology, due to Pagliarani--Pascucci \citep{pagliarani2012} and
+extended by Lorig--Pagliarani--Pascucci \citep{lorig2017}, builds
+explicit implied-vol expansions from an adjoint formulation of the
+pricing PDE; it covers local--stochastic models and produces series
+without special functions. Its main scheme is a Taylor expansion of the
+coefficients around a chosen expansion point under the explicit
+hypothesis $\sigma\in C^{N}$ there --- exactly the assumption a knot at
+the expansion point violates --- so the knot case considered here lies
+outside its stated hypotheses and is not subsumed by it. De~Marco's
+harmonic-mean characterisation \citep{demarco2021} pins what the
+leading-order map is approximating, and hence what the next-order gap
+(the object PHL1 plus the correction close) actually is.
+
+\paragraph{Direct implied-vol parametrisations.} The other side of the
+design choice is to parametrise the implied-vol surface directly. SABR
+\citep{hagan2002} fits a leading-order asymptotic of a stochastic-vol
+model. SVI \citep{gatheral2004svi} and its arbitrage-free refinement
+SSVI \citep{gatheralJacquier2014} drop the dynamic model and write the
+smile itself as a parametric form, then constrain the parameters to
+enforce static no-arbitrage. Andreasen--Huge \citep{andreasenHuge2011}
+fits a piecewise-constant local vol in one implicit-Euler step of the
+Dupire PDE; the resulting prices are arbitrage-free in the sense of the
+discretised scheme, with as many vol pieces as quotes. This is a
+different design point from ours: the calibration carries a numerical
+scheme inside it, there is no closed-form $\siv(k;\theta)$ to feed an
+optimiser, and ``arbitrage-free'' is the one-step finite-difference
+notion rather than the continuous Dupire model's. The
+parametric-LV-through-PHL1 route trades that for a closed-form
+asymptotic on the local-vol side, with arbitrage reassurance carried
+by PHL1's tightness against the true Dupire implied vol.
+
+\paragraph{Static arbitrage and asymptotic constraints.}
+``Arbitrage reassurance'' above is what Roper \citep{roper2010}
+catalogues as static no-arbitrage on the IV surface (butterfly,
+calendar). At the opposite end of the strike axis, Lee's moment formula
+\citep{lee2004} gives the universal asymptotic bound on the deep-wing
+slope of any arbitrage-free IV smile, and thereby on every map in the
+family this paper works in. The contribution sits between the two: at
+ATM, where Lee's tail bound is silent and the static-arbitrage
+conditions reduce to a single local statement at $k=0$ -- and where the
+$C^3$-regularity failure of a piecewise-cubic local vol is what PHL1
+sees.
 
 \section{Setup}
 
@@ -201,7 +286,7 @@ cancellation is exact to first order, is
 The bridge integral \eqref{eq:phibb} is evaluated with a 32-point
 Gauss--Legendre rule.
 
-\section{Results}
+\section{Results}\label{sec:results}
 
 Parameters come from real SPXW surfaces calibrated with a 20-parameter
 piecewise-cubic local-vol model; we keep the centre cubic and (for the knot
@@ -281,8 +366,11 @@ shape freedom exactly where the smile is most curved. The at-the-money
 restriction is essential, not cosmetic: off-the-money the same
 construction leaves an unbounded polynomial requiring an ad-hoc
 truncation; $w=0$ removes that term and fixes the peak by a
-Beta-function moment. Extending the bounded form to $w\neq0$, and to the
-second-order $\Delta\gamma$ term, is the natural next step.
+Beta-function moment. The peak $3\sqrt{2\pi}/128$ answers the
+$C^{2}$, log-normal case of the open question Costeanu and Pirjol left
+in their \S5.25 after settling the $C^{0}$, normal case at
+$\tfrac{1}{16}\sqrt{\pi/2}$; extending the bounded form to $w\neq0$,
+and to the second-order $\Delta\gamma$ term, is the natural next step.
 
 \section{Reproducibility}
 
