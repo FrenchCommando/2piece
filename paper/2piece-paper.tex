@@ -127,10 +127,10 @@ derives from the heat-kernel expansion of the call-price PDE: BBF
 Ouyang and Wang \citep{gatheral2012} add $\sigma_2$. A parallel
 methodology, due to Pagliarani--Pascucci \citep{pagliarani2012} and
 extended to local--stochastic models by Lorig--Pagliarani--Pascucci
-\citep{lorig2017}, derives implied-vol expansions from a Taylor
-expansion of the diffusion coefficients around a smooth expansion
-point; the knot case here is non-smooth at the natural expansion
-point and lies outside that scope. De~Marco's
+\citep{lorig2017}, derives implied-vol
+expansions by Taylor-expanding the diffusion coefficients about a
+point where they are assumed smooth; the knot case here is non-smooth
+at the natural expansion point and lies outside that scope. De~Marco's
 harmonic-mean characterisation \citep{demarco2021} pins what the
 leading-order map is approximating, and hence what the next-order gap
 (the object PHL1 plus the correction close) actually is.
@@ -144,16 +144,18 @@ smile itself as a parametric form, then constrain the parameters to
 enforce static no-arbitrage. Andreasen--Huge \citep{andreasenHuge2011}
 fits a piecewise-constant local vol in one implicit-Euler step of the
 Dupire PDE; the resulting prices are arbitrage-free in the sense of the
-discretised scheme, with as many vol pieces as quotes. Itkin and Lipton
-\citep{itkinLipton2018} sharpen the analytical thread of this family by
-fitting a piecewise-linear local variance via Laplace transform in time
-and Kummer hypergeometric functions in space. This is a
+discretised scheme, with as many vol pieces as quotes. This is a
 different design point from ours: the local vol is piecewise-constant
 so it carries no smooth parametric derivatives for an optimiser to
 follow, the calibration carries a numerical scheme inside it (there
 is no closed-form $\siv(k;\theta)$), and ``arbitrage-free'' is the
 one-step finite-difference notion rather than the continuous Dupire
-model's. The
+model's. Itkin and Lipton \citep{itkinLipton2018} sharpen the
+analytical thread of this family by fitting a piecewise-linear local
+variance via Laplace transform in time and Kummer hypergeometric
+functions in space, which removes the FD-discretisation step but
+keeps the piecewise low-order parametric structure and the lack of a
+closed-form $\siv(k;\theta)$. The
 parametric-LV-through-PHL1 route trades that for a closed-form
 asymptotic on the local-vol side, with arbitrage reassurance carried
 by PHL1's tightness against the true Dupire implied vol.
@@ -166,15 +168,15 @@ calendar). At the opposite end of the strike axis, Lee's moment formula
 slope of any arbitrage-free IV smile, and thereby on every map in the
 family this paper works in. The contribution sits between the two: at
 ATM, where Lee's tail bound is silent and the static-arbitrage
-conditions reduce to a single local statement at $k=0$ -- and where the
+conditions reduce to a single local statement at $k=0$ --- and where the
 $C^3$-regularity failure of a piecewise-cubic local vol is what PHL1
 sees.
 
 \section{Setup}
 
 Work in log-moneyness $k=\log(K/F)$, forward measure ($F=1$, $r=0$), single
-maturity, time-homogeneous local volatility. As a cubic, in annualised \%
-units,
+maturity. The local volatility is time-homogeneous and cubic in
+log-moneyness, in annualised \% units:
 \begin{equation}
 \sloc(k) = \sigma + \beta k + \alpha k^2 + \gamma k^3 .
 \end{equation}
@@ -202,7 +204,7 @@ and $\stot=\sigma/\mathrm{scale}$ is the unperturbed ATM total vol.
 whose use as a parametric local-vol-to-implied-vol representation, and its
 structure, are studied in detail by De~Marco \citep{demarco2021}.
 The next-to-leading heat-kernel expansion of Henry-Labord\`ere
-\citep{henrylabordere2008} adds a $\sigma_1\cdot T$ term, giving
+\citep{henrylabordere2008} adds a $\sigma_1 T$ term, giving
 $\siv\approx\ivhm+\sigma_1$. We use the explicit per-strike closed form of
 that correction as stated by Gatheral, Hsu, Laurence, Ouyang and Wang
 \citep[Thm.~2.4]{gatheral2012}, and keep the conventional label
@@ -359,9 +361,9 @@ localised residual at the knot strike (BBF, a harmonic-mean integral, is
 insensitive to it and has no knot-specific error). This paper removed that
 single defect for a knot pinned at-the-money, in closed form: a
 one-dimensional Brownian-bridge integral $\Phi_{BB}(x,0)$ with peak
-$3\sqrt{2\pi}/128$ and no fitted constants, which after subtracting the
-variation PHL1 already captures decays on both sides and adds directly to
-PHL1. On parameters calibrated from real SPXW surfaces it tracks the
+$3\sqrt{2\pi}/128$ and no fitted constants. After subtracting the
+variation PHL1 already captures, the residual decays on both sides
+and adds directly to PHL1. On parameters calibrated from real SPXW surfaces it tracks the
 Dupire PDE where PHL1 alone is biased, and is inert on smooth smiles.
 
 The consequence is practical, not just numerical: ``piecewise-cubic with
