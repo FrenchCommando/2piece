@@ -78,9 +78,12 @@ PHL1'' becomes usable: it keeps PHL1's arbitrage reassurance while
 recovering the calibration flexibility a smooth cubic lacks. The
 correction is a parameter-free Brownian-bridge kernel; the
 at-the-money restriction is what keeps it bounded. The same
-derivation answers, for the $C^{2}$ case in log-normal Black IV, the
-open question Costeanu and Pirjol \citep{costeanuPirjol2011} left in
-their \S5.25 after settling the $C^{0}$, normal-IV case. The
+derivation settles the open question Costeanu and Pirjol
+\citep{costeanuPirjol2011} raise after their eq.~(5.25): whether the
+absence of $T^{3/2}, T^{5/2}, \ldots$ non-analytic terms in their
+$C^{0}$ symmetric model is general or model-specific --- it is the
+latter, with a $T^{3/2}$ term and a clean universal coefficient
+appearing as soon as the knot regularity is raised to $C^{2}$. The
 remainder derives the correction and validates it against the Dupire
 forward PDE \citep{dupire1994}.
 
@@ -101,18 +104,21 @@ implied vol. They prove that the ATM normal IV picks up a
 non-analytic $\sqrt{T}$ term with universal coefficient
 $\tfrac{1}{16}\sqrt{\pi/2}\approx 0.0784$ proportional to the jump,
 and their Table~5.1 lists the powers of $T$ that can arise from each
-order of perturbation in the same framework. Their \S5.25 leaves
-explicitly open whether higher powers of $T$ ($T^{3/2}$, $T^{5/2}$,
-\ldots) actually appear for smoother knot regularities. The
-contribution here answers that question for the $C^{2}$ case (the
-natural smoothness of a piecewise-cubic calibrator, where only
-$\sigma'''_{\mathrm{loc}}=\gamma$ jumps) in \emph{log-normal} Black
-IV: the corresponding entry of their Table~5.1 is the $T^{3/2}$ slot
-(row $n=1$, one column past the $\sqrt{T}$ slot they filled), and
-its universal coefficient is $3\sqrt{2\pi}/128\approx 0.0588$ ---
-the $C^{2}$ companion to their $C^{0}$ constant within the same
-Duhamel lineage. The kernel is the one-dimensional Brownian-bridge
-integral $\Phi_{BB}(x,0)$ derived in Section~3 below.
+order of perturbation in the same framework. After eq.~(5.25) they
+note that their explicit symmetric-model solution contains only the
+$\sqrt{T}$ non-analytic term, with no $T^{3/2}$, $T^{5/2}$, \ldots,
+and leave open whether that absence is a general feature or specific
+to their piecewise-linear model. The contribution here settles the
+question: it is model-specific. A $C^{2}$ piecewise-cubic local vol
+with the knot at the forward (the natural smoothness of a
+piecewise-cubic calibrator, where only $\sigma'''_{\mathrm{loc}}
+=\gamma$ jumps) produces a $T^{3/2}$ non-analytic term in
+\emph{log-normal} Black IV --- the $T^{3/2}$ slot of their Table~5.1
+row $n=1$, one column past the $\sqrt{T}$ slot they filled --- with
+universal coefficient $3\sqrt{2\pi}/128\approx 0.0588$, the $C^{2}$
+companion to their $C^{0}$ constant within the same Duhamel
+lineage. The kernel is the one-dimensional Brownian-bridge integral
+$\Phi_{BB}(x,0)$ derived in Section~3 below.
 
 \paragraph{Higher-order LV-to-IV asymptotics.} The PHL1/GHLOW2 line
 derives from the heat-kernel expansion of the call-price PDE: BBF
@@ -142,10 +148,12 @@ enforce static no-arbitrage. Andreasen--Huge \citep{andreasenHuge2011}
 fits a piecewise-constant local vol in one implicit-Euler step of the
 Dupire PDE; the resulting prices are arbitrage-free in the sense of the
 discretised scheme, with as many vol pieces as quotes. This is a
-different design point from ours: the calibration carries a numerical
-scheme inside it, there is no closed-form $\siv(k;\theta)$ to feed an
-optimiser, and ``arbitrage-free'' is the one-step finite-difference
-notion rather than the continuous Dupire model's. The
+different design point from ours: the local vol is piecewise-constant
+so it carries no smooth parametric derivatives for an optimiser to
+follow, the calibration carries a numerical scheme inside it (there
+is no closed-form $\siv(k;\theta)$), and ``arbitrage-free'' is the
+one-step finite-difference notion rather than the continuous Dupire
+model's. The
 parametric-LV-through-PHL1 route trades that for a closed-form
 asymptotic on the local-vol side, with arbitrage reassurance carried
 by PHL1's tightness against the true Dupire implied vol.

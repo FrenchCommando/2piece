@@ -20,13 +20,18 @@ restriction.
 Direct technical predecessor: Costeanu–Pirjol 2011 (arXiv:1105.3359)
 set up the Duhamel-perturbation framework for the analogous problem
 one regularity class harsher — `C⁰` (jump in `σ'_loc`) in *normal*
-IV, universal coefficient `(1/16)√(π/2) ≈ 0.0784` — and explicitly
-left the higher-smoothness case open in §5.25 ("does T^{3/2}, T^{5/2}
-arise for smoother jumps?"). This project answers their `C²` slot
-(jump in `σ'''_loc = γ`, the natural class of a piecewise-cubic
-calibrator) in *log-normal Black* IV with `3√(2π)/128 ≈ 0.0588`,
-filling the `T^{3/2}` entry of CP Table 5.1 row n=1, via the same
-Duhamel framework adapted to log-normal coords. The paper carries
+IV, universal coefficient `(1/16)√(π/2) ≈ 0.0784`. After their
+eq 5.25 they observe that their symmetric-model exact solution
+contains only the `√T` non-analytic term (no `T^{3/2}, T^{5/2}, ...`)
+and leave open whether that *absence* is a general feature of the
+expansion or specific to their piecewise-linear model (verified
+verbatim from arXiv:1105.3359v1 PDF, 2026-05-21). This project
+settles it as model-specific: a `C²` knot (jump in `σ'''_loc = γ`,
+the natural class of a piecewise-cubic calibrator) at the forward
+produces a `T^{3/2}` non-analytic term in *log-normal Black* IV with
+universal coefficient `3√(2π)/128 ≈ 0.0588`, filling the `T^{3/2}`
+entry of CP Table 5.1 row n=1 via the same Duhamel framework adapted
+to log-normal coords. The paper carries
 two framings simultaneously: (i) **primary** — closes the
 `C³`-regularity gap in PHL1 (BBF/PHL/GHLOW lineage, top-tier prior
 art); (ii) **secondary but technically tight** — answers CP's §5.25
@@ -191,6 +196,24 @@ kernel is deliberately not added to `phibb.ts`: it has no production
 use, and a 1-page derivation matching an exact-solution number to all
 digits is verification enough without a code maintenance burden.
 
+**Open structural choice: GHLOW2 + correction vs PHL1 + correction**
+(2026-05-20). The T-ordering at the knot reads `T⁰`(BBF0), `T¹`(PHL1
+σ_1·T), **`T^{3/2}`(this paper's knot correction)**, `T²`(GHLOW2
+σ_2·T²). So *"PHL1 + correction"* is consistent at order `T^{3/2}`
+but leaves `T²` (= GHLOW2's σ_2·T²) unmodeled; *"GHLOW2 + correction"*
+captures one more order. The 2piece paper currently uses
+PHL1+correction in Figure 3 (the knot figure) — chosen for narrative
+focus ("close PHL1's C³ gap") rather than asymptotic completeness.
+The upstream `theta-options/local_vol/NOTES_KNOT_CORRECTION.md`
+notes that the *same* `Φ_BB` closed form works on top of GHLOW2
+unchanged (their `GHLOW2rf` method) — and empirically beats
+PHL1+correction at every tested DTE. So the natural one-line
+extension of this paper would be to add GHLOW2+correction as a 5th
+curve in Figure 3 (option A from the 2026-05-20 discussion); the
+PHL1+correction headline stays. Deferred for now (scope). When
+revisiting, the math is identical (same kernel, GHLOW2 baseline
+instead of PHL1), and a single figure rerun is enough to land it.
+
 **Why our answer is `T^{3/2}`, not `√T`** (Table 5.1 sanity check):
 CP's Table 5.1 lists the *possible* powers of T at each perturbation
 order n; which ones survive depends on the Taylor expansion of the
@@ -326,10 +349,17 @@ or no-cite.
   arise from each perturbation order, which our `T^{3/2}` result
   fills (row n=1, the slot one column past their `√T`). They settle
   the `C⁰` case (jump in `σ'_loc`, *normal/Bachelier* IV) with
-  universal coefficient `(1/16)√(π/2) ≈ 0.0784`; their §5.25
-  explicitly leaves the higher-smoothness case open. This paper
-  answers their open question for the `C²` class (jump in
-  `σ'''_loc = γ`) in *log-normal Black* IV, universal coefficient
+  universal coefficient `(1/16)√(π/2) ≈ 0.0784`. Their open question
+  (after eq 5.25, verbatim from PDF) is **about the absence of
+  higher non-analytic terms**, not about smoother regularities:
+  "the explicit result for the normal implied volatility Eq.(5.6)
+  for the model (5.1) contains only one non-analytic term √T, but
+  not other terms of similar form, e.g. T^{3/2}, T^{5/2}, … . It
+  would be interesting to investigate whether this is a general
+  result, or if it holds only in the specific model (5.1)." This
+  paper settles it as model-specific: in the `C²` class
+  (jump in `σ'''_loc = γ`) at the forward, the `T^{3/2}` term
+  *does* appear in *log-normal Black* IV with universal coefficient
   `3√(2π)/128 ≈ 0.0588`. **Framing decision (2026-05-20, revised):**
   two-layer framing. *Primary* anchor remains BBF/PHL/GHLOW lineage
   (top-tier asymptotic-LV literature) — this carries the paper's
@@ -442,8 +472,11 @@ or no-cite.
 A **Related Work** section between §1 Introduction and §2 Setup, 4
 paragraphs:
 1. **Direct prior art and open question** — Costeanu–Pirjol 2011
-   (`C⁰` jump, normal IV, `(1/16)√(π/2)`); this paper answers their
-   §5.25 open question for the `C²` case in log-normal Black IV with
+   (`C⁰` jump, normal IV, `(1/16)√(π/2)`); CP's open question (after
+   eq 5.25) asks whether the absence of `T^{3/2}, T^{5/2}, ...` in
+   their piecewise-linear model is general or model-specific. This
+   paper settles it as model-specific by producing a `T^{3/2}` term
+   for the `C²` case in log-normal Black IV with coefficient
    `3√(2π)/128`. Two-layer framing: PHL1 primary anchor (prestige),
    CP technical predecessor with the connection made explicit.
 2. **Higher-order LV→IV asymptotics** — BBF → PHL1 → GHLOW lineage;
