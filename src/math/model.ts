@@ -33,7 +33,11 @@ export interface ModelCurves {
   bbf0: number[];
   phl1: number[];
   ghlow2: number[];
-  phl1Corrected: number[]; // PHL1 + ATM-knot Phi_BB correction
+  /** PHL1 + ATM-knot Phi_BB correction. Equals PHL1 when delta=0. */
+  phl1Corrected: number[];
+  /** GHLOW2 + the same ATM-knot Phi_BB correction (the kernel does not
+   * depend on which baseline it sits on). Equals GHLOW2 when delta=0. */
+  ghlow2Corrected: number[];
   pde: number[];
   hasKnot: boolean;
   /** [min, max] k where the closed-form maps stay valid (sigma_loc > 0).
@@ -104,12 +108,17 @@ export function computeCurves(
   }
 
   const mask = (v: number, i: number) => (valid[i] ? v : NaN);
+  // GHLOW2 uses the same one-sided integral trick as BBF0/PHL1: its quadrature
+  // node range [min(k,0), max(k,0)] stays on a single side of the ATM knot, so
+  // the per-k effective cubic (gamma -> gamma+delta on the k>0 side) gives the
+  // exact piecewise answer with no extra machinery.
   const bbf0C = k.map((kk, i) => mask(bbf0(kk, effectiveCubic(kk, c, inp.delta)), i));
   const phl1C = k.map((kk, i) => mask(phl1(kk, effectiveCubic(kk, c, inp.delta), scale), i));
-  const ghl2C = hasKnot
-    ? k.map(() => NaN)
-    : k.map((kk, i) => mask(ghlow2(kk, c, scale), i));
-  const corrC = phl1C.map((p, i) => (hasKnot ? p + knotSpike(k[i], inp.delta, sigmaTotal) : p));
+  const ghl2C = k.map((kk, i) => mask(ghlow2(kk, effectiveCubic(kk, c, inp.delta), scale), i));
+  // Same correction added on top of either baseline; knotSpike returns 0 at
+  // delta=0 so the corrected curves collapse to their baselines.
+  const phl1Corr = phl1C.map((p, i) => p + knotSpike(k[i], inp.delta, sigmaTotal));
+  const ghl2Corr = ghl2C.map((g, i) => g + knotSpike(k[i], inp.delta, sigmaTotal));
 
   // PDE on a widened grid so Dirichlet boundary mass is negligible.
   const gLo = 2 * kLo;
@@ -133,7 +142,8 @@ export function computeCurves(
     bbf0: bbf0C,
     phl1: phl1C,
     ghlow2: ghl2C,
-    phl1Corrected: corrC,
+    phl1Corrected: phl1Corr,
+    ghlow2Corrected: ghl2Corr,
     pde,
     hasKnot,
     kValid,

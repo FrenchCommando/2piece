@@ -35,11 +35,15 @@ const FIELDS: { key: keyof ModelInputs; label: string; step: string }[] = [
   { key: 'delta', label: 'δ (knot Δγ at k=0)', step: '10000' },
 ];
 
+// Five methods in T-order: PDE (truth), BBF0 (T^0), PHL1 (T^1),
+// PHL1+correction (T^1 + T^{3/2}), GHLOW2+correction (T^2 + T^{3/2}).
+// The +correction curves collapse to their baselines when delta = 0.
 const METHODS = [
   { key: 'pde', label: 'PDE' },
   { key: 'bbf0', label: 'BBF0' },
   { key: 'phl1', label: 'PHL1' },
-  { key: 'fourth', label: 'GHLOW2 / PHL1+corr' },
+  { key: 'phl1Corrected', label: 'PHL1 + correction' },
+  { key: 'ghlow2Corrected', label: 'GHLOW2 + correction' },
 ] as const;
 type MethodKey = (typeof METHODS)[number]['key'];
 
@@ -102,6 +106,11 @@ app.innerHTML = `
     asymptotics miss.</p>
 
     <h2>The methods</h2>
+    <p>The four closed forms sit on a time-ordering at the ATM knot —
+    <code>T⁰</code> (BBF0), <code>T¹</code> (PHL1), <code>T^{3/2}</code>
+    (this paper's knot correction), <code>T²</code> (GHLOW2's σ₂·T²) — so
+    the correction lives between PHL1 and GHLOW2 and can be stacked on
+    either baseline.</p>
     <ul>
       <li><b>PDE</b> — Dupire forward equation, Rannacher start then
       Crank–Nicolson. Ground truth. At the deep wings the option time value
@@ -112,10 +121,13 @@ app.innerHTML = `
       <li><b>PHL1</b> — BBF0 + the first-order <code>σ₁·T</code> heat-kernel
       correction (Henry-Labordère's expansion; explicit closed form from
       Gatheral et&nbsp;al., Thm.&nbsp;2.4).</li>
-      <li><b>GHLOW2</b> — PHL1 + the Gatheral–Hsu–Laurence–Ouyang–Wang
-      second-order <code>σ₂·T²</code> term.</li>
       <li><b>PHL1 + correction</b> — PHL1 plus the closed-form
-      Brownian-bridge kernel that repairs the knot (knot case only).</li>
+      Brownian-bridge kernel that repairs the knot. Collapses to PHL1 when
+      <code>δ = 0</code>.</li>
+      <li><b>GHLOW2 + correction</b> — Gatheral–Hsu–Laurence–Ouyang–Wang
+      second-order <code>σ₂·T²</code> term added on top of PHL1, with the
+      same knot correction stacked on. Collapses to GHLOW2 when
+      <code>δ = 0</code>.</li>
     </ul>
 
     <h2>The correction</h2>
@@ -277,12 +289,20 @@ function draw(): void {
     ...vis('pde', { label: 'PDE (truth)', x: c.k, y: c.pde, color: '#18181b', width: 2 }),
     ...vis('bbf0', { label: 'BBF0', x: c.k, y: c.bbf0, color: '#a1a1aa', dash: [5, 4] }),
     ...vis('phl1', { label: 'PHL1', x: c.k, y: c.phl1, color: '#2563eb' }),
-    ...vis(
-      'fourth',
-      knot
-        ? { label: 'PHL1 + Φ_BB corr', x: c.k, y: c.phl1Corrected, color: '#dc2626', width: 1.8 }
-        : { label: 'GHLOW2', x: c.k, y: c.ghlow2, color: '#ea580c' },
-    ),
+    ...vis('phl1Corrected', {
+      label: 'PHL1 + corr',
+      x: c.k,
+      y: c.phl1Corrected,
+      color: '#dc2626',
+      width: 1.8,
+    }),
+    ...vis('ghlow2Corrected', {
+      label: 'GHLOW2 + corr',
+      x: c.k,
+      y: c.ghlow2Corrected,
+      color: '#ea580c',
+      width: 1.8,
+    }),
   ];
   drawChart(document.getElementById('c-iv') as HTMLCanvasElement, ivSeries, {
     title: 'Implied volatility smile',
@@ -303,12 +323,20 @@ function draw(): void {
       dash: [5, 4],
     }),
     ...vis('phl1', { label: 'PHL1 − PDE', x: c.k, y: errOf(c.phl1), color: '#2563eb' }),
-    ...vis(
-      'fourth',
-      knot
-        ? { label: 'PHL1+corr − PDE', x: c.k, y: errOf(c.phl1Corrected), color: '#dc2626', width: 1.8 }
-        : { label: 'GHLOW2 − PDE', x: c.k, y: errOf(c.ghlow2), color: '#ea580c' },
-    ),
+    ...vis('phl1Corrected', {
+      label: 'PHL1+corr − PDE',
+      x: c.k,
+      y: errOf(c.phl1Corrected),
+      color: '#dc2626',
+      width: 1.8,
+    }),
+    ...vis('ghlow2Corrected', {
+      label: 'GHLOW2+corr − PDE',
+      x: c.k,
+      y: errOf(c.ghlow2Corrected),
+      color: '#ea580c',
+      width: 1.8,
+    }),
   ];
   drawChart(document.getElementById('c-err') as HTMLCanvasElement, errSeries, {
     title: 'Error vs PDE (basis points)',
@@ -334,14 +362,15 @@ function draw(): void {
   );
 
   // The applied ATM-knot correction in annualised %: exactly
-  // PHL1+corr − PHL1 = δ·σ_total³·Φ_BB^directed(k/σ_total, 0).
+  // (PHL1+corr) − PHL1 = (GHLOW2+corr) − GHLOW2 = δ·σ_total³·Φ_BB^directed(k/σ_total, 0).
+  // The kernel doesn't depend on which baseline it's added to.
   const corr = c.phl1Corrected.map((v, i) => v - c.phl1[i]);
   drawChart(
     document.getElementById('c-ker') as HTMLCanvasElement,
     [{ label: 'δ·σ_total³·Φ_BB^dir', x: c.k, y: corr, color: '#059669', width: 1.8 }],
     {
       title: knot
-        ? 'ATM-knot implied-vol correction added to PHL1'
+        ? 'ATM-knot implied-vol correction (added to both PHL1 and GHLOW2)'
         : 'ATM-knot IV correction (δ = 0 ⇒ no knot, zero correction)',
       xlabel: 'log-moneyness k',
       ylabel: 'correction (annualised %)',
