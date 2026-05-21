@@ -124,16 +124,13 @@ $\Phi_{BB}(x,0)$ derived in Section~3 below.
 derives from the heat-kernel expansion of the call-price PDE: BBF
 \citep{berestycki2002} is leading order, Henry-Labord\`ere
 \citep{henrylabordere2008} adds $\sigma_1$, and Gatheral, Hsu, Laurence,
-Ouyang and Wang \citep{gatheral2012} add $\sigma_2$. An alternative
+Ouyang and Wang \citep{gatheral2012} add $\sigma_2$. A parallel
 methodology, due to Pagliarani--Pascucci \citep{pagliarani2012} and
-extended by Lorig--Pagliarani--Pascucci \citep{lorig2017}, builds
-explicit implied-vol expansions from an adjoint formulation of the
-pricing PDE; it covers local--stochastic models and produces series
-without special functions. Its main scheme is a Taylor expansion of the
-coefficients around a chosen expansion point under the explicit
-hypothesis $\sigma\in C^{N}$ there --- exactly the assumption a knot at
-the expansion point violates --- so the knot case considered here lies
-outside its stated hypotheses and is not subsumed by it. De~Marco's
+extended to local--stochastic models by Lorig--Pagliarani--Pascucci
+\citep{lorig2017}, derives implied-vol expansions from a Taylor
+expansion of the diffusion coefficients around a smooth expansion
+point; the knot case here is non-smooth at the natural expansion
+point and lies outside that scope. De~Marco's
 harmonic-mean characterisation \citep{demarco2021} pins what the
 leading-order map is approximating, and hence what the next-order gap
 (the object PHL1 plus the correction close) actually is.
@@ -147,7 +144,10 @@ smile itself as a parametric form, then constrain the parameters to
 enforce static no-arbitrage. Andreasen--Huge \citep{andreasenHuge2011}
 fits a piecewise-constant local vol in one implicit-Euler step of the
 Dupire PDE; the resulting prices are arbitrage-free in the sense of the
-discretised scheme, with as many vol pieces as quotes. This is a
+discretised scheme, with as many vol pieces as quotes. Itkin and Lipton
+\citep{itkinLipton2018} sharpen the analytical thread of this family by
+fitting a piecewise-linear local variance via Laplace transform in time
+and Kummer hypergeometric functions in space. This is a
 different design point from ours: the local vol is piecewise-constant
 so it carries no smooth parametric derivatives for an optimiser to
 follow, the calibration carries a numerical scheme inside it (there
@@ -173,7 +173,8 @@ sees.
 \section{Setup}
 
 Work in log-moneyness $k=\log(K/F)$, forward measure ($F=1$, $r=0$), single
-maturity. Local volatility is one cubic, in annualised \% units,
+maturity, time-homogeneous local volatility. As a cubic, in annualised \%
+units,
 \begin{equation}
 \sloc(k) = \sigma + \beta k + \alpha k^2 + \gamma k^3 .
 \end{equation}

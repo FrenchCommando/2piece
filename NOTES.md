@@ -409,6 +409,15 @@ or no-cite.
   `σ_IV(k; θ)` — IV is only available by re-running the FD scheme.
   Still cited as the direct alternative on the LV side. **Cite — add
   to bib.**
+- **Itkin–Lipton 2018**, *Journal of Computational Science*
+  24:195–208, DOI 10.1016/j.jocs.2017.02.003 (preprint arXiv:1608.05145,
+  2016) — sharpens the same family as AH: piecewise-*linear* local
+  variance fit analytically via Laplace transform in time + Kummer
+  hypergeometric functions in space (extends Lipton–Sepp 2011). Still
+  has no closed-form `σ_IV(k; θ)`; still in the "fit LV to prices"
+  design point rather than "asymptotic LV→IV with parametric LV".
+  Cited alongside AH to round out that design family. Surfaced via
+  2026-05-21 topic search. **Cite — add to bib.**
 
 ### Add to bib + cite (modern alternative asymptotics)
 
@@ -467,6 +476,43 @@ or no-cite.
 - **Guyon path-dependent volatility 2014** — orthogonal direction
   (path-dependence, not knot regularity). **Skip.**
 
+### Searched 2026-05-21 and skipped (no preemption)
+
+Active preemption-check search ran on this date across four angles:
+CP 2011 forward citations (3 papers via Semantic Scholar — Belyaev
+2023 HJM-LV swaptions, Burro et al 2017 negative-rates Bachelier
+switch, Grunspan 2011 normal↔lognormal IV equivalence; all cite CP
+for the Bachelier framework, not the regularity / asymptotic content,
+none preempt); LPP 2017 forward citations (72 papers via the journal
+DOI 10.1111/mafi.12105; all in LSV / SABR / Heston / multifactor /
+adjoint-expansion lineage with smooth coefficients, none extend to
+non-smooth coefficient regularity); author tracking (Pirjol now LSV /
+VIX; Pascucci, Pagliarani now degenerate Kolmogorov / kinetic SDE; De
+Marco now rough vol / VIX — none have done LV knot regularity work);
+arXiv topic search. New candidates surfaced:
+- **Paulot 2009/2015**, arXiv:0906.0658 — heat-kernel-based 2nd-order
+  IV expansion for SV models, SABR application. Smooth-SV cousin of
+  GHLOW2 on the SV side. Same "skip" rationale as BBF 2004. **Skip.**
+- **Friz–Gassiat–Pigato 2018**, arXiv:1811.00267 (Ann. Appl. Proba.
+  2021) — precise asymptotics for rough SV via regularity structures.
+  Different model class + different methodology. **Skip.**
+- **De March–Henry-Labordère 2019**, arXiv:1902.04456 — Sinkhorn-based
+  arbitrage-free IV surface construction from bid-ask quotes. Different
+  problem (numerical IV surface construction, not asymptotic LV→IV).
+  **Skip.**
+- **Pagliarani–Pascucci 2017**, *Finance & Stochastics* "The exact
+  Taylor formula of the implied volatility" — refines LPP from `σ∈C^N`
+  to *locally elliptic* (covers CEV/SABR degeneracy at S=0). Still
+  smooth in space; doesn't touch knot regularity. The "closest near-
+  miss" in the LPP lineage. **Skip.**
+- **Karami–Shiraya 2018**, *J. Futures Markets* — normal IV under
+  general LSV, applied to polynomial LV (smooth polynomial, not
+  piecewise). **Skip.**
+
+Net result: 0 preemptions. Confidence level for the C²-knot result
+being original raised from "in-training pattern-completion suggests
+yes" to "actively searched four angles, none found".
+
 ### How this lands in the paper (final structure)
 
 A **Related Work** section between §1 Introduction and §2 Setup, 4
@@ -485,10 +531,12 @@ paragraphs:
    mismatch that explains why their stronger general framework doesn't
    subsume the knot case; De Marco's harmonic-mean characterisation.
 3. **Direct IV-side parametrisations** — SABR (Hagan et al), SVI /
-   arbitrage-free SVI (Gatheral, Gatheral–Jacquier), Andreasen–Huge —
-   the design choice the paper is implicitly defending; AH gets three
-   distinguishing points (no parametric gradients; FD-no-arb ≠
-   continuous-Dupire-no-arb; no closed-form smile).
+   arbitrage-free SVI (Gatheral, Gatheral–Jacquier), Andreasen–Huge,
+   Itkin–Lipton — the design choice the paper is implicitly defending;
+   AH gets three distinguishing points (no parametric gradients;
+   FD-no-arb ≠ continuous-Dupire-no-arb; no closed-form smile); IL
+   added as the analytical-fit refinement of AH (piecewise-linear LV
+   via Laplace + Kummer).
 4. **Static arbitrage and asymptotic constraints** — Roper (local
    no-arbitrage conditions giving meaning to "arbitrage reassurance")
    + Lee moment formula (universal asymptotic wing slope bound, sits
@@ -525,19 +573,24 @@ paper answers.
 - [x] Committed + force-pushed to GitHub (master, trailer-free, single
       commit; author = user only). Pages needs Settings→Source=GitHub
       Actions enabled once.
+- [x] Active preemption-check search 2026-05-21 — verified CP §5.25
+      wording against PDF; four-angle search (CP/LPP forward citations,
+      author tracking, topic search) returned 0 preemptions of the
+      C²-knot result. Itkin–Lipton 2018 added to bib. Search log in
+      "Searched 2026-05-21 and skipped" subsection above.
 
-### Tracked PDF workflow (non-obvious — do not "fix")
-`2piece-paper.pdf` is committed at the **repo root** on purpose. It is
-build output, **not** generated locally or in-repo: the source of truth is
-`paper/2piece-paper.tex`, and `paper.yml` builds the authoritative PDF as
-the `2piece-paper` CI artifact. The user **manually** refreshes the tracked
-copy by downloading that artifact after relevant paper changes.
+### PDF distribution (non-obvious — do not re-track in repo)
+The compiled PDF is **not** tracked in the repo. Source of truth is
+`paper/2piece-paper.tex`; `paper.yml` builds it as the `2piece-paper`
+CI artifact, and the user attaches that artifact to a **GitHub Release**
+(see commit `46cbe27`, "attach paper to release"). Readers get the
+PDF from the release page, not the repo tree.
 
-Consequences, accepted by the user:
-- The tracked PDF can lag `2piece-paper.tex` between manual refreshes
-  (e.g. it will not show the Conclusion until the user re-downloads it).
-- Do **not** add `*.pdf` to `.gitignore`, and do **not** `git rm` it — the
-  user explicitly wants it tracked and self-refreshes it. (Asked twice.)
+Earlier the repo *did* track `2piece-paper.pdf` at the root with a
+manual-refresh workflow; that has been retired (2026-05-21) in favour
+of release attachments. Do **not** re-add the PDF to the repo or
+revert `*.pdf` from `.gitignore` — the in-repo tracked PDF lagged the
+`.tex` between refreshes and is no longer the distribution channel.
 
 ### Closed-form validity masking (deliberate — do not "fix")
 The closed-form maps all divide by `σ_loc` (BBF0 = `k/∫₀ᵏ dy/σ_loc`, the
