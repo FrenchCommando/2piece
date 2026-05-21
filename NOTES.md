@@ -224,10 +224,9 @@ case the perturbation source is `2σ_0·Δγ·k³·H(k)` — linear *and*
 quadratic Taylor coefficients are zero, only the cubic is non-zero
 (and sign-dependent via `H(k)`), so the first surviving entry from
 Table 5.1 row n=1 is the `T^{3/2}` slot. Our `3√(2π)/128` is the
-universal coefficient for that slot. (Asked once 2026-05-20; the
-worry was that our paper might be claiming `√T` and thus
-contradicting Table 5.1 — it isn't, both pieces are mutually
-consistent and pick out adjacent entries of the same row.)
+universal coefficient for that slot. The paper's `T^{3/2}` and CP's
+Table 5.1 are mutually consistent and pick out adjacent entries of
+the same row.
 
 **Side observation (separate from the cross-check):** CP's published
 eq 5.8 reads `σ_N = σ_D + (1/16)√(π/2)·σ_D·√T·Δ(σ²_D)'`. The extra
@@ -280,7 +279,6 @@ frozen cross-check fixture dumped from it.
   examples/params.json
   tests/    reference.json + reference.test.ts (TS-vs-Python cross-check)
   paper/    2piece-paper.tex  refs.bib   (concise; simple ATM-knot derivation)
-  2piece-paper.pdf  (tracked build output — see PDF note below)
   figures/  committed deterministic SVGs (README + paper share these)
   .github/workflows/  pages.yml  paper.yml
   README.md  NOTES.md  LICENSE  .gitignore
@@ -321,25 +319,30 @@ those two pillars or the parametric-LV choice itself". Verdicts below say
 whether each item earns a citation in the paper, just a mention in passing,
 or no-cite.
 
-### Already cited (paper currently uses)
+### Cited (BBF/PHL/GHLOW/DeMarco — foundational)
 
 - **Berestycki–Busca–Florent 2002**, *Quantitative Finance* 2(1):61–69 —
   leading-order time-homogeneous LV→IV map (BBF0, the inverse harmonic
-  mean). The root of everything we do. **Cite — already in.**
+  mean). The root of everything we do. **Cited.**
+- **Berestycki–Busca–Florent 2004**, *Comm. Pure Appl. Math.*
+  57(10):1352–1373, DOI 10.1002/cpa.20039 — same authors extending
+  the heat-kernel approach from LV to stochastic vol. Not load-bearing
+  for the knot result, but cited in passing alongside BBF 2002 for
+  author continuity (added 2026-05-21 on user push). **Cited.**
 - **Henry-Labordère 2008**, *Analysis, Geometry, and Modeling in Finance*,
   Chapman & Hall/CRC — heat-kernel derivation of the σ₁·T correction.
-  PHL1 = this. **Cite — already in.**
+  PHL1 = this. **Cited.**
 - **Gatheral–Hsu–Laurence–Ouyang–Wang 2012**, *Math. Finance*
   22(4):591–620 (preprint 2009) — explicit closed-form for σ₁ and σ₂; we
   use the σ₁ formula verbatim and label it PHL1, and use the σ₂ formula
-  for GHLOW2. **Cite — already in.**
+  for GHLOW2. **Cited.**
 - **De Marco 2021**, *SIAM J. Financial Math.* (preprint arXiv:2007.03585)
   — exact harmonic-mean representation of IV; pins down what the BBF
   leading order is approximating and what the next-order gap is. Direct
   background for the "BBF is leading order; what's the residual?"
-  framing. **Cite — already in.**
+  framing. **Cited.**
 
-### Direct technical predecessor (cite prominently)
+### Cited (direct technical predecessor)
 
 - **Costeanu–Pirjol 2011**, arXiv:1105.3359 (JP Morgan) — the direct
   predecessor whose framework this paper extends. Same Duhamel
@@ -360,44 +363,37 @@ or no-cite.
   paper settles it as model-specific: in the `C²` class
   (jump in `σ'''_loc = γ`) at the forward, the `T^{3/2}` term
   *does* appear in *log-normal Black* IV with universal coefficient
-  `3√(2π)/128 ≈ 0.0588`. **Framing decision (2026-05-20, revised):**
-  two-layer framing. *Primary* anchor remains BBF/PHL/GHLOW lineage
-  (top-tier asymptotic-LV literature) — this carries the paper's
-  prestige weight; we extend PHL1 by closing its `C³`-regularity
-  gap. *Secondary but technically tight* anchor is Costeanu–Pirjol:
-  the connection is genuinely load-bearing (shared machinery, same
-  table, answered open question, parallel universal coefficients),
-  not a casual adjacency. So CP appears in abstract (no), intro
-  (yes, one sentence), §Related Work (yes, full paragraph),
-  conclusion (yes, one sentence). Earlier we briefly tried a softer
-  "supporting parallel" framing with CP only in Related Work; that
-  understated the connection once we had verified the typo, the
-  cross-check, and the Table 5.1 slot-filling. **Cite — already in
-  bib.** (Prior internal analysis lives in
-  `theta-options/local_vol/costeanu_pirjol_2011.md` and
+  `3√(2π)/128 ≈ 0.0588`. **Framing:** two-layer. *Primary* anchor is
+  BBF/PHL/GHLOW lineage — paper extends PHL1 by closing its
+  `C³`-regularity gap. *Secondary but technically tight* anchor is CP:
+  shared Duhamel machinery, same Table 5.1, answered open question,
+  parallel universal coefficients. CP appears in intro (one sentence),
+  §Related Work (full paragraph), conclusion (one sentence); not in
+  abstract. **Cited.** (Prior internal analysis lives
+  in `theta-options/local_vol/costeanu_pirjol_2011.md` and
   `costeanu_pirjol_relevance.md`.)
 
-### Add to bib + cite (foundational gap)
+### Cited (PDE ground truth + canonical SV alternative)
 
 - **Dupire 1994**, *Risk* 7(1):18–20 — the forward PDE we use as ground
   truth. Currently uncited even though §2/Results call it the Dupire PDE.
-  **Cite — add to bib.**
+  **Cited.**
 - **Hagan–Kumar–Lesniewski–Woodward 2002**, *Wilmott* Sep 84–108 —
   SABR: a stochastic-vol model with a leading-order singular-perturbation
   asymptotic for its IV in closed form. The canonical alternative
   "parametric model + asymptotic" combination, on the SV side rather
-  than the LV side. **Cite — add to bib.**
+  than the LV side. **Cited.**
 
-### Add to bib + cite (alternatives to "parametric LV → IV map")
+### Cited (alternatives to "parametric LV → IV map")
 
 - **Gatheral 2004 (SVI)** — direct parametric form for the IV smile
   itself, not the local vol. The other side of the design choice the
-  paper makes. **Cite — add to bib.**
+  paper makes. **Cited.**
 - **Gatheral–Jacquier 2014**, *Quantitative Finance* 14(1):59–71 —
   arbitrage-free SVI / SSVI. Important contrast: SVI got "arbitrage
   reassurance" by constraining the IV-side parametrisation directly,
   whereas we get it by mapping LV→IV with a better-than-leading-order
-  asymptotic. **Cite — add to bib.**
+  asymptotic. **Cited.**
 - **Andreasen–Huge 2011**, *Risk* Mar 86–89 — fits a piecewise-constant
   local vol in one implicit-Euler step of the Dupire PDE. Solves a
   *different* problem: "give me a fitted price surface that is
@@ -407,8 +403,7 @@ or no-cite.
   no-arbitrage of one implicit Euler step, not the continuous Dupire
   model's no-arbitrage (`O(ΔT)` scheme bias), (iii) no closed-form
   `σ_IV(k; θ)` — IV is only available by re-running the FD scheme.
-  Still cited as the direct alternative on the LV side. **Cite — add
-  to bib.**
+  Still cited as the direct alternative on the LV side. **Cited.**
 - **Itkin–Lipton 2018**, *Journal of Computational Science*
   24:195–208, DOI 10.1016/j.jocs.2017.02.003 (preprint arXiv:1608.05145,
   2016) — sharpens the same family as AH: piecewise-*linear* local
@@ -417,30 +412,28 @@ or no-cite.
   has no closed-form `σ_IV(k; θ)`; still in the "fit LV to prices"
   design point rather than "asymptotic LV→IV with parametric LV".
   Cited alongside AH to round out that design family. Surfaced via
-  2026-05-21 topic search. **Cite — add to bib.**
+  2026-05-21 topic search. **Cited.**
 
-### Add to bib + cite (modern alternative asymptotics)
+### Cited (modern alternative asymptotics)
 
 - **Pagliarani–Pascucci 2012**, *Cent. Eur. J. Math.* 10(1):250–270 —
   adjoint-expansion-based density / price approximation in LV models.
   Modern alternative methodology to PHL/GHLOW heat-kernel expansion;
-  one cite to acknowledge there are non-heat-kernel routes. **Cite —
-  add to bib.**
+  one cite to acknowledge there are non-heat-kernel routes. **Cited.**
 - **Lorig–Pagliarani–Pascucci 2017**, *Math. Finance* 27(3):926–960
   (arXiv:1306.5447) — explicit IV expansions for LSV models from the
   adjoint-expansion machinery; the modern "closed-form IV expansion"
-  toolkit. Does **not** subsume this paper: their main scheme is a
-  Taylor expansion of the coefficients around a chosen expansion point
-  with the explicit hypothesis `a_α(t,·) ∈ C^N(ℝ^d)`. A piecewise
-  cubic with `Δγ ≠ 0` at the ATM knot has `σ_loc` only `C²` at `k=0`,
-  i.e. the natural expansion point sits exactly where their hypothesis
-  fails. (They mention a Hermite/L² variant for non-smooth coefficients
-  but do not develop it, and L² is the wrong norm for a localised
-  pointwise residual.) Cited as the strongest modern alternative on
-  smooth LV, with the hypothesis-mismatch making explicit why it does
-  not handle the knot case. **Cite — add to bib.**
+  toolkit. Cited as the parallel modern methodology in the LV→IV map
+  space. Paper notes that their scheme Taylor-expands the coefficients
+  about a point where the coefficients are assumed smooth, so the knot
+  case here is non-smooth at the natural expansion point and lies
+  outside that scope. (Internal context: their hypothesis is literally
+  `a_α(t,·) ∈ C^N(ℝ^d)`; they mention a Hermite/L² variant for
+  non-smooth coefficients but do not develop it. Not in the paper text
+  to keep the framing soft — see 2026-05-21 LPP framing softening.)
+  **Cited.**
 
-### Add to bib + cite (wings / arbitrage framing)
+### Cited (wings / arbitrage framing)
 
 - **Lee 2004**, *Math. Finance* 14(3):469–480 — moment formula for IV
   at extreme strikes: the universal asymptotic slope bound on the
@@ -448,24 +441,17 @@ or no-cite.
   in the family this paper works in. Cited as a one-line "the family
   is well-posed in the tails" anchor at the opposite end of the
   strike axis from the ATM contribution; not a claim that this paper
-  says anything about wings. **Cite — add to bib.**
+  says anything about wings. **Cited.**
 - **Roper 2010**, *preprint* (Univ. of Sydney) — clean statement of static
   no-arbitrage conditions on the IV surface (butterfly + calendar). The
   paper hinges on "PHL1 buys arbitrage reassurance over BBF0"; Roper is
-  what "arbitrage" means there. **Cite — add to bib.**
+  what "arbitrage" means there. **Cited.**
 
-### Mention if very short, otherwise skip
+### Skipped (out of scope or wrong model class)
 
-- **Berestycki–Busca–Florent 2004**, *Comm. Pure Appl. Math.* 57:1352–1373
-  — SV (not LV) variant of the same heat-kernel approach. Methodological
-  cousin to PHL/GHLOW but on a different model class. **Skip** in this
-  paper (would dilute the LV focus); keep in upstream theta-options bib.
 - **Foschi–Pagliarani–Pascucci** / **Pagliarani–Pascucci–Riga 2013**
   (Lévy adjoint expansion) — adds jumps to the adjoint-expansion story.
   Out of scope (pure diffusion here). **Skip.**
-
-### Explicitly not relevant (decline)
-
 - **Owen 1956 / Owen 1980 / Genz 2004** — bivariate-normal CDF
   evaluation. The broader upstream paper needs Φ₂ for the second-order
   K₂ kernel. The ATM-knot result here uses only Φ and φ, so this
@@ -526,10 +512,10 @@ paragraphs:
    `3√(2π)/128`. Two-layer framing: PHL1 primary anchor (prestige),
    CP technical predecessor with the connection made explicit.
 2. **Higher-order LV→IV asymptotics** — BBF → PHL1 → GHLOW lineage;
-   Pagliarani–Pascucci / Lorig–Pagliarani–Pascucci as the modern
-   adjoint-expansion alternative, with the `σ ∈ C^N` hypothesis
-   mismatch that explains why their stronger general framework doesn't
-   subsume the knot case; De Marco's harmonic-mean characterisation.
+   Pagliarani–Pascucci / Lorig–Pagliarani–Pascucci as the parallel
+   adjoint-expansion methodology (paper notes their smoothness-at-
+   expansion-point hypothesis and that the knot case lies outside that
+   scope); De Marco's harmonic-mean characterisation.
 3. **Direct IV-side parametrisations** — SABR (Hagan et al), SVI /
    arbitrage-free SVI (Gatheral, Gatheral–Jacquier), Andreasen–Huge,
    Itkin–Lipton — the design choice the paper is implicitly defending;
@@ -612,5 +598,3 @@ visual reason). DTE input is clamped to a positive integer in the UI; σ
 - DTE input semantics: treated as **business days** (n_bdays=DTE). Documented
   in README. Calendar-vs-business is a known wrinkle inherited from the
   upstream calibration convention.
-- TS port of the near-ATM polynomial paths (σ₁, σ₂) is the fiddly bit; plan a
-  numeric cross-check script (TS vs Python) before wiring the UI.

@@ -53,7 +53,7 @@ from real SPXW surfaces.
 
 \section{Introduction}
 
-Calibrating a volatility surface, practitioners fit a parametric
+When calibrating a volatility surface, practitioners fit a parametric
 \emph{local} volatility (for the monotonicity and regularity an optimiser
 needs) and map it to implied volatility with the leading-order BBF
 inverse-harmonic-mean formula. BBF is flexible enough to calibrate
@@ -122,9 +122,11 @@ $\Phi_{BB}(x,0)$ derived in Section~3 below.
 
 \paragraph{Higher-order LV-to-IV asymptotics.} The PHL1/GHLOW2 line
 derives from the heat-kernel expansion of the call-price PDE: BBF
-\citep{berestycki2002} is leading order, Henry-Labord\`ere
-\citep{henrylabordere2008} adds $\sigma_1$, and Gatheral, Hsu, Laurence,
-Ouyang and Wang \citep{gatheral2012} add $\sigma_2$. A parallel
+\citep{berestycki2002} is leading order (the same authors extended the
+heat-kernel approach to stochastic volatility in
+\citep{berestycki2004sv}), Henry-Labord\`ere \citep{henrylabordere2008}
+adds $\sigma_1$, and Gatheral, Hsu, Laurence, Ouyang and Wang
+\citep{gatheral2012} add $\sigma_2$. A parallel
 methodology, due to Pagliarani--Pascucci \citep{pagliarani2012} and
 extended to local--stochastic models by Lorig--Pagliarani--Pascucci
 \citep{lorig2017}, derives implied-vol
@@ -363,8 +365,9 @@ single defect for a knot pinned at-the-money, in closed form: a
 one-dimensional Brownian-bridge integral $\Phi_{BB}(x,0)$ with peak
 $3\sqrt{2\pi}/128$ and no fitted constants. After subtracting the
 variation PHL1 already captures, the residual decays on both sides
-and adds directly to PHL1. On parameters calibrated from real SPXW surfaces it tracks the
-Dupire PDE where PHL1 alone is biased, and is inert on smooth smiles.
+and adds directly to PHL1. On parameters calibrated from real SPXW
+surfaces PHL1 plus correction tracks the Dupire PDE where PHL1 alone
+is biased, and the correction is inert on smooth smiles.
 
 The consequence is practical, not just numerical: ``piecewise-cubic with
 an at-the-money knot, mapped through PHL1'' is now a usable surface
