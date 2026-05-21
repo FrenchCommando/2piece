@@ -10,7 +10,7 @@ on:
   workflow_dispatch:
 
 permissions:
-  contents: read
+  contents: write
 
 jobs:
   build-pdf:
@@ -67,3 +67,19 @@ jobs:
           name: 2piece-paper
           path: paper/2piece-paper.pdf
           if-no-files-found: error
+
+      # Publish as a Release asset so the PDF is downloadable without a
+      # GitHub login. Stable URL pattern:
+      #   github.com/<repo>/releases/latest/download/2piece-paper.pdf
+      # One release per paper-affecting push; tag = commit SHA, "latest"
+      # marker moves automatically via make_latest:true.
+      - uses: softprops/action-gh-release@v2
+        with:
+          tag_name: paper-${{ github.sha }}
+          name: Paper build ${{ github.sha }}
+          files: paper/2piece-paper.pdf
+          body: |
+            Auto-built paper PDF from commit ${{ github.sha }}.
+            Stable download URL:
+            https://github.com/${{ github.repository }}/releases/latest/download/2piece-paper.pdf
+          make_latest: true
