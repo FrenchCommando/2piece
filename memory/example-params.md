@@ -36,8 +36,9 @@ Sanity (matches CLAUDE.md narrative):
 - Knot (at δ=68619): F3 max|BBF0−PDE| = 66.6 bps (same as F1, since the
   knot's contribution no longer dominates the smooth-cubic gap); PHL1
   3.2 bps, PHL1c 2.0 bps, GHLOW2 3.1 bps, GHLOW2c 0.16 bps (universal
-  kernel; visible −0.171 bps σ₂(0) value jump at k=0), GHLOW2cc 0.38
-  bps (extended kernel closes the jump too). Re-derive with
+  kernel only; visible −0.171 bps σ₂(0) value jump at k=0 unresolved),
+  GHLOW2cc 0.15 bps (extended kernel with one-sided clip closes the
+  jump too; strictly improves on GHLOW2c). Re-derive with
   `npx tsx src/figures/stats.ts`.
 
 **Why:** regenerating these needs theta-options + cached market data, not
