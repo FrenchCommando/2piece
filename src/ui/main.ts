@@ -6,33 +6,38 @@
  * Model recompute (the expensive PDE) is debounced and cached; method
  * on/off toggles and drag-zoom only redraw the cached curves.
  */
-import './style.css';
-import { computeCurves, type ModelInputs, type ModelCurves } from '../math/model';
-import { drawChart, type Series, type PlotMap } from './chart';
-import examples from '../../examples/params.json';
+import "./style.css";
+import examples from "../../examples/params.json";
+import {
+	computeCurves,
+	type ModelCurves,
+	type ModelInputs,
+} from "../math/model";
+import { byId, getContext2D, mapGet } from "../util";
+import { drawChart, type PlotMap, type Series } from "./chart";
 
 interface Example extends ModelInputs {
-  id: string;
-  label: string;
-  source: string;
+	id: string;
+	label: string;
+	source: string;
 }
 const EXAMPLES = (examples as { examples: Example[] }).examples;
 
 /** Round to 6 significant figures for display (calibrated params are noisy). */
 function sig6(v: number): number {
-  if (v === 0 || !isFinite(v)) return v;
-  const d = Math.ceil(Math.log10(Math.abs(v)));
-  const p = 6 - d;
-  return Math.round(v * 10 ** p) / 10 ** p;
+	if (v === 0 || !Number.isFinite(v)) return v;
+	const d = Math.ceil(Math.log10(Math.abs(v)));
+	const p = 6 - d;
+	return Math.round(v * 10 ** p) / 10 ** p;
 }
 
 const FIELDS: { key: keyof ModelInputs; label: string; step: string }[] = [
-  { key: 'dte', label: 'DTE (business days)', step: '1' },
-  { key: 'sigma', label: 'σ (ATM, ann %)', step: '0.5' },
-  { key: 'beta', label: 'β', step: '5' },
-  { key: 'alpha', label: 'α', step: '50' },
-  { key: 'gamma', label: 'γ', step: '1000' },
-  { key: 'delta', label: 'δ (knot Δγ at k=0)', step: '10000' },
+	{ key: "dte", label: "DTE (business days)", step: "1" },
+	{ key: "sigma", label: "σ (ATM, ann %)", step: "0.5" },
+	{ key: "beta", label: "β", step: "5" },
+	{ key: "alpha", label: "α", step: "50" },
+	{ key: "gamma", label: "γ", step: "1000" },
+	{ key: "delta", label: "δ (knot Δγ at k=0)", step: "10000" },
 ];
 
 // Seven methods in T-order: PDE (truth), BBF0 (T^0), PHL1 (T^1),
@@ -44,17 +49,17 @@ const FIELDS: { key: keyof ModelInputs; label: string; step: string }[] = [
 // abbreviation collides with correlation). Every 'c'/'cc' curve collapses
 // to its baseline when delta = 0.
 const METHODS = [
-  { key: 'pde', label: 'PDE' },
-  { key: 'bbf0', label: 'BBF0' },
-  { key: 'phl1', label: 'PHL1' },
-  { key: 'phl1c', label: 'PHL1c' },
-  { key: 'ghlow2', label: 'GHLOW2' },
-  { key: 'ghlow2c', label: 'GHLOW2c' },
-  { key: 'ghlow2cc', label: 'GHLOW2cc' },
+	{ key: "pde", label: "PDE" },
+	{ key: "bbf0", label: "BBF0" },
+	{ key: "phl1", label: "PHL1" },
+	{ key: "phl1c", label: "PHL1c" },
+	{ key: "ghlow2", label: "GHLOW2" },
+	{ key: "ghlow2c", label: "GHLOW2c" },
+	{ key: "ghlow2cc", label: "GHLOW2cc" },
 ] as const;
-type MethodKey = (typeof METHODS)[number]['key'];
+type MethodKey = (typeof METHODS)[number]["key"];
 
-const app = document.getElementById('app')!;
+const app = byId("app");
 app.innerHTML = `
 <header>
   <h1>Implied volatility at a cubic local-vol knot pinned at the money</h1>
@@ -185,65 +190,68 @@ app.innerHTML = `
   </section>
 </main>`;
 
-const controls = document.getElementById('controls')!;
+const controls = byId("controls");
 const inputs = new Map<keyof ModelInputs, HTMLInputElement>();
 const state: ModelInputs = { ...EXAMPLES[0] } as unknown as ModelInputs;
 
 function setInputs(): void {
-  for (const [k, inp] of inputs) inp.value = String(sig6(state[k]));
+	for (const [k, inp] of inputs) inp.value = String(sig6(state[k]));
 }
 
-const presetSrcEl = document.getElementById('preset-src')!;
+const presetSrcEl = byId("preset-src");
 function setPresetSrc(text: string, calibrated: boolean): void {
-  presetSrcEl.textContent = text;
-  presetSrcEl.classList.toggle('custom', !calibrated);
+	presetSrcEl.textContent = text;
+	presetSrcEl.classList.toggle("custom", !calibrated);
 }
 
 for (const f of FIELDS) {
-  const wrap = document.createElement('div');
-  wrap.className = 'field';
-  const lab = document.createElement('label');
-  lab.textContent = f.label;
-  const inp = document.createElement('input');
-  inp.type = 'number';
-  inp.step = f.step;
-  if (f.key === 'dte') inp.min = '1';
-  if (f.key === 'sigma') inp.min = '0';
-  inp.addEventListener('input', () => {
-    let v = parseFloat(inp.value);
-    if (isFinite(v)) {
-      if (f.key === 'dte') v = Math.max(1, Math.round(v)); // DTE is a positive integer count of days
-      // sigma is the ATM vol — it's the denominator everywhere (sigma_total =
-      // sigma/scale, BBF0(0)=sigma); a non-positive value blows the maps up.
-      if (f.key === 'sigma') v = Math.max(1e-6, v);
-      state[f.key] = v;
-      setPresetSrc('Custom parameters — not from a calibrated snapshot.', false);
-      scheduleRecompute();
-    }
-  });
-  inputs.set(f.key, inp);
-  wrap.append(lab, inp);
-  controls.append(wrap);
+	const wrap = document.createElement("div");
+	wrap.className = "field";
+	const lab = document.createElement("label");
+	lab.textContent = f.label;
+	const inp = document.createElement("input");
+	inp.type = "number";
+	inp.step = f.step;
+	if (f.key === "dte") inp.min = "1";
+	if (f.key === "sigma") inp.min = "0";
+	inp.addEventListener("input", () => {
+		let v = parseFloat(inp.value);
+		if (Number.isFinite(v)) {
+			if (f.key === "dte") v = Math.max(1, Math.round(v)); // DTE is a positive integer count of days
+			// sigma is the ATM vol — it's the denominator everywhere (sigma_total =
+			// sigma/scale, BBF0(0)=sigma); a non-positive value blows the maps up.
+			if (f.key === "sigma") v = Math.max(1e-6, v);
+			state[f.key] = v;
+			setPresetSrc(
+				"Custom parameters — not from a calibrated snapshot.",
+				false,
+			);
+			scheduleRecompute();
+		}
+	});
+	inputs.set(f.key, inp);
+	wrap.append(lab, inp);
+	controls.append(wrap);
 }
 
-const presets = document.createElement('div');
-presets.className = 'presets';
+const presets = document.createElement("div");
+presets.className = "presets";
 for (const ex of EXAMPLES) {
-  const b = document.createElement('button');
-  b.textContent = ex.label.split('—')[0].trim();
-  b.title = ex.source;
-  b.addEventListener('click', () => {
-    state.dte = ex.dte;
-    state.sigma = ex.sigma;
-    state.beta = ex.beta;
-    state.alpha = ex.alpha;
-    state.gamma = ex.gamma;
-    state.delta = ex.delta;
-    setInputs();
-    setPresetSrc(`Calibrated snapshot: ${ex.source}`, true);
-    scheduleRecompute();
-  });
-  presets.append(b);
+	const b = document.createElement("button");
+	b.textContent = ex.label.split("—")[0].trim();
+	b.title = ex.source;
+	b.addEventListener("click", () => {
+		state.dte = ex.dte;
+		state.sigma = ex.sigma;
+		state.beta = ex.beta;
+		state.alpha = ex.alpha;
+		state.gamma = ex.gamma;
+		state.delta = ex.delta;
+		setInputs();
+		setPresetSrc(`Calibrated snapshot: ${ex.source}`, true);
+		scheduleRecompute();
+	});
+	presets.append(b);
 }
 controls.append(presets);
 setInputs();
@@ -251,290 +259,326 @@ setPresetSrc(`Calibrated snapshot: ${EXAMPLES[0].source}`, true);
 
 // Method on/off toggles.
 const visible = new Map<MethodKey, boolean>(METHODS.map((m) => [m.key, true]));
-const togglesEl = document.getElementById('toggles')!;
+const togglesEl = byId("toggles");
 for (const m of METHODS) {
-  const id = `t-${m.key}`;
-  const wrap = document.createElement('label');
-  wrap.className = 'toggle';
-  wrap.htmlFor = id;
-  const cb = document.createElement('input');
-  cb.type = 'checkbox';
-  cb.id = id;
-  cb.checked = true;
-  cb.addEventListener('change', () => {
-    visible.set(m.key, cb.checked);
-    draw();
-  });
-  wrap.append(cb, document.createTextNode(' ' + m.label));
-  togglesEl.append(wrap);
+	const id = `t-${m.key}`;
+	const wrap = document.createElement("label");
+	wrap.className = "toggle";
+	wrap.htmlFor = id;
+	const cb = document.createElement("input");
+	cb.type = "checkbox";
+	cb.id = id;
+	cb.checked = true;
+	cb.addEventListener("change", () => {
+		visible.set(m.key, cb.checked);
+		draw();
+	});
+	wrap.append(cb, document.createTextNode(` ${m.label}`));
+	togglesEl.append(wrap);
 }
 
 // Per-chart 2D zoom box (drag a rectangle; double-click resets).
 type Dom = [number, number] | null;
 const zoomX = new Map<string, Dom>();
 const zoomY = new Map<string, Dom>();
-const drag = new Map<string, { x0: number; y0: number; x1: number; y1: number } | null>();
+const drag = new Map<
+	string,
+	{ x0: number; y0: number; x1: number; y1: number } | null
+>();
 
 let timer: number | undefined;
 function scheduleRecompute(): void {
-  if (timer) clearTimeout(timer);
-  timer = window.setTimeout(recompute, 130);
+	if (timer) clearTimeout(timer);
+	timer = window.setTimeout(recompute, 130);
 }
 
 let curves: ModelCurves | null = null;
 
 function recompute(): void {
-  const t0 = performance.now();
-  curves = computeCurves(state, 321, { nGrid: 1601, nSteps: 1400 });
-  const ms = (performance.now() - t0).toFixed(0);
-  document.getElementById('status')!.textContent =
-    `σ_total = ${curves.sigmaTotal.toFixed(4)} (total vol), ` +
-    `vol scale = ${curves.scale.toFixed(1)} · PDE + maps computed in ${ms} ms in-browser` +
-    (curves.hasKnot ? ' · knot active at k=0' : ' · no knot (δ=0)');
-  draw();
+	const t0 = performance.now();
+	curves = computeCurves(state, 321, { nGrid: 1601, nSteps: 1400 });
+	const ms = (performance.now() - t0).toFixed(0);
+	byId("status").textContent =
+		`σ_total = ${curves.sigmaTotal.toFixed(4)} (total vol), ` +
+		`vol scale = ${curves.scale.toFixed(1)} · PDE + maps computed in ${ms} ms in-browser` +
+		(curves.hasKnot ? " · knot active at k=0" : " · no knot (δ=0)");
+	draw();
 }
 
 function vis(key: MethodKey, s: Series): Series[] {
-  return visible.get(key) ? [s] : [];
+	return visible.get(key) ? [s] : [];
 }
 
 function draw(): void {
-  if (!curves) return;
-  const c = curves;
-  const knot = c.hasKnot;
+	if (!curves) return;
+	const c = curves;
+	const knot = c.hasKnot;
 
-  const ivSeries: Series[] = [
-    ...vis('pde', { label: 'PDE (truth)', x: c.k, y: c.pde, color: '#18181b', width: 2 }),
-    ...vis('bbf0', { label: 'BBF0', x: c.k, y: c.bbf0, color: '#a1a1aa', dash: [5, 4] }),
-    ...vis('phl1', { label: 'PHL1', x: c.k, y: c.phl1, color: '#2563eb' }),
-    ...vis('phl1c', {
-      label: 'PHL1c',
-      x: c.k,
-      y: c.phl1c,
-      color: '#dc2626',
-      width: 1.8,
-    }),
-    ...vis('ghlow2', { label: 'GHLOW2', x: c.k, y: c.ghlow2, color: '#0d9488' }),
-    ...vis('ghlow2c', {
-      label: 'GHLOW2c',
-      x: c.k,
-      y: c.ghlow2c,
-      color: '#f59e0b',
-      width: 1.8,
-    }),
-    ...vis('ghlow2cc', {
-      label: 'GHLOW2cc',
-      x: c.k,
-      y: c.ghlow2cc,
-      color: '#9333ea',
-      width: 1.8,
-    }),
-  ];
-  drawChart(document.getElementById('c-iv') as HTMLCanvasElement, ivSeries, {
-    title: 'Implied volatility smile',
-    xlabel: 'log-moneyness k',
-    ylabel: 'implied vol (ann %)',
-    atmLine: knot,
-    xDomain: zoomX.get('c-iv') ?? c.kValid,
-    yDomain: zoomY.get('c-iv') ?? null,
-  });
+	const ivSeries: Series[] = [
+		...vis("pde", {
+			label: "PDE (truth)",
+			x: c.k,
+			y: c.pde,
+			color: "#18181b",
+			width: 2,
+		}),
+		...vis("bbf0", {
+			label: "BBF0",
+			x: c.k,
+			y: c.bbf0,
+			color: "#a1a1aa",
+			dash: [5, 4],
+		}),
+		...vis("phl1", { label: "PHL1", x: c.k, y: c.phl1, color: "#2563eb" }),
+		...vis("phl1c", {
+			label: "PHL1c",
+			x: c.k,
+			y: c.phl1c,
+			color: "#dc2626",
+			width: 1.8,
+		}),
+		...vis("ghlow2", {
+			label: "GHLOW2",
+			x: c.k,
+			y: c.ghlow2,
+			color: "#0d9488",
+		}),
+		...vis("ghlow2c", {
+			label: "GHLOW2c",
+			x: c.k,
+			y: c.ghlow2c,
+			color: "#f59e0b",
+			width: 1.8,
+		}),
+		...vis("ghlow2cc", {
+			label: "GHLOW2cc",
+			x: c.k,
+			y: c.ghlow2cc,
+			color: "#9333ea",
+			width: 1.8,
+		}),
+	];
+	drawChart(byId<HTMLCanvasElement>("c-iv"), ivSeries, {
+		title: "Implied volatility smile",
+		xlabel: "log-moneyness k",
+		ylabel: "implied vol (ann %)",
+		atmLine: knot,
+		xDomain: zoomX.get("c-iv") ?? c.kValid,
+		yDomain: zoomY.get("c-iv") ?? null,
+	});
 
-  const errOf = (y: number[]) => y.map((v, i) => (v - c.pde[i]) * 100);
-  const errSeries: Series[] = [
-    ...vis('bbf0', {
-      label: 'BBF0 − PDE',
-      x: c.k,
-      y: errOf(c.bbf0),
-      color: '#a1a1aa',
-      dash: [5, 4],
-    }),
-    ...vis('phl1', { label: 'PHL1 − PDE', x: c.k, y: errOf(c.phl1), color: '#2563eb' }),
-    ...vis('phl1c', {
-      label: 'PHL1c − PDE',
-      x: c.k,
-      y: errOf(c.phl1c),
-      color: '#dc2626',
-      width: 1.8,
-    }),
-    ...vis('ghlow2', {
-      label: 'GHLOW2 − PDE',
-      x: c.k,
-      y: errOf(c.ghlow2),
-      color: '#0d9488',
-    }),
-    ...vis('ghlow2c', {
-      label: 'GHLOW2c − PDE',
-      x: c.k,
-      y: errOf(c.ghlow2c),
-      color: '#f59e0b',
-      width: 1.8,
-    }),
-    ...vis('ghlow2cc', {
-      label: 'GHLOW2cc − PDE',
-      x: c.k,
-      y: errOf(c.ghlow2cc),
-      color: '#9333ea',
-      width: 1.8,
-    }),
-  ];
-  drawChart(document.getElementById('c-err') as HTMLCanvasElement, errSeries, {
-    title: 'Error vs PDE (basis points)',
-    xlabel: 'log-moneyness k',
-    ylabel: 'error (bps)',
-    zeroLine: true,
-    atmLine: knot,
-    xDomain: zoomX.get('c-err') ?? c.kValid,
-    yDomain: zoomY.get('c-err') ?? null,
-  });
+	const errOf = (y: number[]) => y.map((v, i) => (v - c.pde[i]) * 100);
+	const errSeries: Series[] = [
+		...vis("bbf0", {
+			label: "BBF0 − PDE",
+			x: c.k,
+			y: errOf(c.bbf0),
+			color: "#a1a1aa",
+			dash: [5, 4],
+		}),
+		...vis("phl1", {
+			label: "PHL1 − PDE",
+			x: c.k,
+			y: errOf(c.phl1),
+			color: "#2563eb",
+		}),
+		...vis("phl1c", {
+			label: "PHL1c − PDE",
+			x: c.k,
+			y: errOf(c.phl1c),
+			color: "#dc2626",
+			width: 1.8,
+		}),
+		...vis("ghlow2", {
+			label: "GHLOW2 − PDE",
+			x: c.k,
+			y: errOf(c.ghlow2),
+			color: "#0d9488",
+		}),
+		...vis("ghlow2c", {
+			label: "GHLOW2c − PDE",
+			x: c.k,
+			y: errOf(c.ghlow2c),
+			color: "#f59e0b",
+			width: 1.8,
+		}),
+		...vis("ghlow2cc", {
+			label: "GHLOW2cc − PDE",
+			x: c.k,
+			y: errOf(c.ghlow2cc),
+			color: "#9333ea",
+			width: 1.8,
+		}),
+	];
+	drawChart(byId<HTMLCanvasElement>("c-err"), errSeries, {
+		title: "Error vs PDE (basis points)",
+		xlabel: "log-moneyness k",
+		ylabel: "error (bps)",
+		zeroLine: true,
+		atmLine: knot,
+		xDomain: zoomX.get("c-err") ?? c.kValid,
+		yDomain: zoomY.get("c-err") ?? null,
+	});
 
-  drawChart(
-    document.getElementById('c-loc') as HTMLCanvasElement,
-    [{ label: 'σ_loc(k)', x: c.k, y: c.sigmaLoc, color: '#7c3aed', width: 1.8 }],
-    {
-      title: 'Local volatility σ_loc(k)' + (knot ? ' — C² knot at k=0' : ''),
-      xlabel: 'log-moneyness k',
-      ylabel: 'local vol (ann %)',
-      atmLine: knot,
-      xDomain: zoomX.get('c-loc') ?? null,
-      yDomain: zoomY.get('c-loc') ?? null,
-    },
-  );
+	drawChart(
+		byId<HTMLCanvasElement>("c-loc"),
+		[
+			{
+				label: "σ_loc(k)",
+				x: c.k,
+				y: c.sigmaLoc,
+				color: "#7c3aed",
+				width: 1.8,
+			},
+		],
+		{
+			title: `Local volatility σ_loc(k)${knot ? " — C² knot at k=0" : ""}`,
+			xlabel: "log-moneyness k",
+			ylabel: "local vol (ann %)",
+			atmLine: knot,
+			xDomain: zoomX.get("c-loc") ?? null,
+			yDomain: zoomY.get("c-loc") ?? null,
+		},
+	);
 
-  // Two pieces of the ATM-knot correction, in annualised %:
-  //   universalSpike  = PHL1c − PHL1   = GHLOW2c − GHLOW2  (the universal
-  //                                       directed kernel itself)
-  //   extensionSpike  = GHLOW2cc − GHLOW2c  (the σ_2 extension piece — the
-  //                                       small, (b,a,g)-parametric bit the
-  //                                       extended kernel adds on top of
-  //                                       the universal one)
-  // The extension lives only on k > 0 and decays to zero on the wings as
-  // the σ_2 piece is clipped at zero.
-  const universalSpike = c.phl1c.map((v, i) => v - c.phl1[i]);
-  const extensionSpike = c.ghlow2cc.map((v, i) => v - c.ghlow2c[i]);
-  drawChart(
-    document.getElementById('c-ker') as HTMLCanvasElement,
-    [
-      {
-        label: 'universal K₁^dir',
-        x: c.k,
-        y: universalSpike,
-        color: '#059669',
-        width: 1.8,
-      },
-      {
-        label: 'extension (σ₂ piece)',
-        x: c.k,
-        y: extensionSpike,
-        color: '#9333ea',
-        width: 1.8,
-        dash: [6, 3],
-      },
-    ],
-    {
-      title: knot
-        ? 'ATM-knot IV correction: universal kernel + σ₂ extension'
-        : 'ATM-knot IV corrections (δ = 0 ⇒ no knot, zero correction)',
-      xlabel: 'log-moneyness k',
-      ylabel: 'correction (annualised %)',
-      zeroLine: true,
-      atmLine: knot,
-      xDomain: zoomX.get('c-ker') ?? c.kValid,
-      yDomain: zoomY.get('c-ker') ?? null,
-    },
-  );
+	// Two pieces of the ATM-knot correction, in annualised %:
+	//   universalSpike  = PHL1c − PHL1   = GHLOW2c − GHLOW2  (the universal
+	//                                       directed kernel itself)
+	//   extensionSpike  = GHLOW2cc − GHLOW2c  (the σ_2 extension piece — the
+	//                                       small, (b,a,g)-parametric bit the
+	//                                       extended kernel adds on top of
+	//                                       the universal one)
+	// The extension lives only on k > 0 and decays to zero on the wings as
+	// the σ_2 piece is clipped at zero.
+	const universalSpike = c.phl1c.map((v, i) => v - c.phl1[i]);
+	const extensionSpike = c.ghlow2cc.map((v, i) => v - c.ghlow2c[i]);
+	drawChart(
+		byId<HTMLCanvasElement>("c-ker"),
+		[
+			{
+				label: "universal K₁^dir",
+				x: c.k,
+				y: universalSpike,
+				color: "#059669",
+				width: 1.8,
+			},
+			{
+				label: "extension (σ₂ piece)",
+				x: c.k,
+				y: extensionSpike,
+				color: "#9333ea",
+				width: 1.8,
+				dash: [6, 3],
+			},
+		],
+		{
+			title: knot
+				? "ATM-knot IV correction: universal kernel + σ₂ extension"
+				: "ATM-knot IV corrections (δ = 0 ⇒ no knot, zero correction)",
+			xlabel: "log-moneyness k",
+			ylabel: "correction (annualised %)",
+			zeroLine: true,
+			atmLine: knot,
+			xDomain: zoomX.get("c-ker") ?? c.kValid,
+			yDomain: zoomY.get("c-ker") ?? null,
+		},
+	);
 
-  // Rubber-band selection rectangle while dragging.
-  for (const id of ['c-iv', 'c-err', 'c-loc', 'c-ker']) {
-    const d = drag.get(id);
-    if (!d) continue;
-    const cv = document.getElementById(id) as HTMLCanvasElement;
-    const ctx = cv.getContext('2d')!;
-    const ax = Math.min(d.x0, d.x1);
-    const bx = Math.max(d.x0, d.x1);
-    const ay = Math.min(d.y0, d.y1);
-    const by = Math.max(d.y0, d.y1);
-    ctx.fillStyle = 'rgba(37,99,235,0.12)';
-    ctx.fillRect(ax, ay, bx - ax, by - ay);
-    ctx.strokeStyle = 'rgba(37,99,235,0.5)';
-    ctx.strokeRect(ax, ay, bx - ax, by - ay);
-  }
+	// Rubber-band selection rectangle while dragging.
+	for (const id of ["c-iv", "c-err", "c-loc", "c-ker"]) {
+		const d = drag.get(id);
+		if (!d) continue;
+		const cv = byId<HTMLCanvasElement>(id);
+		const ctx = getContext2D(cv);
+		const ax = Math.min(d.x0, d.x1);
+		const bx = Math.max(d.x0, d.x1);
+		const ay = Math.min(d.y0, d.y1);
+		const by = Math.max(d.y0, d.y1);
+		ctx.fillStyle = "rgba(37,99,235,0.12)";
+		ctx.fillRect(ax, ay, bx - ax, by - ay);
+		ctx.strokeStyle = "rgba(37,99,235,0.5)";
+		ctx.strokeRect(ax, ay, bx - ax, by - ay);
+	}
 }
 
 // 2D rubber-band box zoom + double-click reset, per chart.
-for (const id of ['c-iv', 'c-err', 'c-loc', 'c-ker']) {
-  const cv = document.getElementById(id) as HTMLCanvasElement;
-  let down = false;
-  const loc = (e: MouseEvent) => {
-    const r = cv.getBoundingClientRect();
-    return { x: e.clientX - r.left, y: e.clientY - r.top };
-  };
-  cv.addEventListener('mousedown', (e) => {
-    down = true;
-    const p = loc(e);
-    drag.set(id, { x0: p.x, y0: p.y, x1: p.x, y1: p.y });
-  });
-  cv.addEventListener('mousemove', (e) => {
-    if (!down) return;
-    const d = drag.get(id)!;
-    const p = loc(e);
-    drag.set(id, { x0: d.x0, y0: d.y0, x1: p.x, y1: p.y });
-    requestAnimationFrame(draw);
-  });
-  const finish = (e: MouseEvent) => {
-    if (!down) return;
-    down = false;
-    const d = drag.get(id);
-    drag.set(id, null);
-    if (!d) return draw();
-    const plot = (cv as unknown as { __plot?: PlotMap }).__plot;
-    if (!plot) return draw();
-    const p = loc(e);
-    const ax = Math.min(d.x0, p.x);
-    const bx = Math.max(d.x0, p.x);
-    const ay = Math.min(d.y0, p.y);
-    const by = Math.max(d.y0, p.y);
-    // Too small in both dims → treat as a click, not a zoom.
-    if (bx - ax < 6 && by - ay < 6) return draw();
-    const clamp = (v: number, lo: number, hi: number) => Math.min(Math.max(v, lo), hi);
-    const toX = (pxv: number) =>
-      plot.xMin +
-      ((clamp(pxv, plot.px0, plot.px1) - plot.px0) / (plot.px1 - plot.px0)) *
-        (plot.xMax - plot.xMin);
-    const toY = (pyv: number) =>
-      plot.yMin +
-      ((plot.bottom - clamp(pyv, plot.top, plot.bottom)) / (plot.bottom - plot.top)) *
-        (plot.yMax - plot.yMin);
-    if (bx - ax >= 6) zoomX.set(id, [toX(ax), toX(bx)]);
-    if (by - ay >= 6) zoomY.set(id, [toY(by), toY(ay)]); // canvas y is inverted
-    draw();
-  };
-  cv.addEventListener('mouseup', finish);
-  cv.addEventListener('mouseleave', (e) => {
-    if (down) finish(e);
-  });
-  cv.addEventListener('dblclick', () => {
-    zoomX.set(id, null);
-    zoomY.set(id, null);
-    draw();
-  });
+for (const id of ["c-iv", "c-err", "c-loc", "c-ker"]) {
+	const cv = byId<HTMLCanvasElement>(id);
+	let down = false;
+	const loc = (e: MouseEvent) => {
+		const r = cv.getBoundingClientRect();
+		return { x: e.clientX - r.left, y: e.clientY - r.top };
+	};
+	cv.addEventListener("mousedown", (e) => {
+		down = true;
+		const p = loc(e);
+		drag.set(id, { x0: p.x, y0: p.y, x1: p.x, y1: p.y });
+	});
+	cv.addEventListener("mousemove", (e) => {
+		if (!down) return;
+		const d = mapGet(drag, id);
+		if (!d) return;
+		const p = loc(e);
+		drag.set(id, { x0: d.x0, y0: d.y0, x1: p.x, y1: p.y });
+		requestAnimationFrame(draw);
+	});
+	const finish = (e: MouseEvent) => {
+		if (!down) return;
+		down = false;
+		const d = drag.get(id);
+		drag.set(id, null);
+		if (!d) return draw();
+		const plot = (cv as unknown as { __plot?: PlotMap }).__plot;
+		if (!plot) return draw();
+		const p = loc(e);
+		const ax = Math.min(d.x0, p.x);
+		const bx = Math.max(d.x0, p.x);
+		const ay = Math.min(d.y0, p.y);
+		const by = Math.max(d.y0, p.y);
+		// Too small in both dims → treat as a click, not a zoom.
+		if (bx - ax < 6 && by - ay < 6) return draw();
+		const clamp = (v: number, lo: number, hi: number) =>
+			Math.min(Math.max(v, lo), hi);
+		const toX = (pxv: number) =>
+			plot.xMin +
+			((clamp(pxv, plot.px0, plot.px1) - plot.px0) / (plot.px1 - plot.px0)) *
+				(plot.xMax - plot.xMin);
+		const toY = (pyv: number) =>
+			plot.yMin +
+			((plot.bottom - clamp(pyv, plot.top, plot.bottom)) /
+				(plot.bottom - plot.top)) *
+				(plot.yMax - plot.yMin);
+		if (bx - ax >= 6) zoomX.set(id, [toX(ax), toX(bx)]);
+		if (by - ay >= 6) zoomY.set(id, [toY(by), toY(ay)]); // canvas y is inverted
+		draw();
+	};
+	cv.addEventListener("mouseup", finish);
+	cv.addEventListener("mouseleave", (e) => {
+		if (down) finish(e);
+	});
+	cv.addEventListener("dblclick", () => {
+		zoomX.set(id, null);
+		zoomY.set(id, null);
+		draw();
+	});
 }
 
 // Tab switching.
-const tabTool = document.getElementById('tab-tool')!;
-const tabAbout = document.getElementById('tab-about')!;
-const viewTool = document.getElementById('view-tool')!;
-const viewAbout = document.getElementById('view-about') as HTMLElement;
+const tabTool = byId("tab-tool");
+const tabAbout = byId("tab-about");
+const viewTool = byId("view-tool");
+const viewAbout = document.getElementById("view-about") as HTMLElement;
 function showTab(tool: boolean): void {
-  viewTool.hidden = !tool;
-  viewAbout.hidden = tool;
-  tabTool.classList.toggle('active', tool);
-  tabAbout.classList.toggle('active', !tool);
-  if (tool) draw(); // canvases may have been resized while hidden
+	viewTool.hidden = !tool;
+	viewAbout.hidden = tool;
+	tabTool.classList.toggle("active", tool);
+	tabAbout.classList.toggle("active", !tool);
+	if (tool) draw(); // canvases may have been resized while hidden
 }
-tabTool.addEventListener('click', () => showTab(true));
-tabAbout.addEventListener('click', () => showTab(false));
+tabTool.addEventListener("click", () => showTab(true));
+tabAbout.addEventListener("click", () => showTab(false));
 
-window.addEventListener('resize', () => {
-  if (!viewTool.hidden) draw();
+window.addEventListener("resize", () => {
+	if (!viewTool.hidden) draw();
 });
 recompute();

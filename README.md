@@ -195,6 +195,7 @@ PDE (independent operator, independent discretisation) within tolerance.
 src/math/    bbf0 phl1 ghlow2 pde kernel cubic normal gl model   (the maths)
 src/ui/      main controls chart                                 (the page)
 src/figures/ generate svg                                        (committed figs)
+src/util.ts  byId / getContext2D / findOrThrow / mapGet helpers
 examples/    params.json   (calibrated SPXW cases)
 tests/       reference.json + cross-check against the frozen fixture
 paper/       2piece-paper.tex refs.bib   (LaTeX note; PDF built in CI)

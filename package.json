@@ -9,9 +9,12 @@
     "preview": "vite preview",
     "test": "vitest run",
     "test:watch": "vitest",
-    "figures": "tsx src/figures/generate.ts"
+    "figures": "tsx src/figures/generate.ts",
+    "lint": "biome check src tests",
+    "lint:fix": "biome check src tests --write"
   },
   "devDependencies": {
+    "@biomejs/biome": "2.4.15",
     "@types/node": "^24.12.2",
     "tsx": "^4.22.3",
     "typescript": "~6.0.2",

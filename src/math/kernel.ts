@@ -17,10 +17,11 @@
  * K_1^dir subtracts PHL1's own iv_hm/sigma_1 variation so it is not
  * double-counted (the x^3 growth cancels and the kernel decays both sides).
  */
-import { gaussLegendre } from './gl';
-import { normCdf, normPdf } from './normal';
-import { sigma2 } from './ghlow2';
-import type { CubicCoeffs } from './cubic';
+
+import type { CubicCoeffs } from "./cubic";
+import { sigma2 } from "./ghlow2";
+import { gaussLegendre } from "./gl";
+import { normCdf, normPdf } from "./normal";
 
 export const K1_PEAK = (3 * Math.sqrt(2 * Math.PI)) / 128;
 
@@ -34,34 +35,34 @@ const BETA_NODE: number[] = LAM.map((l) => Math.sqrt(l * (1 - l)));
 const BRIDGE_W: number[] = BETA_NODE.map((b) => b * b * b);
 
 function fEta(eta: number): number {
-  return (eta ** 3 + 3 * eta) * normCdf(eta) + (2 + eta * eta) * normPdf(eta);
+	return (eta ** 3 + 3 * eta) * normCdf(eta) + (2 + eta * eta) * normPdf(eta);
 }
 
 /** K_1(x, w): raw first-order Duhamel kernel (right-side perturbation reference). */
 export function K1(x: number, w: number): number {
-  let acc = 0;
-  for (let i = 0; i < N_QUAD; i++) {
-    const lam = LAM[i];
-    const eta = (lam * x - (1 - lam) * w) / BETA_NODE[i];
-    acc += QW[i] * BRIDGE_W[i] * fEta(eta);
-  }
-  return acc;
+	let acc = 0;
+	for (let i = 0; i < N_QUAD; i++) {
+		const lam = LAM[i];
+		const eta = (lam * x - (1 - lam) * w) / BETA_NODE[i];
+		acc += QW[i] * BRIDGE_W[i] * fEta(eta);
+	}
+	return acc;
 }
 
 function ivHmKernel(x: number, w: number): number {
-  return x > 0 ? x ** 4 / (4 * (x + w)) : 0;
+	return x > 0 ? x ** 4 / (4 * (x + w)) : 0;
 }
 
 function sigma1Kernel(x: number, w: number): number {
-  return x > 0 ? (x ** 3 * (x + 2 * w)) / (4 * (x + w) ** 3) : 0;
+	return x > 0 ? (x ** 3 * (x + 2 * w)) / (4 * (x + w) ** 3) : 0;
 }
 
 /** Direction-aware K_1^dir kernel: delta_PDE_IV - delta_PHL1 (decays at large |x|). */
 export function K1Dir(x: number, w: number): number {
-  const signW = w >= 0 ? 1 : -1;
-  const xd = signW * x;
-  const wAbs = Math.abs(w);
-  return K1(xd, wAbs) - ivHmKernel(xd, wAbs) - sigma1Kernel(xd, wAbs);
+	const signW = w >= 0 ? 1 : -1;
+	const xd = signW * x;
+	const wAbs = Math.abs(w);
+	return K1(xd, wAbs) - ivHmKernel(xd, wAbs) - sigma1Kernel(xd, wAbs);
 }
 
 /**
@@ -72,9 +73,13 @@ export function K1Dir(x: number, w: number): number {
  * @param delta        gamma discontinuity (Delta_gamma), annualised-% units
  * @param sigmaTotal   sigma_loc(0)/scale  (= sigma_knot at an ATM knot)
  */
-export function knotSpikePhl1(k: number, delta: number, sigmaTotal: number): number {
-  const x = k / sigmaTotal;
-  return delta * sigmaTotal ** 3 * K1Dir(x, 0);
+export function knotSpikePhl1(
+	k: number,
+	delta: number,
+	sigmaTotal: number,
+): number {
+	const x = k / sigmaTotal;
+	return delta * sigmaTotal ** 3 * K1Dir(x, 0);
 }
 
 /**
@@ -107,19 +112,20 @@ export function knotSpikePhl1(k: number, delta: number, sigmaTotal: number): num
  * collapses back to the universal K_1^dir kernel out there.
  */
 export function knotSpikeGhlow2cc(
-  k: number,
-  c: CubicCoeffs,
-  delta: number,
-  sigmaTotal: number,
-  scale: number,
+	k: number,
+	c: CubicCoeffs,
+	delta: number,
+	sigmaTotal: number,
+	scale: number,
 ): number {
-  const phl1Piece = knotSpikePhl1(k, delta, sigmaTotal);
-  if (k <= 0 || delta === 0) return phl1Piece;
-  const cPerturbed: CubicCoeffs = { ...c, gamma: c.gamma + delta };
-  const sigma2VarPct = (sigma2(k, cPerturbed, scale) - sigma2(k, c, scale)) * scale;
-  const signedCap = (c.sigma ** 3 * c.beta * delta) / (20 * scale ** 4);
-  const lo = Math.min(signedCap, 0);
-  const hi = Math.max(signedCap, 0);
-  const sigma2VarClipped = Math.min(hi, Math.max(lo, sigma2VarPct));
-  return phl1Piece - sigma2VarClipped;
+	const phl1Piece = knotSpikePhl1(k, delta, sigmaTotal);
+	if (k <= 0 || delta === 0) return phl1Piece;
+	const cPerturbed: CubicCoeffs = { ...c, gamma: c.gamma + delta };
+	const sigma2VarPct =
+		(sigma2(k, cPerturbed, scale) - sigma2(k, c, scale)) * scale;
+	const signedCap = (c.sigma ** 3 * c.beta * delta) / (20 * scale ** 4);
+	const lo = Math.min(signedCap, 0);
+	const hi = Math.max(signedCap, 0);
+	const sigma2VarClipped = Math.min(hi, Math.max(lo, sigma2VarPct));
+	return phl1Piece - sigma2VarClipped;
 }

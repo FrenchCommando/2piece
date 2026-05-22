@@ -3,97 +3,189 @@
  * (full-resolution PDE) — `npm run figures` then `git diff` lets a cloner
  * confirm the images are identical. Run: `npx tsx src/figures/generate.ts`.
  */
-import { writeFileSync, mkdirSync } from 'node:fs';
-import { fileURLToPath } from 'node:url';
-import { dirname, join } from 'node:path';
-import { computeCurves, type ModelInputs } from '../math/model';
-import { K1_PEAK } from '../math/kernel';
-import { renderSvg, type Series } from './svg';
-import examples from '../../examples/params.json';
+import { mkdirSync, writeFileSync } from "node:fs";
+import { dirname, join } from "node:path";
+import { fileURLToPath } from "node:url";
+import examples from "../../examples/params.json";
+import { K1_PEAK } from "../math/kernel";
+import { computeCurves, type ModelInputs } from "../math/model";
+import { findOrThrow } from "../util";
+import { renderSvg, type Series } from "./svg";
 
-const ROOT = join(dirname(fileURLToPath(import.meta.url)), '..', '..');
-const OUT = join(ROOT, 'figures');
+const ROOT = join(dirname(fileURLToPath(import.meta.url)), "..", "..");
+const OUT = join(ROOT, "figures");
 mkdirSync(OUT, { recursive: true });
 
-const EX = (examples as { examples: ModelInputs[] & { id: string; label: string }[] }).examples;
-const byId = (id: string) => EX.find((e) => (e as unknown as { id: string }).id === id)!;
+const EX = (
+	examples as { examples: (ModelInputs & { id: string; label: string })[] }
+).examples;
+const byId = (id: string) =>
+	findOrThrow(
+		EX,
+		(e) => (e as unknown as { id: string }).id === id,
+		`no example ${id}`,
+	);
 
 const FULL = { nGrid: 3201, nSteps: 3200 };
 
-function smileFig(file: string, title: string, inp: ModelInputs, knot: boolean): void {
-  const c = computeCurves(inp, 401, FULL);
-  // No knot: 4-curve set (BBF0/PHL1/GHLOW2). With knot: 7-curve set adding
-  // PHL1c, GHLOW2c (PHL1c-style universal kernel) and GHLOW2cc (extended
-  // kernel that also closes σ_2's value jump) alongside both baselines.
-  const iv: Series[] = [
-    { label: 'PDE (truth)', x: c.k, y: c.pde, color: '#18181b', width: 2 },
-    { label: 'BBF0', x: c.k, y: c.bbf0, color: '#a1a1aa', dash: '5 4' },
-    { label: 'PHL1', x: c.k, y: c.phl1, color: '#2563eb' },
-    ...(knot
-      ? [
-          { label: 'PHL1c', x: c.k, y: c.phl1c, color: '#dc2626', width: 1.8 } as Series,
-          { label: 'GHLOW2', x: c.k, y: c.ghlow2, color: '#0d9488' } as Series,
-          { label: 'GHLOW2c', x: c.k, y: c.ghlow2c, color: '#f59e0b', width: 1.8 } as Series,
-          { label: 'GHLOW2cc', x: c.k, y: c.ghlow2cc, color: '#9333ea', width: 1.8 } as Series,
-        ]
-      : [{ label: 'GHLOW2', x: c.k, y: c.ghlow2, color: '#ea580c' } as Series]),
-  ];
-  const e = (y: number[]) => y.map((v, i) => (v - c.pde[i]) * 100);
-  const err: Series[] = [
-    { label: 'BBF0 − PDE', x: c.k, y: e(c.bbf0), color: '#a1a1aa', dash: '5 4' },
-    { label: 'PHL1 − PDE', x: c.k, y: e(c.phl1), color: '#2563eb' },
-    ...(knot
-      ? [
-          { label: 'PHL1c − PDE', x: c.k, y: e(c.phl1c), color: '#dc2626', width: 1.8 } as Series,
-          { label: 'GHLOW2 − PDE', x: c.k, y: e(c.ghlow2), color: '#0d9488' } as Series,
-          { label: 'GHLOW2c − PDE', x: c.k, y: e(c.ghlow2c), color: '#f59e0b', width: 1.8 } as Series,
-          { label: 'GHLOW2cc − PDE', x: c.k, y: e(c.ghlow2cc), color: '#9333ea', width: 1.8 } as Series,
-        ]
-      : [{ label: 'GHLOW2 − PDE', x: c.k, y: e(c.ghlow2), color: '#ea580c' } as Series]),
-  ];
-  const panels = [
-    { series: iv, opts: { title, xlabel: 'log-moneyness k', ylabel: 'implied vol (ann %)', atmLine: knot } },
-    {
-      series: err,
-      opts: {
-        title: 'Error vs PDE (basis points)',
-        xlabel: 'log-moneyness k',
-        ylabel: 'error (bps)',
-        zeroLine: true,
-        atmLine: knot,
-      },
-    },
-  ];
-  // BBF0's error dwarfs the others and squashes the y-axis; a third panel
-  // without BBF0 makes the corrected / uncorrected comparison legible —
-  // for both the no-knot and knot cases.
-  panels.push({
-    series: err.filter((s) => !s.label.startsWith('BBF0')),
-    opts: {
-      title: knot
-        ? 'Error vs PDE — BBF0 excluded (PHL1 / PHL1c vs GHLOW2 / GHLOW2c / GHLOW2cc)'
-        : 'Error vs PDE — BBF0 excluded (PHL1 vs GHLOW2)',
-      xlabel: 'log-moneyness k',
-      ylabel: 'error (bps)',
-      zeroLine: true,
-      atmLine: knot,
-    },
-  });
-  const svg = renderSvg(panels);
-  writeFileSync(join(OUT, file), svg);
-  const maxBbf =
-    Math.max(
-      ...c.bbf0.map((v, i) => Math.abs(v - c.pde[i])).filter((d) => isFinite(d)),
-    ) * 100;
-  // eslint-disable-next-line no-console
-  console.log(`${file}: max|BBF0−PDE| = ${maxBbf.toFixed(1)} bps`);
+function smileFig(
+	file: string,
+	title: string,
+	inp: ModelInputs,
+	knot: boolean,
+): void {
+	const c = computeCurves(inp, 401, FULL);
+	// No knot: 4-curve set (BBF0/PHL1/GHLOW2). With knot: 7-curve set adding
+	// PHL1c, GHLOW2c (PHL1c-style universal kernel) and GHLOW2cc (extended
+	// kernel that also closes σ_2's value jump) alongside both baselines.
+	const iv: Series[] = [
+		{ label: "PDE (truth)", x: c.k, y: c.pde, color: "#18181b", width: 2 },
+		{ label: "BBF0", x: c.k, y: c.bbf0, color: "#a1a1aa", dash: "5 4" },
+		{ label: "PHL1", x: c.k, y: c.phl1, color: "#2563eb" },
+		...(knot
+			? [
+					{
+						label: "PHL1c",
+						x: c.k,
+						y: c.phl1c,
+						color: "#dc2626",
+						width: 1.8,
+					} as Series,
+					{ label: "GHLOW2", x: c.k, y: c.ghlow2, color: "#0d9488" } as Series,
+					{
+						label: "GHLOW2c",
+						x: c.k,
+						y: c.ghlow2c,
+						color: "#f59e0b",
+						width: 1.8,
+					} as Series,
+					{
+						label: "GHLOW2cc",
+						x: c.k,
+						y: c.ghlow2cc,
+						color: "#9333ea",
+						width: 1.8,
+					} as Series,
+				]
+			: [{ label: "GHLOW2", x: c.k, y: c.ghlow2, color: "#ea580c" } as Series]),
+	];
+	const e = (y: number[]) => y.map((v, i) => (v - c.pde[i]) * 100);
+	const err: Series[] = [
+		{
+			label: "BBF0 − PDE",
+			x: c.k,
+			y: e(c.bbf0),
+			color: "#a1a1aa",
+			dash: "5 4",
+		},
+		{ label: "PHL1 − PDE", x: c.k, y: e(c.phl1), color: "#2563eb" },
+		...(knot
+			? [
+					{
+						label: "PHL1c − PDE",
+						x: c.k,
+						y: e(c.phl1c),
+						color: "#dc2626",
+						width: 1.8,
+					} as Series,
+					{
+						label: "GHLOW2 − PDE",
+						x: c.k,
+						y: e(c.ghlow2),
+						color: "#0d9488",
+					} as Series,
+					{
+						label: "GHLOW2c − PDE",
+						x: c.k,
+						y: e(c.ghlow2c),
+						color: "#f59e0b",
+						width: 1.8,
+					} as Series,
+					{
+						label: "GHLOW2cc − PDE",
+						x: c.k,
+						y: e(c.ghlow2cc),
+						color: "#9333ea",
+						width: 1.8,
+					} as Series,
+				]
+			: [
+					{
+						label: "GHLOW2 − PDE",
+						x: c.k,
+						y: e(c.ghlow2),
+						color: "#ea580c",
+					} as Series,
+				]),
+	];
+	const panels = [
+		{
+			series: iv,
+			opts: {
+				title,
+				xlabel: "log-moneyness k",
+				ylabel: "implied vol (ann %)",
+				atmLine: knot,
+			},
+		},
+		{
+			series: err,
+			opts: {
+				title: "Error vs PDE (basis points)",
+				xlabel: "log-moneyness k",
+				ylabel: "error (bps)",
+				zeroLine: true,
+				atmLine: knot,
+			},
+		},
+	];
+	// BBF0's error dwarfs the others and squashes the y-axis; a third panel
+	// without BBF0 makes the corrected / uncorrected comparison legible —
+	// for both the no-knot and knot cases.
+	panels.push({
+		series: err.filter((s) => !s.label.startsWith("BBF0")),
+		opts: {
+			title: knot
+				? "Error vs PDE — BBF0 excluded (PHL1 / PHL1c vs GHLOW2 / GHLOW2c / GHLOW2cc)"
+				: "Error vs PDE — BBF0 excluded (PHL1 vs GHLOW2)",
+			xlabel: "log-moneyness k",
+			ylabel: "error (bps)",
+			zeroLine: true,
+			atmLine: knot,
+		},
+	});
+	const svg = renderSvg(panels);
+	writeFileSync(join(OUT, file), svg);
+	const maxBbf =
+		Math.max(
+			...c.bbf0
+				.map((v, i) => Math.abs(v - c.pde[i]))
+				.filter((d) => Number.isFinite(d)),
+		) * 100;
+	// eslint-disable-next-line no-console
+	console.log(`${file}: max|BBF0−PDE| = ${maxBbf.toFixed(1)} bps`);
 }
 
 // F1 happy, F2 concave (no knot): PDE/BBF0/PHL1/GHLOW2.
-smileFig('F1_happy.svg', 'Happy case — SPXW 2025-03-10 DTE 1 (monotone skew)', byId('happy'), false);
-smileFig('F2_concave.svg', 'Concave case — SPXW 2025-03-10 DTE 3 (concave smile)', byId('concave'), false);
+smileFig(
+	"F1_happy.svg",
+	"Happy case — SPXW 2025-03-10 DTE 1 (monotone skew)",
+	byId("happy"),
+	false,
+);
+smileFig(
+	"F2_concave.svg",
+	"Concave case — SPXW 2025-03-10 DTE 3 (concave smile)",
+	byId("concave"),
+	false,
+);
 // F3 unhappy fake knot at k=0: PDE/BBF0/PHL1/PHL1c/GHLOW2/GHLOW2c/GHLOW2cc.
-smileFig('F3_knot.svg', 'Unhappy case — fake ATM knot at k=0', byId('knot'), true);
+smileFig(
+	"F3_knot.svg",
+	"Unhappy case — fake ATM knot at k=0",
+	byId("knot"),
+	true,
+);
 
 // F4: the universal kernel and the σ_2 extension piece for the knot example.
 //   - universal K_1^dir = PHL1c − PHL1 = GHLOW2c − GHLOW2  (BBF0/σ_1
@@ -105,39 +197,39 @@ smileFig('F3_knot.svg', 'Unhappy case — fake ATM knot at k=0', byId('knot'), t
 // The extension lives entirely on k > 0 — it is non-zero only there because
 // the σ_2 δ-variation is one-sided — and starts at the closed-form ATM
 // scalar |Δσ_2(0)| = 0.171 bps, decaying to zero as the clip engages.
-const kc = computeCurves(byId('knot'), 401, FULL);
+const kc = computeCurves(byId("knot"), 401, FULL);
 const universalSpike = kc.phl1c.map((v, i) => v - kc.phl1[i]);
 const extensionSpike = kc.ghlow2cc.map((v, i) => v - kc.ghlow2c[i]);
 writeFileSync(
-  join(OUT, 'F4_kernel.svg'),
-  renderSvg([
-    {
-      series: [
-        {
-          label: 'universal K₁^dir',
-          x: kc.k,
-          y: universalSpike,
-          color: '#059669',
-          width: 1.8,
-        },
-        {
-          label: 'extension (σ_2 piece)',
-          x: kc.k,
-          y: extensionSpike,
-          color: '#9333ea',
-          width: 1.8,
-          dash: '6 3',
-        },
-      ],
-      opts: {
-        title: `ATM-knot IV corrections (universal kernel peak K₁(0,0) = ${K1_PEAK.toFixed(5)})`,
-        xlabel: 'log-moneyness k',
-        ylabel: 'correction (annualised %)',
-        zeroLine: true,
-        atmLine: true,
-      },
-    },
-  ]),
+	join(OUT, "F4_kernel.svg"),
+	renderSvg([
+		{
+			series: [
+				{
+					label: "universal K₁^dir",
+					x: kc.k,
+					y: universalSpike,
+					color: "#059669",
+					width: 1.8,
+				},
+				{
+					label: "extension (σ_2 piece)",
+					x: kc.k,
+					y: extensionSpike,
+					color: "#9333ea",
+					width: 1.8,
+					dash: "6 3",
+				},
+			],
+			opts: {
+				title: `ATM-knot IV corrections (universal kernel peak K₁(0,0) = ${K1_PEAK.toFixed(5)})`,
+				xlabel: "log-moneyness k",
+				ylabel: "correction (annualised %)",
+				zeroLine: true,
+				atmLine: true,
+			},
+		},
+	]),
 );
 // eslint-disable-next-line no-console
-console.log('F4_kernel.svg: K_1 peak =', K1_PEAK.toFixed(6));
+console.log("F4_kernel.svg: K_1 peak =", K1_PEAK.toFixed(6));

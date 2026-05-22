@@ -63,6 +63,17 @@ positioning.
   closed-form correction layer); the bare `corr` abbreviation is
   forbidden because in finance it means correlation. Full rule +
   identifier table in [`memory/naming-convention.md`](memory/naming-convention.md).
+- **Linter** (settled 2026-05-22): Biome with stock defaults
+  (`biome.json` — tabs, double quotes, alphabetical imports). Both
+  Biome rules `noNonNullAssertion` and `noExplicitAny` are on. The
+  former is the load-bearing call: rather than suppress it, we added
+  tiny throwing helpers in [`src/util.ts`](src/util.ts) (`byId`,
+  `getContext2D`, `findOrThrow`, `mapGet`) so the same brevity at the
+  call site gets a descriptive error when an invariant breaks instead
+  of a downstream null deref. `noExplicitAny` is suppressed only at
+  the three JSON-fixture indexing sites in `tests/reference.test.ts`
+  with inline `biome-ignore` comments. `npm run lint` (CI) and
+  `npm run lint:fix` (local).
 
 ## Example parameters
 
@@ -370,7 +381,10 @@ this in CI on every push.
     ui/       main.ts chart.ts style.css  (debounced inputs, 4 canvas charts)
     figures/  generate.ts svg.ts          (committed-SVG generator)
               stats.ts asymptotic_scan.ts (per-method bps + wing-asymptotic check)
+    util.ts   (byId / getContext2D / findOrThrow / mapGet — throwing helpers
+              for "I know this exists" lookups; see Decisions §Linter)
     env.d.ts
+  biome.json  (linter config — stock defaults, see Decisions §Linter)
   examples/params.json
   tests/    reference.json + reference.test.ts (cross-check vs fixture)
   paper/    2piece-paper.tex  refs.bib   (concise; simple ATM-knot derivation)
