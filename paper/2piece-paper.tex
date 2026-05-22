@@ -312,6 +312,40 @@ per layer.
 The bridge integral \eqref{eq:phibb} is evaluated with a 32-point
 Gauss--Legendre rule.
 
+Table~\ref{tab:summary} summarises every method, kernel, and term
+introduced above.
+
+\begin{table}[h]
+\centering
+\begin{tabular}{lll}
+\toprule
+\multicolumn{3}{l}{\textit{Methods} (each is a closed-form approximation to the Dupire IV)}\\
+\midrule
+Name      & Definition                            & Order in $T$ at the knot \\
+\midrule
+BBF0      & $k\,/\!\int_0^k\!dy/\sloc(y)$         & $T^{0}$ \\
+PHL1      & BBF0 $+$ $\sigma_1 T$                 & $T^{1}$ \\
+PHL1c     & PHL1 $+$ universal kernel             & $T^{1}+T^{3/2}$ \\
+GHLOW2    & PHL1 $+$ $\sigma_2 T^{2}$             & $T^{2}$ \\
+GHLOW2c   & GHLOW2 $+$ universal kernel           & $T^{2}+T^{3/2}$ \\
+GHLOW2cc  & GHLOW2 $+$ extended kernel            & $T^{2}+T^{3/2}$ \\
+\midrule
+\multicolumn{3}{l}{\textit{Kernels and terms} (each scales by $\delta\,\stot^{3}$ to give an IV-level correction in ann.\,\%)}\\
+\midrule
+Name              & Definition                                              & Where it lives \\
+\midrule
+universal kernel  & $\Phi_{BB}^{\mathrm{dir}}(x,0)$, eq.~\eqref{eq:phibb-dir} & both sides; pure function of $x$ \\
+extension (piece) & the $\sigma_2$ $\delta$-variation subtraction in eq.~\eqref{eq:ghlow2-dir} & $x>0$ only; $(b,a,g)$-parametric \\
+extended kernel   & $\Phi_{BB,\,\mathrm{GHLOW2}}^{\mathrm{dir}}$, eq.~\eqref{eq:ghlow2-dir} & both sides; $=$ universal kernel $+$ extension \\
+\bottomrule
+\end{tabular}
+\caption{Summary of methods, kernels, and terms. The ``c'' suffix counts
+correction layers stacked on a baseline: one $c$ per layer. Both
+GHLOW2c and GHLOW2cc are at $T^{2}+T^{3/2}$ asymptotic order; they
+differ by the extension piece, which only kicks in for $k>0$.}
+\label{tab:summary}
+\end{table}
+
 \section{Results}\label{sec:results}
 
 Parameters come from real SPXW surfaces calibrated with a 20-parameter

@@ -94,6 +94,8 @@ same idea for params: pull SPXW 1DTE, only keep ATM values, first knot, disconti
 - PHL1
 - PHL1c
 
+[updated 2026-05-21: the shipped figure also includes GHLOW2, GHLOW2c (universal kernel on GHLOW2), and GHLOW2cc (extended kernel with σ_2 clip) — see NOTES.md for the timeline and the definitions table]
+
 ## Credits
 
 ThetaData for contributing the data
@@ -103,7 +105,11 @@ ThetaData for contributing the data
 
 python 3.14 with local venv
 
+[updated 2026-05-19: Python dropped — the project ships as vanilla TypeScript + Vite, no Python runtime, no venv. The TS math core (`src/math/`) is the single source of truth and is cross-checked against the upstream Python reference in CI. See NOTES.md §"DEVIATION from CLAUDE.md".]
+
 use [paper](theta-options\paper) with the corresponding venv to calibrate/select SPXW smiles and derive parameters to use in examples (store references and values in json) - we need to iterate on these so that the selected smiles are relevant.
+
+[updated 2026-05-19: that one-off calibration is done; results are baked into `examples/params.json` (live values) and `tests/reference.json` (CI cross-check fixture). No further venv usage in this repo.]
 
 the code in this repo should be able to generate all the graphs and support the interactive page. This means that we need to be able to run the PDE, and compute all the approximations.
 
@@ -115,6 +121,8 @@ User who clone the repo and setup the venv should be able to run a script to gen
 One script to generate all the graphs that are referenced in the readme and final paper.
 Another script to generate equivelent graphs with custom inputs.
 All graphs are added to git for simplicity - user can confirm that the images are identical when running locally.
+
+[updated 2026-05-19: shipped as `npx tsx src/figures/generate.ts` (deterministic SVGs from the TS core, committed to `figures/`) rather than matplotlib. `git diff figures/` after running confirms identical output. Custom-input graphs are served by the interactive page itself.]
 
 github-actions to generate the research paper (also in git) - but the action generates it as an artifact, so that I don't have to have LaTeX installed
 
