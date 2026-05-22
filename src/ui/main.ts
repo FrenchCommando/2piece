@@ -162,11 +162,11 @@ app.innerHTML = `
     dashed-purple curve in panel&nbsp;4.</p>
 
     <h2>Trust</h2>
-    <p>Everything is computed in your browser. The math core is a 1:1 port
-    of an independently-validated Python reference and is cross-checked
-    against it in CI — BBF0/PHL1/GHLOW2 to 1e-6, the kernel to 1e-9, and the
-    full knot model against the Dupire PDE. Example smile parameters are
-    calibrated from real SPXW surfaces.</p>
+    <p>Everything is computed in your browser. The math core is checked
+    in CI against a committed numerical fixture — BBF0/PHL1/GHLOW2 to
+    1e-6, the kernel to 1e-9 — and the full knot-case model is checked
+    against the Dupire PDE (an independent operator and discretisation).
+    Example smile parameters are calibrated from real SPXW surfaces.</p>
 
     <h2>Links</h2>
     <ul>

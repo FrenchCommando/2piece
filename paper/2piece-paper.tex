@@ -627,9 +627,11 @@ involved because the bounded-polynomial collapse used here disappears.
 \section{Reproducibility}
 
 All numbers and figures are produced by the open TypeScript core in the
-companion repository, cross-checked against an independent Python reference
-to $10^{-6}$ (closed forms) and $10^{-9}$ (the kernel). The figures are
-deterministic: regenerating them and diffing reproduces this paper exactly.
+companion repository, cross-checked against a committed numerical fixture
+to $10^{-6}$ (closed forms) and $10^{-9}$ (the kernel), and against the
+Dupire forward PDE on the knot-case model within tolerance. The figures
+are deterministic: regenerating them and diffing reproduces this paper
+exactly.
 
 \paragraph{Credits.} Market data for the calibrated example smiles:
 ThetaData.

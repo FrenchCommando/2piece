@@ -3,8 +3,7 @@
  * First-order term of the Dyson series for the call-price evolution against
  * constant-sigma Black, written in its Brownian-bridge form (the bridge
  * framing is bookkeeping for the small-T scaling, not separate machinery).
- * Port of the Python reference kernel + knot-spike routine, specialised to
- * a knot at k=0.
+ * Specialised to a knot at k=0.
  *
  * Perturbation: delta_sigma_loc(k) = Delta_gamma * k^3 * H(k)  (knot at k=0).
  * First order: delta_sigma_IV(k) = Delta_gamma * sigma_total^3 *

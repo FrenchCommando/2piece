@@ -88,9 +88,8 @@ integrand, and (ii) "Brownian-bridge" is the integrand's *form* (after
 the `λ=τ/T` rescaling), not the method — calling the kernel by the
 bookkeeping rather than the load-bearing object misframes it. Paper-side
 symbol `K_1` / `K_1^dir` / `K_1^ext`; TS code `K1` / `K1Dir` / `K1_PEAK`
-in `src/math/kernel.ts`; CI fixture `tests/reference.json` keeps the
-upstream Python convention (`phibb_w0`, `phi_bb`, `phi_bb_directed`)
-since those keys describe what the *Python reference* exposes.
+in `src/math/kernel.ts`; CI fixture `tests/reference.json` uses matching
+keys `K1_w0` / `K1` / `K1_dir`.
 
 ### Quick-reference table — methods, kernels, terms
 
@@ -356,11 +355,10 @@ Corrected form: `σ_N = σ_D + (1/16)√(π/2)·√T·Δ(σ²_D)'`. Verified
 against the original PDF 2026-05-20. No action needed in the upstream
 notes — they are correctly transcribed; the error is CP's.
 
-Reference impl: an independently-developed Python codebase covering
-BBF0/PHL1/GHLOW2, the Dupire PDE solver, and the K_1 kernel (exact paths
-in CLAUDE.md / project memory, deliberately not in this self-contained
-repo). The TS port must match it numerically; `tests/reference.json` is the
-frozen cross-check fixture dumped from it.
+Reference fixture: `tests/reference.json` is a frozen numerical fixture
+covering BBF0/PHL1/GHLOW2, the Dupire PDE, and the K_1 kernel. The TS
+math core in `src/math` must match it numerically — `npm test` enforces
+this in CI on every push.
 
 ## Architecture
 
@@ -374,7 +372,7 @@ frozen cross-check fixture dumped from it.
               stats.ts asymptotic_scan.ts (per-method bps + wing-asymptotic check)
     env.d.ts
   examples/params.json
-  tests/    reference.json + reference.test.ts (TS-vs-Python cross-check)
+  tests/    reference.json + reference.test.ts (cross-check vs fixture)
   paper/    2piece-paper.tex  refs.bib   (concise; simple ATM-knot derivation)
   figures/  committed deterministic SVGs (README + paper share these)
   .github/workflows/  pages.yml  paper.yml

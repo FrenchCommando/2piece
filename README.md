@@ -167,7 +167,7 @@ jump), and decays to zero as the clip engages:
 
 ## Running locally
 
-Requires Node (≥ 20). No Python, no venv.
+Requires Node (≥ 20). No other runtime dependencies.
 
 ```bash
 npm install
@@ -183,12 +183,11 @@ the code.
 
 ## How it is validated
 
-`src/math` is the single source of truth. It is a 1:1 port of an
-independently-developed, already-validated Python reference implementation.
-`tests/reference.json` holds numbers dumped from that reference; `npm test`
-checks the TS port reproduces them — BBF0/PHL1/GHLOW2 to 1e-6, K_1 to 1e-9,
-and the full knot model against the Dupire PDE within tolerance. CI runs
-this on every push.
+`src/math` is the single source of truth. Two cross-checks run in CI on
+every push: (i) `tests/reference.json` is a frozen numerical fixture and
+`npm test` checks the math core reproduces it — BBF0/PHL1/GHLOW2 to 1e-6,
+K_1 to 1e-9; (ii) the full knot-case model is checked against the Dupire
+PDE (independent operator, independent discretisation) within tolerance.
 
 ## Layout
 
@@ -197,7 +196,7 @@ src/math/    bbf0 phl1 ghlow2 pde kernel cubic normal gl model   (the maths)
 src/ui/      main controls chart                                 (the page)
 src/figures/ generate svg                                        (committed figs)
 examples/    params.json   (calibrated SPXW cases)
-tests/       reference.json + cross-check against the Python reference
+tests/       reference.json + cross-check against the frozen fixture
 paper/       2piece-paper.tex refs.bib   (LaTeX note; PDF built in CI)
 figures/     committed deterministic SVGs (README + paper share these)
 memory/      project CLAUDE memory (repo is self-contained)

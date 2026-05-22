@@ -1,8 +1,7 @@
 /**
  * Centre cubic local vol and the polynomial helpers used by the near-ATM
- * (cancellation-safe) sigma_1 / sigma_2 paths. Ported 1:1 from the Python
- * reference (sigma1/sigma2 polynomial modules) — there is a single cubic
- * piece anchored at y=0, so no piece-switching machinery.
+ * (cancellation-safe) sigma_1 / sigma_2 paths. Single cubic piece anchored
+ * at y=0, so no piece-switching machinery.
  *
  * sigma_loc(k) = sigma + beta*k + alpha*k^2 + gamma*k^3   (annualised %)
  */
