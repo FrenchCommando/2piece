@@ -740,9 +740,18 @@ paper answers.
 ### PDF distribution (non-obvious — do not re-track in repo)
 The compiled PDF is **not** tracked in the repo. Source of truth is
 `paper/2piece-paper.tex`; `paper.yml` builds it as the `2piece-paper`
-CI artifact, and the user attaches that artifact to a **GitHub Release**
-(see commit `46cbe27`, "attach paper to release"). Readers get the
-PDF from the release page, not the repo tree.
+CI artifact and uploads it to a **GitHub Release** via
+`softprops/action-gh-release` on every paper-affecting push to master.
+Readers get the PDF from the release page, not the repo tree.
+
+**Tag naming** (settled 2026-05-22): tags are
+`paper-YYYYMMDD-HHMMSS-<short_sha>` (commit timestamp in UTC + 7-char
+SHA) so the GitHub Releases UI sorts chronologically when sorted
+alphabetically. The earlier `paper-<full_sha>` format sorted by
+alphabet, which is meaningless. Stable consumer-facing URL stays
+`releases/latest/download/2piece-paper.pdf` (independent of tag
+naming). The 11 old SHA-named releases were deleted on the rename day;
+the next paper-affecting push primes the first new-format release.
 
 Earlier the repo *did* track `2piece-paper.pdf` at the root with a
 manual-refresh workflow; that has been retired (2026-05-21) in favour

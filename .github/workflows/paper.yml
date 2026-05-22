@@ -71,12 +71,26 @@ jobs:
       # Publish as a Release asset so the PDF is downloadable without a
       # GitHub login. Stable URL pattern:
       #   github.com/<repo>/releases/latest/download/2piece-paper.pdf
-      # One release per paper-affecting push; tag = commit SHA, "latest"
+      # One release per paper-affecting push. Tag is the commit timestamp
+      # (UTC, second precision) + short SHA so that lexical sort on the
+      # GitHub Releases UI matches chronological order. The "latest"
       # marker moves automatically via make_latest:true.
+      - name: Compute release name from commit timestamp
+        id: relname
+        run: |
+          COMMIT_TS=$(git log -1 --format=%ct)
+          TIMESTAMP=$(date -u -d "@$COMMIT_TS" +"%Y%m%d-%H%M%S")
+          DISPLAY=$(date -u -d "@$COMMIT_TS" +"%Y-%m-%d %H:%M:%S UTC")
+          SHORT_SHA=$(git rev-parse --short HEAD)
+          {
+            echo "tag=paper-${TIMESTAMP}-${SHORT_SHA}"
+            echo "name=Paper ${DISPLAY} (${SHORT_SHA})"
+          } >> "$GITHUB_OUTPUT"
+
       - uses: softprops/action-gh-release@v2
         with:
-          tag_name: paper-${{ github.sha }}
-          name: Paper build ${{ github.sha }}
+          tag_name: ${{ steps.relname.outputs.tag }}
+          name: ${{ steps.relname.outputs.name }}
           files: paper/2piece-paper.pdf
           body: |
             Auto-built paper PDF from commit ${{ github.sha }}.
