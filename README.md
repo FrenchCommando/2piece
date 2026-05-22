@@ -116,12 +116,16 @@ kernel, which decays on both sides:
 The corrected method is then
 
 ```
-PHL1c(k) = PHL1(k) + δ·σ_total³·Φ_BB^directed(k/σ_total, 0)
+PHL1c(k)    = PHL1(k)   + δ·σ_total³·Φ_BB^directed(k/σ_total, 0)
+GHLOW2c(k)  = GHLOW2(k) + δ·σ_total³·Φ_BB^directed(k/σ_total, 0)   (same universal kernel, T² baseline)
+GHLOW2cc(k) = GHLOW2(k) + δ·σ_total³·Φ_BB,GHLOW2^directed(k/σ_total, 0)   (extended kernel, also kills σ₂'s value jump)
 ```
 
-with PHL1 evaluated on the perturbed surface (so the cancellation is exact to
-first order). The full derivation is in
-[`paper/2piece-paper.tex`](paper/2piece-paper.tex).
+with the baseline evaluated on the perturbed surface (so the cancellation is
+exact to first order). The extended GHLOW2cc kernel subtracts σ₂'s
+δ-variation in addition to BBF0's `x³/4` and σ₁'s `x/4` — the only
+parametric (`b,a,g`-dependent) piece, still bounded thanks to `w=0`. The
+full derivation is in [`paper/2piece-paper.tex`](paper/2piece-paper.tex).
 
 ## Figures
 
@@ -137,13 +141,23 @@ are correctly trimmed:
 ![Concave](figures/F2_concave.svg)
 
 Unhappy case — the happy cubic with a fake knot moved to k = 0. PHL1 alone is
-biased near the knot; PHL1c recovers the PDE, and GHLOW2c additionally
-closes the analytic value jump from σ_2:
+biased near the knot; PHL1c repairs the σ₁ slope kink. Stacking the same
+universal kernel on GHLOW2 gives **GHLOW2c** (≈0.16 bps max error, but
+still carries a −0.171 bps σ₂(0) value jump at the knot). The extended
+kernel **GHLOW2cc** subtracts σ₂'s δ-variation too and is
+value-continuous at k=0 (≈0.4 bps max error). Three panels: smile, error
+with BBF0, and error with BBF0 excluded so the corrected residuals are
+legible:
 
 ![Knot](figures/F3_knot.svg)
 
-The applied correction in annualised % (the gap PHL1c adds to PHL1; it is
-the dimensionless directed kernel, peak `3√(2π)/128`, scaled by `δ·σ_total³`):
+The two pieces of the ATM-knot correction in annualised %: solid green is
+the universal kernel (PHL1c−PHL1 = GHLOW2c−GHLOW2, dimensionless peak
+`3√(2π)/128`, scaled by `δ·σ_total³`); dashed purple is the σ₂ extension
+piece (GHLOW2cc−GHLOW2c) — the small `(b,a,g)`-parametric bit the
+extended kernel adds on top of the universal one. The extension lives
+only on `k > 0`, starts at `|Δσ_2(0)| = 0.171 bps` (closing the value
+jump), and decays to zero as the clip engages:
 
 ![Correction](figures/F4_kernel.svg)
 

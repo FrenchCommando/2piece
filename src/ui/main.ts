@@ -35,11 +35,14 @@ const FIELDS: { key: keyof ModelInputs; label: string; step: string }[] = [
   { key: 'delta', label: 'δ (knot Δγ at k=0)', step: '10000' },
 ];
 
-// Six methods in T-order: PDE (truth), BBF0 (T^0), PHL1 (T^1),
-// PHL1c (T^1 + T^{3/2}), GHLOW2 (T^2), GHLOW2c (T^2 + T^{3/2}). The 'c'
-// suffix is the closed-form correction; full word "correction" is used in
-// prose when clarity wins (the bare "corr" abbreviation collides with
-// correlation). The 'c' curves collapse to their baselines when delta = 0.
+// Seven methods in T-order: PDE (truth), BBF0 (T^0), PHL1 (T^1),
+// PHL1c (T^1 + T^{3/2}), GHLOW2 (T^2), GHLOW2c (T^2 + T^{3/2}, partial),
+// GHLOW2cc (T^2 + T^{3/2}, extended). The 'c' suffix is one closed-form
+// correction (the universal Phi_BB^dir kernel that repairs sigma_1's
+// slope kink); 'cc' is two (kernel + sigma_2's value-jump piece). Full
+// word "correction" is used in prose when clarity wins (the bare "corr"
+// abbreviation collides with correlation). Every 'c'/'cc' curve collapses
+// to its baseline when delta = 0.
 const METHODS = [
   { key: 'pde', label: 'PDE' },
   { key: 'bbf0', label: 'BBF0' },
@@ -47,6 +50,7 @@ const METHODS = [
   { key: 'phl1c', label: 'PHL1c' },
   { key: 'ghlow2', label: 'GHLOW2' },
   { key: 'ghlow2c', label: 'GHLOW2c' },
+  { key: 'ghlow2cc', label: 'GHLOW2cc' },
 ] as const;
 type MethodKey = (typeof METHODS)[number]['key'];
 
@@ -126,12 +130,15 @@ app.innerHTML = `
       Gatheral et&nbsp;al., Thm.&nbsp;2.4).</li>
       <li><b>PHL1c</b> — PHL1 plus the closed-form Brownian-bridge kernel
       that repairs the knot. Collapses to PHL1 when <code>δ = 0</code>.</li>
-      <li><b>GHLOW2c</b> — Gatheral–Hsu–Laurence–Ouyang–Wang
-      second-order <code>σ₂·T²</code> term added on top of PHL1, with an
-      extended directed kernel that also subtracts <code>σ₂</code>'s
-      δ-variation to close the analytic value jump at <code>k=0</code>
-      that the PHL1 kernel cannot reach. Collapses to GHLOW2 when
+      <li><b>GHLOW2c</b> — GHLOW2 with the same universal Φ_BB^dir kernel
+      that PHL1c uses, equivalently <code>PHL1c + σ₂·T²</code>. Repairs the
+      σ₁ slope kink at the knot but still carries the analytic value jump
+      from σ₂(0)'s δ-variation. Collapses to GHLOW2 when
       <code>δ = 0</code>.</li>
+      <li><b>GHLOW2cc</b> — GHLOW2 with the extended directed kernel that
+      additionally subtracts σ₂'s δ-variation. Closes both the σ₁ slope
+      kink and the σ₂ value jump at <code>k=0</code>. Collapses to GHLOW2
+      when <code>δ = 0</code>.</li>
     </ul>
 
     <h2>The correction</h2>
@@ -145,10 +152,13 @@ app.innerHTML = `
     <p>Subtracting the part PHL1 already moves (so it is not double-counted)
     gives the directed kernel; the applied PHL1 correction in annualised %
     is <code>δ·σ_total³·Φ_BB^directed(k/σ_total, 0)</code> — exactly the
-    gap panel&nbsp;4 plots. GHLOW2 carries one additional δ-variation,
-    <code>σ₂</code>'s, so its directed kernel subtracts that piece as
-    well (cubic-parameter-dependent — not universal in <code>x</code> the
-    way PHL1's is — but still bounded thanks to <code>w=0</code>).</p>
+    solid-green curve in panel&nbsp;4 (and the same gap GHLOW2c adds to
+    GHLOW2, since the kernel is universal). GHLOW2 carries one additional
+    δ-variation, <code>σ₂</code>'s, so the <i>extended</i> directed
+    kernel subtracts that piece as well (cubic-parameter-dependent — not
+    universal in <code>x</code> the way PHL1's is — but still bounded
+    thanks to <code>w=0</code>); adding that on top yields GHLOW2cc, the
+    dashed-purple curve in panel&nbsp;4.</p>
 
     <h2>Trust</h2>
     <p>Everything is computed in your browser. The math core is a 1:1 port
@@ -308,7 +318,14 @@ function draw(): void {
       label: 'GHLOW2c',
       x: c.k,
       y: c.ghlow2c,
-      color: '#ea580c',
+      color: '#f59e0b',
+      width: 1.8,
+    }),
+    ...vis('ghlow2cc', {
+      label: 'GHLOW2cc',
+      x: c.k,
+      y: c.ghlow2cc,
+      color: '#9333ea',
       width: 1.8,
     }),
   ];
@@ -348,7 +365,14 @@ function draw(): void {
       label: 'GHLOW2c − PDE',
       x: c.k,
       y: errOf(c.ghlow2c),
-      color: '#ea580c',
+      color: '#f59e0b',
+      width: 1.8,
+    }),
+    ...vis('ghlow2cc', {
+      label: 'GHLOW2cc − PDE',
+      x: c.k,
+      y: errOf(c.ghlow2cc),
+      color: '#9333ea',
       width: 1.8,
     }),
   ];
@@ -375,18 +399,40 @@ function draw(): void {
     },
   );
 
-  // The PHL1 correction in annualised %: exactly PHL1c − PHL1 =
-  // δ·σ_total³·Φ_BB^directed(k/σ_total, 0). Universal in x. GHLOW2's
-  // correction also subtracts σ_2's δ-variation and is not shown here —
-  // its shape depends parametrically on the cubic (b,a,g).
-  const phl1Spike = c.phl1c.map((v, i) => v - c.phl1[i]);
+  // Two pieces of the ATM-knot correction, in annualised %:
+  //   universalSpike  = PHL1c − PHL1   = GHLOW2c − GHLOW2  (the universal
+  //                                       directed kernel itself)
+  //   extensionSpike  = GHLOW2cc − GHLOW2c  (the σ_2 extension piece — the
+  //                                       small, (b,a,g)-parametric bit the
+  //                                       extended kernel adds on top of
+  //                                       the universal one)
+  // The extension lives only on k > 0 and decays to zero on the wings as
+  // the σ_2 piece is clipped at zero.
+  const universalSpike = c.phl1c.map((v, i) => v - c.phl1[i]);
+  const extensionSpike = c.ghlow2cc.map((v, i) => v - c.ghlow2c[i]);
   drawChart(
     document.getElementById('c-ker') as HTMLCanvasElement,
-    [{ label: 'δ·σ_total³·Φ_BB^dir', x: c.k, y: phl1Spike, color: '#059669', width: 1.8 }],
+    [
+      {
+        label: 'universal Φ_BB^dir',
+        x: c.k,
+        y: universalSpike,
+        color: '#059669',
+        width: 1.8,
+      },
+      {
+        label: 'extension (σ₂ piece)',
+        x: c.k,
+        y: extensionSpike,
+        color: '#9333ea',
+        width: 1.8,
+        dash: [6, 3],
+      },
+    ],
     {
       title: knot
-        ? 'PHL1 ATM-knot correction (universal kernel · Φ_BB^dir)'
-        : 'ATM-knot IV correction (δ = 0 ⇒ no knot, zero correction)',
+        ? 'ATM-knot IV correction: universal kernel + σ₂ extension'
+        : 'ATM-knot IV corrections (δ = 0 ⇒ no knot, zero correction)',
       xlabel: 'log-moneyness k',
       ylabel: 'correction (annualised %)',
       zeroLine: true,

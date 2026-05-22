@@ -76,21 +76,35 @@ export function knotSpikePhl1(k: number, delta: number, sigmaTotal: number): num
 }
 
 /**
- * GHLOW2-directed knot correction. The PHL1 directed kernel subtracts BBF0's
- * (x^3/4) and sigma_1's (x/4) delta-variations — universal in x. GHLOW2 has
- * one more delta-variation, sigma_2's, which carries the unperturbed cubic's
- * (b, a, g) parametrically and is not a universal x-function. For x > 0 we
- * subtract it explicitly so the directed kernel cancels GHLOW2's analytic
- * value jump at the knot; for x ≤ 0 the source perturbation does not move
- * the baseline at all and the PHL1-directed kernel is the right answer.
+ * GHLOW2cc-directed knot correction (extended kernel). The PHL1 directed
+ * kernel subtracts BBF0's (x^3/4) and sigma_1's (x/4) delta-variations —
+ * universal in x; that piece alone, added to GHLOW2, gives GHLOW2c (the
+ * "PHL1c-style" partial correction). GHLOW2 has one more delta-variation,
+ * sigma_2's, which carries the unperturbed cubic's (b, a, g) parametrically
+ * and is not a universal x-function. For x > 0 we subtract it explicitly so
+ * the directed kernel additionally cancels GHLOW2's analytic value jump at
+ * the knot — the resulting curve is GHLOW2cc. For x ≤ 0 the source
+ * perturbation does not move the baseline at all and the PHL1-directed
+ * kernel is the right answer.
  *
  * Closed-form via existing `sigma2()` machinery: for the polynomial branch
  * (|k|<1e-3) the coefficients are explicit polynomials in (σ,β,α,γ,scale)
  * from `sigma2PolyCoeffsFromCubic`; we just difference the perturbed and
- * unperturbed cubic. At x=0 this evaluates to b/20 · δ·σ_total^3 ann.%, the
- * scalar derived in the paper.
+ * unperturbed cubic. At x=0 this evaluates to σ³β δ/(20·scale⁴) ann.%,
+ * the scalar derived in the paper (eq. ghlow2-gap).
+ *
+ * Boundedness: unlike the universal Φ_BB^dir kernel, σ_2 has a ξ³/(8 d⁵)
+ * term that grows like k^3 on the wings, so the raw σ_2 δ-variation is
+ * NOT bounded — the w=0 collapse only kills the Φ_BB bridge integral's
+ * divergence. We therefore clip the σ_2 piece to the closed interval
+ * between zero and the closed-form ATM scalar Δσ_2(0): the σ_2 piece
+ * starts at Δσ_2(0) at k=0+ (so the value jump is closed exactly there,
+ * clip inactive) and is allowed to relax toward zero with the same sign
+ * as Δσ_2(0); the opposite-sign growth that the bare σ_2 expansion
+ * develops on the wings is cut off at zero, so the extended kernel
+ * collapses back to the universal Φ_BB^dir kernel out there.
  */
-export function knotSpikeGhlow2(
+export function knotSpikeGhlow2cc(
   k: number,
   c: CubicCoeffs,
   delta: number,
@@ -101,5 +115,9 @@ export function knotSpikeGhlow2(
   if (k <= 0 || delta === 0) return phl1Piece;
   const cPerturbed: CubicCoeffs = { ...c, gamma: c.gamma + delta };
   const sigma2VarPct = (sigma2(k, cPerturbed, scale) - sigma2(k, c, scale)) * scale;
-  return phl1Piece - sigma2VarPct;
+  const signedCap = (c.sigma ** 3 * c.beta * delta) / (20 * scale ** 4);
+  const lo = Math.min(signedCap, 0);
+  const hi = Math.max(signedCap, 0);
+  const sigma2VarClipped = Math.min(hi, Math.max(lo, sigma2VarPct));
+  return phl1Piece - sigma2VarClipped;
 }

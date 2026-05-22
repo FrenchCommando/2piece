@@ -22,10 +22,9 @@ const FULL = { nGrid: 3201, nSteps: 3200 };
 
 function smileFig(file: string, title: string, inp: ModelInputs, knot: boolean): void {
   const c = computeCurves(inp, 401, FULL);
-  // No knot: 4-curve set (BBF0/PHL1/GHLOW2). With knot: 6-curve set adding
-  // PHL1c and GHLOW2c alongside both baselines (symmetry with the UI). The
-  // GHLOW2c curve shows that the analytic σ_2 value jump at k=0 is closed
-  // in closed form by the extended directed kernel (eq:ghlow2-dir).
+  // No knot: 4-curve set (BBF0/PHL1/GHLOW2). With knot: 7-curve set adding
+  // PHL1c, GHLOW2c (PHL1c-style universal kernel) and GHLOW2cc (extended
+  // kernel that also closes σ_2's value jump) alongside both baselines.
   const iv: Series[] = [
     { label: 'PDE (truth)', x: c.k, y: c.pde, color: '#18181b', width: 2 },
     { label: 'BBF0', x: c.k, y: c.bbf0, color: '#a1a1aa', dash: '5 4' },
@@ -34,7 +33,8 @@ function smileFig(file: string, title: string, inp: ModelInputs, knot: boolean):
       ? [
           { label: 'PHL1c', x: c.k, y: c.phl1c, color: '#dc2626', width: 1.8 } as Series,
           { label: 'GHLOW2', x: c.k, y: c.ghlow2, color: '#0d9488' } as Series,
-          { label: 'GHLOW2c', x: c.k, y: c.ghlow2c, color: '#ea580c', width: 1.8 } as Series,
+          { label: 'GHLOW2c', x: c.k, y: c.ghlow2c, color: '#f59e0b', width: 1.8 } as Series,
+          { label: 'GHLOW2cc', x: c.k, y: c.ghlow2cc, color: '#9333ea', width: 1.8 } as Series,
         ]
       : [{ label: 'GHLOW2', x: c.k, y: c.ghlow2, color: '#ea580c' } as Series]),
   ];
@@ -46,7 +46,8 @@ function smileFig(file: string, title: string, inp: ModelInputs, knot: boolean):
       ? [
           { label: 'PHL1c − PDE', x: c.k, y: e(c.phl1c), color: '#dc2626', width: 1.8 } as Series,
           { label: 'GHLOW2 − PDE', x: c.k, y: e(c.ghlow2), color: '#0d9488' } as Series,
-          { label: 'GHLOW2c − PDE', x: c.k, y: e(c.ghlow2c), color: '#ea580c', width: 1.8 } as Series,
+          { label: 'GHLOW2c − PDE', x: c.k, y: e(c.ghlow2c), color: '#f59e0b', width: 1.8 } as Series,
+          { label: 'GHLOW2cc − PDE', x: c.k, y: e(c.ghlow2cc), color: '#9333ea', width: 1.8 } as Series,
         ]
       : [{ label: 'GHLOW2 − PDE', x: c.k, y: e(c.ghlow2), color: '#ea580c' } as Series]),
   ];
@@ -64,19 +65,20 @@ function smileFig(file: string, title: string, inp: ModelInputs, knot: boolean):
     },
   ];
   // BBF0's error dwarfs the others and squashes the y-axis; a third panel
-  // without BBF0 makes the PHL1 / GHLOW2 (resp. PHL1c) comparison legible.
-  if (!knot) {
-    panels.push({
-      series: err.filter((s) => !s.label.startsWith('BBF0')),
-      opts: {
-        title: 'Error vs PDE — BBF0 excluded (PHL1 vs GHLOW2)',
-        xlabel: 'log-moneyness k',
-        ylabel: 'error (bps)',
-        zeroLine: true,
-        atmLine: knot,
-      },
-    });
-  }
+  // without BBF0 makes the corrected / uncorrected comparison legible —
+  // for both the no-knot and knot cases.
+  panels.push({
+    series: err.filter((s) => !s.label.startsWith('BBF0')),
+    opts: {
+      title: knot
+        ? 'Error vs PDE — BBF0 excluded (PHL1 / PHL1c vs GHLOW2 / GHLOW2c / GHLOW2cc)'
+        : 'Error vs PDE — BBF0 excluded (PHL1 vs GHLOW2)',
+      xlabel: 'log-moneyness k',
+      ylabel: 'error (bps)',
+      zeroLine: true,
+      atmLine: knot,
+    },
+  });
   const svg = renderSvg(panels);
   writeFileSync(join(OUT, file), svg);
   const maxBbf =
@@ -90,24 +92,45 @@ function smileFig(file: string, title: string, inp: ModelInputs, knot: boolean):
 // F1 happy, F2 concave (no knot): PDE/BBF0/PHL1/GHLOW2.
 smileFig('F1_happy.svg', 'Happy case — SPXW 2025-03-10 DTE 1 (monotone skew)', byId('happy'), false);
 smileFig('F2_concave.svg', 'Concave case — SPXW 2025-03-10 DTE 3 (concave smile)', byId('concave'), false);
-// F3 unhappy fake knot at k=0: PDE/BBF0/PHL1/PHL1c/GHLOW2c.
+// F3 unhappy fake knot at k=0: PDE/BBF0/PHL1/PHL1c/GHLOW2/GHLOW2c/GHLOW2cc.
 smileFig('F3_knot.svg', 'Unhappy case — fake ATM knot at k=0', byId('knot'), true);
 
-// F4: the applied ATM-knot correction in annualised % for the knot example
-// (= PHL1c − PHL1 = δ·σ_total³·Φ_BB^directed(k/σ_total, 0)), consistent
-// with the interactive page's 4th panel. The dimensionless kernel shape and
-// its peak constant 3√(2π)/128 are still annotated in the title.
+// F4: the universal kernel and the σ_2 extension piece for the knot example.
+//   - universal Φ_BB^dir = PHL1c − PHL1 = GHLOW2c − GHLOW2  (BBF0/σ_1
+//                          δ-variations subtracted from Φ_BB; full magnitude)
+//   - extension piece    = GHLOW2cc − GHLOW2c               (the σ_2 piece
+//                          only; the additional, (b,a,g)-parametric piece
+//                          that distinguishes the extended kernel from the
+//                          universal one)
+// The extension lives entirely on k > 0 — it is non-zero only there because
+// the σ_2 δ-variation is one-sided — and starts at the closed-form ATM
+// scalar |Δσ_2(0)| = 0.171 bps, decaying to zero as the clip engages.
 const kc = computeCurves(byId('knot'), 401, FULL);
-const phl1Spike = kc.phl1c.map((v, i) => v - kc.phl1[i]);
+const universalSpike = kc.phl1c.map((v, i) => v - kc.phl1[i]);
+const extensionSpike = kc.ghlow2cc.map((v, i) => v - kc.ghlow2c[i]);
 writeFileSync(
   join(OUT, 'F4_kernel.svg'),
   renderSvg([
     {
       series: [
-        { label: 'δ·σ_total³·Φ_BB^dir', x: kc.k, y: phl1Spike, color: '#059669', width: 1.8 },
+        {
+          label: 'universal Φ_BB^dir',
+          x: kc.k,
+          y: universalSpike,
+          color: '#059669',
+          width: 1.8,
+        },
+        {
+          label: 'extension (σ_2 piece)',
+          x: kc.k,
+          y: extensionSpike,
+          color: '#9333ea',
+          width: 1.8,
+          dash: '6 3',
+        },
       ],
       opts: {
-        title: `ATM-knot IV correction added to PHL1 (kernel peak Φ_BB(0,0) = ${PHI_BB_PEAK.toFixed(5)})`,
+        title: `ATM-knot IV corrections (universal kernel peak Φ_BB(0,0) = ${PHI_BB_PEAK.toFixed(5)})`,
         xlabel: 'log-moneyness k',
         ylabel: 'correction (annualised %)',
         zeroLine: true,
