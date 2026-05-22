@@ -8,7 +8,7 @@ metadata:
 ---
 
 `~/2piece` is a focused note + interactive tool: accuracy of
-local→implied vol maps (BBF0, PHL1, GHLOW2) and a closed-form Φ_BB correction
+local→implied vol maps (BBF0, PHL1, GHLOW2) and a closed-form K_1 correction
 that repairs PHL1 at a cubic-vol knot placed exactly at-the-money (k=0). It is
 the simple, observable subset of the broad unfinished paper in the user's
 **private research repo** `~/theta-options` (see [[theta-options-private]];

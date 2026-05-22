@@ -1,10 +1,10 @@
 /**
  * Right-side wing scan for the two ATM-knot corrections. The universal
- * Φ_BB^dir kernel is bounded by construction at w=0 (the x³/4 + x/4
+ * K_1^dir kernel is bounded by construction at w=0 (the x³/4 + x/4
  * polynomial collapse). The σ_2-subtraction piece in the extended GHLOW2
  * kernel is NOT bounded by the same argument — σ_2 itself grows like k^3
  * on the wings via its ξ³/(8 d⁵) term, and the w=0 collapse only addresses
- * the Φ_BB bridge integral. We therefore clip |σ_2-piece| at the
+ * the K_1 bridge integral. We therefore clip |σ_2-piece| at the
  * closed-form ATM scalar |Δσ_2(0)| inside knotSpikeGhlow2cc (eq.
  * ghlow2-gap); this scan is the regression check for that clip and a
  * sanity tool when the cubic is dialled.
@@ -13,7 +13,7 @@
  */
 import { computeCurves, type ModelInputs } from '../math/model';
 import examples from '../../examples/params.json';
-import { knotSpikePhl1, knotSpikeGhlow2cc } from '../math/phibb';
+import { knotSpikePhl1, knotSpikeGhlow2cc } from '../math/kernel';
 import { sigmaLoc, type CubicCoeffs } from '../math/cubic';
 
 const EX = (examples as { examples: (ModelInputs & { id: string })[] }).examples;

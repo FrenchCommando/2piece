@@ -10,7 +10,7 @@ import { bbf0 } from '../src/math/bbf0';
 import { phl1 } from '../src/math/phl1';
 import { ghlow2 } from '../src/math/ghlow2';
 import { sigmaLoc } from '../src/math/cubic';
-import { phiBB, phiBBDirected, PHI_BB_PEAK, knotSpikePhl1 } from '../src/math/phibb';
+import { K1, K1Dir, K1_PEAK, knotSpikePhl1 } from '../src/math/kernel';
 import { computeCurves } from '../src/math/model';
 
 const HAPPY: CubicCoeffs = {
@@ -48,13 +48,15 @@ describe('closed-form methods vs Python reference', () => {
   }
 });
 
-describe('Phi_BB kernel vs Python reference', () => {
+describe('K_1 kernel vs Python reference', () => {
+  // JSON keys (phibb_w0, phi_bb, phi_bb_directed) preserve the upstream
+  // Python reference's naming; TS-side imports use the local K_1 names.
   const r = (ref as any).phibb_w0;
-  it('peak constant', () => close(PHI_BB_PEAK, 0.058749096544888385, 1e-12));
-  it('phi_bb and phi_bb_directed at w=0', () => {
+  it('peak constant', () => close(K1_PEAK, 0.058749096544888385, 1e-12));
+  it('K_1 and K_1^dir at w=0', () => {
     r.x.forEach((x: number, i: number) => {
-      close(phiBB(x, 0), r.phi_bb[i], 1e-9);
-      close(phiBBDirected(x, 0), r.phi_bb_directed[i], 1e-9);
+      close(K1(x, 0), r.phi_bb[i], 1e-9);
+      close(K1Dir(x, 0), r.phi_bb_directed[i], 1e-9);
     });
   });
 });
@@ -63,7 +65,7 @@ describe('knot case (spike + PHL1 + PDE) vs Python reference', () => {
   const r = (ref as any).knot;
   const delta: number = r.delta;
   const sigmaTotal: number = r.sigma_total;
-  it('Phi_BB spike matches phl1s_spike', () => {
+  it('K_1 spike matches phl1s_spike', () => {
     r.k.forEach((k: number, i: number) => {
       close(knotSpikePhl1(k, delta, sigmaTotal), r.spike[i], 1e-7, 1e-7);
     });

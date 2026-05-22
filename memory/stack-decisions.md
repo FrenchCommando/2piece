@@ -14,7 +14,7 @@ metadata:
   truth; committed figures are deterministic SVGs from `npm run figures`
   (TS, via tsx). No venv. Rationale: avoid TS/Python numeric drift.
 
-**Why:** the math (Φ_BB, near-ATM polynomials, Dupire PDE) is subtle;
+**Why:** the math (K_1, near-ATM polynomials, Dupire PDE) is subtle;
 duplicating it in a second language risks silent drift from what runs on the
 site.
 **How to apply:** keep all numerics in `src/math`; never reintroduce a

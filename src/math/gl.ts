@@ -2,7 +2,7 @@
  * Gauss-Legendre nodes/weights, computed at runtime by Newton-Raphson on the
  * Legendre polynomial P_n (Newton-Cotes-free). Matches numpy.polynomial.
  * legendre.leggauss to ~1e-15, so the TS port reproduces the Python reference
- * quadrature exactly (BBF0/u1u0 use 16 pt; the Phi_BB bridge integral 32 pt).
+ * quadrature exactly (BBF0/u1u0 use 16 pt; the K_1 bridge integral 32 pt).
  */
 
 export interface GaussLegendre {

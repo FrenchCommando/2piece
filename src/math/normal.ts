@@ -3,7 +3,7 @@
  *
  * `normPdf` is elementary. `normCdf` uses Graeme West's double-precision
  * cumulative-normal algorithm (Hart-style rational approximation), accurate to
- * ~1e-15 absolute — enough for the Phi_BB bridge integral and the Black
+ * ~1e-15 absolute — enough for the K_1 bridge integral and the Black
  * implied-vol Newton inversion used by the PDE truth.
  */
 

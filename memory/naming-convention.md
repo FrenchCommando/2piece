@@ -14,8 +14,8 @@ wins:
 
 | concept | name |
 |---|---|
-| PHL1 + universal Φ_BB^dir kernel | **PHL1c** |
-| GHLOW2 + the same universal Φ_BB^dir kernel (= PHL1c + σ₂T²) | **GHLOW2c** |
+| PHL1 + universal K_1^dir kernel | **PHL1c** |
+| GHLOW2 + the same universal K_1^dir kernel (= PHL1c + σ₂T²) | **GHLOW2c** |
 | GHLOW2 + extended directed kernel (also kills σ₂'s δ-variation) | **GHLOW2cc** |
 
 The number of `c`'s equals the number of independent closed-form
@@ -25,7 +25,7 @@ extra `c` per parametric (cubic-dependent) layer. Lowercase matters —
 `ghlow2cc`), local vars (`phl1cCurve`), UI toggle labels, figure
 legends, paper symbols (`\siv^{\mathrm{PHL1c}}`,
 `\siv^{\mathrm{GHLOW2c}}`, `\siv^{\mathrm{GHLOW2cc}}`). The
-kernel-spike functions in `phibb.ts` are explicit about which baseline
+kernel-spike functions in `kernel.ts` are explicit about which baseline
 and which kernel they target: `knotSpikePhl1` (universal), and
 `knotSpikeGhlow2cc` (extended; the GHLOW2c spike is just
 `knotSpikePhl1` reused).

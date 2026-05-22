@@ -1,7 +1,7 @@
 /**
  * Interactive page. Debounced inputs (DTE, sigma/beta/alpha/gamma, delta),
  * all computation in-browser via src/math. Four charts: implied-vol smile,
- * error vs PDE, local vol, and the Phi_BB^directed correction kernel.
+ * error vs PDE, local vol, and the K_1^directed correction kernel.
  *
  * Model recompute (the expensive PDE) is debounced and cached; method
  * on/off toggles and drag-zoom only redraw the cached curves.
@@ -38,7 +38,7 @@ const FIELDS: { key: keyof ModelInputs; label: string; step: string }[] = [
 // Seven methods in T-order: PDE (truth), BBF0 (T^0), PHL1 (T^1),
 // PHL1c (T^1 + T^{3/2}), GHLOW2 (T^2), GHLOW2c (T^2 + T^{3/2}, partial),
 // GHLOW2cc (T^2 + T^{3/2}, extended). The 'c' suffix is one closed-form
-// correction (the universal Phi_BB^dir kernel that repairs sigma_1's
+// correction (the universal K_1^dir kernel that repairs sigma_1's
 // slope kink); 'cc' is two (kernel + sigma_2's value-jump piece). Full
 // word "correction" is used in prose when clarity wins (the bare "corr"
 // abbreviation collides with correlation). Every 'c'/'cc' curve collapses
@@ -128,9 +128,10 @@ app.innerHTML = `
       <li><b>PHL1</b> — BBF0 + the first-order <code>σ₁·T</code> heat-kernel
       correction (Henry-Labordère's expansion; explicit closed form from
       Gatheral et&nbsp;al., Thm.&nbsp;2.4).</li>
-      <li><b>PHL1c</b> — PHL1 plus the closed-form Brownian-bridge kernel
-      that repairs the knot. Collapses to PHL1 when <code>δ = 0</code>.</li>
-      <li><b>GHLOW2c</b> — GHLOW2 with the same universal Φ_BB^dir kernel
+      <li><b>PHL1c</b> — PHL1 plus the closed-form first-order Duhamel
+      kernel that repairs the knot. Collapses to PHL1 when
+      <code>δ = 0</code>.</li>
+      <li><b>GHLOW2c</b> — GHLOW2 with the same universal K₁^dir kernel
       that PHL1c uses, equivalently <code>PHL1c + σ₂·T²</code>. Repairs the
       σ₁ slope kink at the knot but still carries the analytic value jump
       from σ₂(0)'s δ-variation. Collapses to GHLOW2 when
@@ -144,14 +145,14 @@ app.innerHTML = `
     <h2>The correction</h2>
     <p>To first order in the jump <code>δ</code>, with
     <code>x = k/σ_total</code> and the knot at ATM, the implied-vol error is
-    a one-dimensional Brownian-bridge integral with peak
-    <code>3√(2π)/128 ≈ 0.05875</code>:</p>
-    <p class="eq"><code>Φ_BB(x,0) = ∫₀¹ (λ(1−λ))^{3/2} f(η) dλ,&nbsp;&nbsp;
+    the first-order Duhamel kernel <code>K₁(x,0)</code> — a one-dimensional
+    bridge integral with peak <code>3√(2π)/128 ≈ 0.05875</code>:</p>
+    <p class="eq"><code>K₁(x,0) = ∫₀¹ (λ(1−λ))^{3/2} f(η) dλ,&nbsp;&nbsp;
     η = x·√(λ/(1−λ)),&nbsp;&nbsp;
     f(η) = (η³+3η)Φ(η) + (η²+2)φ(η)</code></p>
     <p>Subtracting the part PHL1 already moves (so it is not double-counted)
     gives the directed kernel; the applied PHL1 correction in annualised %
-    is <code>δ·σ_total³·Φ_BB^directed(k/σ_total, 0)</code> — exactly the
+    is <code>δ·σ_total³·K₁^directed(k/σ_total, 0)</code> — exactly the
     solid-green curve in panel&nbsp;4 (and the same gap GHLOW2c adds to
     GHLOW2, since the kernel is universal). GHLOW2 carries one additional
     δ-variation, <code>σ₂</code>'s, so the <i>extended</i> directed
@@ -414,7 +415,7 @@ function draw(): void {
     document.getElementById('c-ker') as HTMLCanvasElement,
     [
       {
-        label: 'universal Φ_BB^dir',
+        label: 'universal K₁^dir',
         x: c.k,
         y: universalSpike,
         color: '#059669',

@@ -96,29 +96,33 @@ than faked, so the curves end where the approximation is meaningful.
 
 ## The correction (the contribution)
 
-To first order in the knot jump `δ`, the implied-vol error is a closed-form
-Brownian-bridge integral. With `x = k/σ_total` and the knot at ATM (`w = 0`):
+To first order in the knot jump `δ`, the implied-vol error is the
+first-order Duhamel kernel `K_1` — the first-order term of the Dyson series
+for the perturbed call-price evolution against constant-σ Black, written
+in its Brownian-bridge form (the bridge framing is bookkeeping for the
+small-T scaling, not separate machinery). With `x = k/σ_total` and the
+knot at ATM (`w = 0`):
 
 ```
-Φ_BB(x,0) = ∫₀¹ (λ(1−λ))^{3/2} f(η) dλ ,   η = x·√(λ/(1−λ))
-f(η)      = (η³+3η)·Φ(η) + (η²+2)·φ(η)            (truncated 3rd moment)
-peak Φ_BB(0,0) = 3√(2π)/128 ≈ 0.05875
+K_1(x,0) = ∫₀¹ (λ(1−λ))^{3/2} f(η) dλ ,   η = x·√(λ/(1−λ))
+f(η)     = (η³+3η)·Φ(η) + (η²+2)·φ(η)            (truncated 3rd moment)
+peak K_1(0,0) = 3√(2π)/128 ≈ 0.05875
 ```
 
 PHL1 already absorbs part of this through its own `iv_hm`/`σ₁` variation;
 subtracting that piece (so it is not double-counted) gives the *directed*
-kernel, which decays on both sides:
+kernel `K_1^dir`, which decays on both sides:
 
 ```
-Φ_BB^directed(x,0) = Φ_BB(x,0) − x³/4 − x/4      (x > 0; = Φ_BB otherwise)
+K_1^dir(x,0) = K_1(x,0) − x³/4 − x/4      (x > 0; = K_1 otherwise)
 ```
 
 The corrected method is then
 
 ```
-PHL1c(k)    = PHL1(k)   + δ·σ_total³·Φ_BB^directed(k/σ_total, 0)
-GHLOW2c(k)  = GHLOW2(k) + δ·σ_total³·Φ_BB^directed(k/σ_total, 0)   (same universal kernel, T² baseline)
-GHLOW2cc(k) = GHLOW2(k) + δ·σ_total³·Φ_BB,GHLOW2^directed(k/σ_total, 0)   (extended kernel, also kills σ₂'s value jump)
+PHL1c(k)    = PHL1(k)   + δ·σ_total³·K_1^dir(k/σ_total, 0)
+GHLOW2c(k)  = GHLOW2(k) + δ·σ_total³·K_1^dir(k/σ_total, 0)   (same universal kernel, T² baseline)
+GHLOW2cc(k) = GHLOW2(k) + δ·σ_total³·K_1^ext(k/σ_total, 0)   (extended kernel, also kills σ₂'s value jump)
 ```
 
 with the baseline evaluated on the perturbed surface (so the cancellation is
@@ -182,14 +186,14 @@ the code.
 `src/math` is the single source of truth. It is a 1:1 port of an
 independently-developed, already-validated Python reference implementation.
 `tests/reference.json` holds numbers dumped from that reference; `npm test`
-checks the TS port reproduces them — BBF0/PHL1/GHLOW2 to 1e-6, Φ_BB to 1e-9,
+checks the TS port reproduces them — BBF0/PHL1/GHLOW2 to 1e-6, K_1 to 1e-9,
 and the full knot model against the Dupire PDE within tolerance. CI runs
 this on every push.
 
 ## Layout
 
 ```
-src/math/    bbf0 phl1 ghlow2 pde phibb cubic normal gl model   (the maths)
+src/math/    bbf0 phl1 ghlow2 pde kernel cubic normal gl model   (the maths)
 src/ui/      main controls chart                                 (the page)
 src/figures/ generate svg                                        (committed figs)
 examples/    params.json   (calibrated SPXW cases)

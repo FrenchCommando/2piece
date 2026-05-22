@@ -40,9 +40,9 @@ at its knots (the cubic coefficient $\gamma=\sloc'''$ jumps), while the
 $\sigma_1$ expansion is derived assuming $C^3$, leaving a localised
 residual at the knot. We close that residual in the practically relevant
 case --- a knot pinned exactly at-the-money --- in closed form: at first
-order in the coefficient jump it is a one-dimensional Brownian-bridge
-integral $\Phi_{BB}(x,0)$ with peak $3\sqrt{2\pi}/128$ and no fitted
-constants. This makes ``piecewise-cubic with an at-the-money knot, mapped
+order in the coefficient jump it is the first-order Duhamel kernel
+$K_1(x,0)$ --- a one-dimensional bridge integral with peak
+$3\sqrt{2\pi}/128$ and no fitted constants. This makes ``piecewise-cubic with an at-the-money knot, mapped
 through PHL1'' a usable parametrisation that keeps PHL1's arbitrage
 reassurance while regaining calibration flexibility. The at-the-money
 restriction is essential, not cosmetic: off-the-money the same
@@ -76,7 +76,7 @@ This paper removes that residual in closed form for a knot pinned
 at-the-money, so the combination ``piecewise-cubic-with-ATM-knot $+$
 PHL1'' becomes usable: it keeps PHL1's arbitrage reassurance while
 recovering the calibration flexibility a smooth cubic lacks. The
-correction is a parameter-free Brownian-bridge kernel; the
+correction is a parameter-free first-order Duhamel kernel; the
 at-the-money restriction is what keeps it bounded. The same
 derivation settles the open question Costeanu and Pirjol
 \citep{costeanuPirjol2011} raise after their eq.~(5.25): whether the
@@ -117,8 +117,11 @@ piecewise-cubic calibrator, where only $\sigma'''_{\mathrm{loc}}
 row $n=1$, one column past the $\sqrt{T}$ slot they filled --- with
 universal coefficient $3\sqrt{2\pi}/128\approx 0.0588$, the $C^{2}$
 companion to their $C^{0}$ constant within the same Duhamel
-lineage. The kernel is the one-dimensional Brownian-bridge integral
-$\Phi_{BB}(x,0)$ derived in Section~3 below.
+lineage. The kernel $K_1(x,0)$ derived in Section~3 is the
+corresponding first-order Duhamel kernel for the local-volatility
+perturbation; in its bridge form it is a one-dimensional integral over
+$\lambda\in[0,1]$ whose integrand is the conditional expectation of the
+source along a standard Brownian bridge.
 
 \paragraph{Higher-order LV-to-IV asymptotics.} The PHL1/GHLOW2 line
 derives from the heat-kernel expansion of the call-price PDE: BBF
@@ -246,10 +249,18 @@ The implied-vol response to \eqref{eq:perturb} expands in the jump $\delta$
 about the knotless case. At first order, in dimensionless strike
 $x=k/\stot$,
 \begin{equation}
-\delta\siv(k) \;=\; \delta\cdot\stot^{3}\cdot\Phi_{BB}(x,0)
+\delta\siv(k) \;=\; \delta\cdot\stot^{3}\cdot K_1(x,0)
 \;+\;O(\delta^2).
 \label{eq:expansion}
 \end{equation}
+
+We call $K_1$ the \emph{first-order Duhamel kernel} for the
+local-volatility perturbation: the first-order term of the Dyson series
+for the perturbed call-price evolution against constant-$\sigma$ Black.
+The bridge form derived below is that Duhamel integral after a
+$\lambda=\tau/T$ rescaling exposes the conditional law of the
+intermediate position as a standard Brownian bridge; the bridge framing
+is bookkeeping for the small-$T$ scaling, not separate machinery.
 
 \paragraph{Very simple derivation.}
 First order in $\delta$, the source is $v(y)=2\sigma\,\delta\,y^3\Hev(y)$.
@@ -268,15 +279,15 @@ Gaussian completion cancels the $1/\sqrt t$ of the strike-gamma, the outer
 time integral collapses to a clean bridge-time integral, and dividing by
 the Black vega gives \eqref{eq:expansion} with
 \begin{equation}
-\boxed{\;\Phi_{BB}(x,0)=\int_0^1\big(\lambda(1-\lambda)\big)^{3/2}
+\boxed{\;K_1(x,0)=\int_0^1\big(\lambda(1-\lambda)\big)^{3/2}
    f\big(\eta(\lambda;x)\big)\,d\lambda,\qquad
    \eta(\lambda;x)=x\sqrt{\tfrac{\lambda}{1-\lambda}}.\;}
-\label{eq:phibb}
+\label{eq:K1}
 \end{equation}
 At the knot centre $\eta\equiv0$, $f(0)=2/\sqrt{2\pi}$, and the integral is
 a Beta function:
 \begin{equation}
-\Phi_{BB}(0,0)=\frac{2}{\sqrt{2\pi}}\,B\!\left(\tfrac52,\tfrac52\right)
+K_1(0,0)=\frac{2}{\sqrt{2\pi}}\,B\!\left(\tfrac52,\tfrac52\right)
 =\frac{3\sqrt{2\pi}}{128}\approx 0.05875 .
 \end{equation}
 
@@ -294,14 +305,14 @@ $\ivhm$ varies as $x^3/4$ and $\sigma_1$ as $x/4$ (both zero for $x\le0$).
 Subtracting these so they are not counted twice yields the \emph{directed}
 kernel, which decays on both sides:
 \begin{equation}
-\Phi_{BB}^{\mathrm{dir}}(x,0)=
+K_1^{\mathrm{dir}}(x,0)=
 \begin{cases}
-\Phi_{BB}(x,0)-\dfrac{x^3}{4}-\dfrac{x}{4}, & x>0,\\[2ex]
-\Phi_{BB}(x,0), & x\le 0.
+K_1(x,0)-\dfrac{x^3}{4}-\dfrac{x}{4}, & x>0,\\[2ex]
+K_1(x,0), & x\le 0.
 \end{cases}
-\label{eq:phibb-dir}
+\label{eq:K1-dir}
 \end{equation}
-We will refer to \eqref{eq:phibb-dir} as the \emph{universal} directed
+We will refer to \eqref{eq:K1-dir} as the \emph{universal} directed
 kernel: it is a pure function of $x=k/\stot$, identical for every
 cubic. Section~\ref{sec:results} introduces a second, \emph{extended}
 directed kernel that adds one $(b,a,g)$-parametric subtraction --- the
@@ -315,14 +326,14 @@ The corrected PHL1 method, with PHL1 evaluated on the perturbed surface
 so the cancellation is exact to first order, is
 \begin{equation}
 \siv^{\mathrm{PHL1c}}(k)=\siv^{\mathrm{PHL1}}(k)
-   +\delta\cdot\stot^{3}\cdot\Phi_{BB}^{\mathrm{dir}}(k/\stot,0).
+   +\delta\cdot\stot^{3}\cdot K_1^{\mathrm{dir}}(k/\stot,0).
 \end{equation}
 We use the suffix ``c'' (lower-case) throughout for ``one closed-form
 knot-correction layer applied to this baseline'': PHL1c and GHLOW2c
 each carry one such layer (the universal kernel), while GHLOW2cc
 carries two (universal kernel + the extended subtraction), one $c$
 per layer.
-The bridge integral \eqref{eq:phibb} is evaluated with a 32-point
+The bridge integral \eqref{eq:K1} is evaluated with a 32-point
 Gauss--Legendre rule.
 
 Table~\ref{tab:summary} summarises every method, kernel, and term
@@ -347,9 +358,9 @@ GHLOW2cc  & GHLOW2 $+$ extended kernel            & $T^{2}+T^{3/2}$ \\
 \midrule
 Name              & Definition                                              & Where it lives \\
 \midrule
-universal kernel  & $\Phi_{BB}^{\mathrm{dir}}(x,0)$, eq.~\eqref{eq:phibb-dir} & both sides; pure function of $x$ \\
+universal kernel  & $K_1^{\mathrm{dir}}(x,0)$, eq.~\eqref{eq:K1-dir} & both sides; pure function of $x$ \\
 extension (piece) & the $\sigma_2$ $\delta$-variation subtraction in eq.~\eqref{eq:ghlow2-dir} & $x>0$ only; $(b,a,g)$-parametric \\
-extended kernel   & $\Phi_{BB,\,\mathrm{GHLOW2}}^{\mathrm{dir}}$, eq.~\eqref{eq:ghlow2-dir} & both sides; $=$ universal kernel $+$ extension \\
+extended kernel   & $K_1^{\mathrm{ext}}$, eq.~\eqref{eq:ghlow2-dir} & both sides; $=$ universal kernel $+$ extension \\
 \bottomrule
 \end{tabular}
 \caption{Summary of methods, kernels, and terms. The ``c'' suffix counts
@@ -384,10 +395,10 @@ biased near the knot; PHL1c tracks the PDE.
 
 The figure also shows two $T^{2}$-baseline analogues of PHL1c.
 \textbf{GHLOW2c} stacks the universal directed kernel
-$\Phi_{BB}^{\mathrm{dir}}$ \eqref{eq:phibb-dir} on the GHLOW2 baseline:
+$K_1^{\mathrm{dir}}$ \eqref{eq:K1-dir} on the GHLOW2 baseline:
 \begin{equation}
 \siv^{\mathrm{GHLOW2c}}(k)=\siv^{\mathrm{GHLOW2}}(k)
-   +\delta\cdot\stot^{3}\cdot\Phi_{BB}^{\mathrm{dir}}(k/\stot,0).
+   +\delta\cdot\stot^{3}\cdot K_1^{\mathrm{dir}}(k/\stot,0).
 \label{eq:ghlow2c}
 \end{equation}
 Equivalently, $\siv^{\mathrm{GHLOW2c}}=\siv^{\mathrm{PHL1c}}+\sigma_2\,T$
@@ -398,8 +409,8 @@ cannot reach --- closed by the \emph{extended} directed kernel
 introduced below, yielding GHLOW2cc.
 
 \paragraph{The $\sigma_2$ value jump and its repair.}
-The universal directed kernel \eqref{eq:phibb-dir} subtracts only BBF0's
-and $\sigma_1$'s $\delta$-variations from $\Phi_{BB}$. GHLOW2 carries one
+The universal directed kernel \eqref{eq:K1-dir} subtracts only BBF0's
+and $\sigma_1$'s $\delta$-variations from $K_1$. GHLOW2 carries one
 more $\delta$-variation, $\sigma_2$'s, and $\sigma_2(0)$ depends on
 $\sloc'''(0)=6\gamma$ via the second-order Yoshida coefficient. The
 $u_1/u_0$ integrand carries $\sloc'''$ through its first variation, and
@@ -407,7 +418,7 @@ the constraint that makes $\sigma_2(0)$ finite leaves a
 $\gamma$-linear residual at the next order. Crucially, every Yoshida
 ingredient at $k=0$ is algebraic in $(\sigma,\beta,\alpha,\gamma)$ ---
 the ATM restriction $w=0$ removes the integrals, just as it removed the
-diverging polynomial in $\Phi_{BB}$ --- so the jump is a closed scalar.
+diverging polynomial in $K_1$ --- so the jump is a closed scalar.
 Working in total-vol units $s=\sigma/\mathrm{scale}$, $b=\beta/\mathrm{scale}$,
 $g=\gamma/\mathrm{scale}$, the $\gamma$-linear piece of $\sigma_2(0)$ is
 $s^3 b g / 20$, so $\gamma$ jumping by $\delta$ at the knot produces a
@@ -423,8 +434,8 @@ which for the SPXW DTE~1 preset is $-0.171$~bps. Subtracting $\sigma_2$'s
 $\delta$-variation in addition to BBF0's $x^3/4$ and $\sigma_1$'s $x/4$
 gives the \emph{extended} directed kernel:
 \begin{equation}
-\Phi_{BB,\,\mathrm{GHLOW2}}^{\mathrm{dir}}(x,0)
-= \Phi_{BB}(x,0)
+K_1^{\mathrm{ext}}(x,0)
+= K_1(x,0)
   - \tfrac{x^3}{4}\Hev(x)
   - \tfrac{x}{4}\Hev(x)
   - \frac{\sigma_2(k;\gamma+\delta)-\sigma_2(k;\gamma)}{\delta\,\stot^3}\Hev(x),
@@ -432,7 +443,7 @@ gives the \emph{extended} directed kernel:
 \label{eq:ghlow2-dir}
 \end{equation}
 The first three terms reproduce the universal kernel
-\eqref{eq:phibb-dir} for $x>0$; the fourth, $(b,a,g)$-parametric piece
+\eqref{eq:K1-dir} for $x>0$; the fourth, $(b,a,g)$-parametric piece
 is the \emph{extension} foreshadowed earlier --- what makes the kernel
 \emph{extended}, and what closes the value jump below. The extension
 lives only on $x>0$ (one-sided perturbation) and collapses to zero on
@@ -440,7 +451,7 @@ the wings under the clip introduced below.
 The fully-corrected GHLOW2 method is then
 \begin{equation}
 \siv^{\mathrm{GHLOW2cc}}(k)=\siv^{\mathrm{GHLOW2}}(k)
-   +\delta\cdot\stot^{3}\cdot\Phi_{BB,\,\mathrm{GHLOW2}}^{\mathrm{dir}}(k/\stot,0),
+   +\delta\cdot\stot^{3}\cdot K_1^{\mathrm{ext}}(k/\stot,0),
 \label{eq:ghlow2cc}
 \end{equation}
 with GHLOW2 again evaluated on the perturbed surface so the cancellation
@@ -458,7 +469,7 @@ already equals $\Delta\sigma_2(0)$, so the clip is inactive there and
 the value jump is closed exactly; past the engagement point
 ($x\approx 1$ for the SPXW preset) the bare $\sigma_2$ piece flips
 sign and starts to grow, and the clip cuts it off at zero, so the
-extended kernel collapses back to the universal $\Phi_{BB}^{\mathrm{dir}}$
+extended kernel collapses back to the universal $K_1^{\mathrm{dir}}$
 on the wings. The clip is $C^{0}$ but not $C^{1}$ at the engagement
 point, which lives outside the option-meaningful band. The choice of
 the zero-side bound (rather than the symmetric $-\Delta\sigma_2(0)$)
@@ -473,7 +484,7 @@ GHLOW2c with no trade-off.
 
 \paragraph{Why the correction is one-sided.}
 At every order in the small-$T$ polynomial expansion (BBF0, PHL1,
-GHLOW2, $\Phi_{BB}$), the correction for a strike $k$ depends on the
+GHLOW2, $K_1$), the correction for a strike $k$ depends on the
 local-vol surface only along the Varadhan-style geodesic between the
 forward and the strike, i.e.\ inside $[\min(0,k),\max(0,k)]$. Our
 perturbation $\delta k^{3}H(k)$ lives only in $k>0$, so for a strike
@@ -514,7 +525,7 @@ smooth across the knot since $1/\sloc$ stays $C^{2}$);
 but develops a localised slope kink at $k=0$ because $\sigma_1$'s
 derivation assumes $\sloc\in C^{3}$);
 \textbf{PHL1c} (red, $T^{1}+T^{3/2}$: PHL1 $+$ the universal directed
-Brownian-bridge kernel $\Phi_{BB}^{\mathrm{dir}}$, repairing the slope
+first-order Duhamel kernel $K_1^{\mathrm{dir}}$, repairing the slope
 kink to first order in $\delta$);
 \textbf{GHLOW2} (teal, $T^{2}$: PHL1 $+$ $\sigma_2 T^{2}$ --- the
 smooth-cubic accuracy is raised one order but the PHL1 slope kink is
@@ -523,7 +534,7 @@ $-0.171$~bps for this preset \eqref{eq:ghlow2-gap} because
 $\sigma_2(0)$ depends on $\sloc'''(0)=6\gamma$ and $\gamma$ jumps by
 $\delta$ at the knot);
 \textbf{GHLOW2c} (amber, $T^{2}+T^{3/2}$: GHLOW2 $+$ the universal
-kernel $\Phi_{BB}^{\mathrm{dir}}$ \eqref{eq:phibb-dir}, equivalently
+kernel $K_1^{\mathrm{dir}}$ \eqref{eq:K1-dir}, equivalently
 $\siv^{\mathrm{PHL1c}}+\sigma_2\,T$ --- closes the slope kink but
 inherits the $-0.171$~bps $\sigma_2$ value jump, which is visible in
 the error panel as a one-sided step at $k=0$);
@@ -560,9 +571,9 @@ legible at all.}
 \centering\includegraphics[width=0.72\textwidth]{F4_kernel}
 \caption{The two pieces of the ATM-knot correction in annualised \% for
 the knot case. Solid green: the \emph{universal} directed kernel
-$\delta\,\stot^{3}\,\Phi_{BB}^{\mathrm{dir}}(k/\stot,0)$, exactly the
+$\delta\,\stot^{3}\,K_1^{\mathrm{dir}}(k/\stot,0)$, exactly the
 gap PHL1c adds to PHL1 \emph{and} the gap GHLOW2c adds to GHLOW2 (both
-identical, sharing the $\Phi_{BB}(0,0)=3\sqrt{2\pi}/128$ peak and
+identical, sharing the $K_1(0,0)=3\sqrt{2\pi}/128$ peak and
 decaying on both sides). Dashed purple: the \emph{extension piece}
 GHLOW2cc adds on top of GHLOW2c --- the $(b,a,g)$-parametric
 $\sigma_2$ subtraction that distinguishes the extended kernel
@@ -583,9 +594,9 @@ the smiles BBF can reach. The obvious way to regain flexibility --- a knot
 while PHL1's $\sigma_1$ expansion assumes $C^3$, so PHL1 develops a
 localised residual at the knot strike (BBF, a harmonic-mean integral, is
 insensitive to it and has no knot-specific error). This paper removed that
-single defect for a knot pinned at-the-money, in closed form: a
-one-dimensional Brownian-bridge integral $\Phi_{BB}(x,0)$ with peak
-$3\sqrt{2\pi}/128$ and no fitted constants. After subtracting the
+single defect for a knot pinned at-the-money, in closed form: the
+first-order Duhamel kernel $K_1(x,0)$, a one-dimensional bridge
+integral with peak $3\sqrt{2\pi}/128$ and no fitted constants. After subtracting the
 variation PHL1 already captures, the residual decays on both sides
 and adds directly to PHL1. On parameters calibrated from real SPXW
 surfaces PHL1c tracks the Dupire PDE where PHL1 alone is biased, and

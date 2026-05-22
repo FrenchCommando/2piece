@@ -15,7 +15,7 @@ import { sigmaLoc } from './cubic';
 import { bbf0 } from './bbf0';
 import { phl1 } from './phl1';
 import { ghlow2 } from './ghlow2';
-import { knotSpikePhl1, knotSpikeGhlow2cc } from './phibb';
+import { knotSpikePhl1, knotSpikeGhlow2cc } from './kernel';
 import { solveDupirePde, impliedVolFromPrices } from './pde';
 
 export interface ModelInputs {
@@ -33,18 +33,18 @@ export interface ModelCurves {
   bbf0: number[];
   phl1: number[];
   ghlow2: number[];
-  /** PHL1c = PHL1 + universal Phi_BB^dir kernel (BBF0 and sigma_1
+  /** PHL1c = PHL1 + universal K_1^dir kernel (BBF0 and sigma_1
    * delta-variations subtracted). Equals PHL1 when delta=0. */
   phl1c: number[];
-  /** GHLOW2c = GHLOW2 + the same universal Phi_BB^dir kernel that PHL1c
+  /** GHLOW2c = GHLOW2 + the same universal K_1^dir kernel that PHL1c
    * uses (i.e. PHL1c + sigma_2 T^2). Repairs the sigma_1 slope kink at
    * the knot but still carries the analytic value jump from sigma_2(0)'s
    * delta-variation. Equals GHLOW2 when delta=0. */
   ghlow2c: number[];
-  /** GHLOW2cc = GHLOW2 + extended kernel: Phi_BB^dir minus sigma_2's
-   * delta-variation (cubic-parameter-dependent at order x^0..x^n). Closes
-   * both the sigma_1 slope kink and the sigma_2 value jump at the C^2
-   * knot. Equals GHLOW2 when delta=0. */
+  /** GHLOW2cc = GHLOW2 + extended kernel K_1^ext = K_1^dir minus
+   * sigma_2's delta-variation (cubic-parameter-dependent at order
+   * x^0..x^n). Closes both the sigma_1 slope kink and the sigma_2 value
+   * jump at the C^2 knot. Equals GHLOW2 when delta=0. */
   ghlow2cc: number[];
   pde: number[];
   hasKnot: boolean;
@@ -123,10 +123,10 @@ export function computeCurves(
   const bbf0Curve = k.map((kk, i) => mask(bbf0(kk, effectiveCubic(kk, c, inp.delta)), i));
   const phl1Curve = k.map((kk, i) => mask(phl1(kk, effectiveCubic(kk, c, inp.delta), scale), i));
   const ghlow2Curve = k.map((kk, i) => mask(ghlow2(kk, effectiveCubic(kk, c, inp.delta), scale), i));
-  // PHL1c: PHL1 + universal Φ_BB^dir (BBF0 + σ_1 δ-variations subtracted).
+  // PHL1c: PHL1 + universal K_1^dir (BBF0 + σ_1 δ-variations subtracted).
   // GHLOW2c: GHLOW2 + the same universal kernel — equivalent to PHL1c + σ_2 T².
   //   Repairs σ_1's slope kink; σ_2's value jump at k=0 remains.
-  // GHLOW2cc: GHLOW2 + extended kernel that additionally subtracts σ_2's
+  // GHLOW2cc: GHLOW2 + extended kernel K_1^ext = K_1^dir minus σ_2's
   //   δ-variation (the b/20·δ·σ_total^3 scalar at x=0). Closes the value
   //   jump too. All three reduce to their baseline when delta=0.
   const phl1cCurve = phl1Curve.map((p, i) => p + knotSpikePhl1(k[i], inp.delta, sigmaTotal));

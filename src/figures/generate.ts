@@ -7,7 +7,7 @@ import { writeFileSync, mkdirSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import { dirname, join } from 'node:path';
 import { computeCurves, type ModelInputs } from '../math/model';
-import { PHI_BB_PEAK } from '../math/phibb';
+import { K1_PEAK } from '../math/kernel';
 import { renderSvg, type Series } from './svg';
 import examples from '../../examples/params.json';
 
@@ -96,9 +96,9 @@ smileFig('F2_concave.svg', 'Concave case — SPXW 2025-03-10 DTE 3 (concave smil
 smileFig('F3_knot.svg', 'Unhappy case — fake ATM knot at k=0', byId('knot'), true);
 
 // F4: the universal kernel and the σ_2 extension piece for the knot example.
-//   - universal Φ_BB^dir = PHL1c − PHL1 = GHLOW2c − GHLOW2  (BBF0/σ_1
-//                          δ-variations subtracted from Φ_BB; full magnitude)
-//   - extension piece    = GHLOW2cc − GHLOW2c               (the σ_2 piece
+//   - universal K_1^dir = PHL1c − PHL1 = GHLOW2c − GHLOW2  (BBF0/σ_1
+//                         δ-variations subtracted from K_1; full magnitude)
+//   - extension piece   = GHLOW2cc − GHLOW2c               (the σ_2 piece
 //                          only; the additional, (b,a,g)-parametric piece
 //                          that distinguishes the extended kernel from the
 //                          universal one)
@@ -114,7 +114,7 @@ writeFileSync(
     {
       series: [
         {
-          label: 'universal Φ_BB^dir',
+          label: 'universal K₁^dir',
           x: kc.k,
           y: universalSpike,
           color: '#059669',
@@ -130,7 +130,7 @@ writeFileSync(
         },
       ],
       opts: {
-        title: `ATM-knot IV corrections (universal kernel peak Φ_BB(0,0) = ${PHI_BB_PEAK.toFixed(5)})`,
+        title: `ATM-knot IV corrections (universal kernel peak K₁(0,0) = ${K1_PEAK.toFixed(5)})`,
         xlabel: 'log-moneyness k',
         ylabel: 'correction (annualised %)',
         zeroLine: true,
@@ -140,4 +140,4 @@ writeFileSync(
   ]),
 );
 // eslint-disable-next-line no-console
-console.log('F4_kernel.svg: Phi_BB peak =', PHI_BB_PEAK.toFixed(6));
+console.log('F4_kernel.svg: K_1 peak =', K1_PEAK.toFixed(6));
