@@ -384,10 +384,25 @@ objective in itself --- it is the measure of how far each map is from the
 model's true Dupire implied vol, i.e.\ of the static-arbitrage slack PHL1
 removes relative to BBF0.
 
+\begin{figure}[!htbp]
+\centering\includegraphics[width=0.78\textwidth]{F1_happy}
+\caption{Happy case: smile (top), error vs PDE in bps with BBF0 (middle),
+and the same error with BBF0 excluded (bottom) so the PHL1-vs-GHLOW2
+comparison is legible.}
+\label{fig:happy}
+\end{figure}
+
 Figure~\ref{fig:concave}: a concave converted smile (DTE~3).
 The approximation remains good where vol is positive; the deep wings, where
 the option's time value underflows and implied vol is not recoverable, are
 trimmed rather than faked.
+
+\begin{figure}[!htbp]
+\centering\includegraphics[width=0.78\textwidth]{F2_concave}
+\caption{Concave case: the converted smile is concave. Panels as in
+Figure~\ref{fig:happy} (smile; error with BBF0; error without BBF0).}
+\label{fig:concave}
+\end{figure}
 
 Figure~\ref{fig:knot}: the same DTE~1 cubic with a fake ATM knot
 ($\delta$ the real first-knot jump, moved to $k=0$). PHL1 is visibly
@@ -480,37 +495,10 @@ GHLOW2c (universal kernel, $\sim$$0.16$~bps max error but a visible
 $-0.171$~bps value jump at $k=0$) and GHLOW2cc (extended kernel with
 clipping, $\sim$$0.15$~bps max error and value-continuous at the knot
 to numerical precision). GHLOW2cc therefore strictly improves on
-GHLOW2c with no trade-off.
+GHLOW2c with no trade-off. Figure~\ref{fig:kernel} plots the universal
+kernel and the extension piece separately, on the same knot example.
 
-\paragraph{Why the correction is one-sided.}
-At every order in the small-$T$ polynomial expansion (BBF0, PHL1,
-GHLOW2, $K_1$), the correction for a strike $k$ depends on the
-local-vol surface only along the Varadhan-style geodesic between the
-forward and the strike, i.e.\ inside $[\min(0,k),\max(0,k)]$. Our
-perturbation $\delta k^{3}H(k)$ lives only in $k>0$, so for a strike
-$k<0$ the geodesic sits entirely in the untouched region and the
-correction is rigorously zero. A Brownian bridge from $0$ to $k<0$
-\emph{can} fluctuate into $k>0$, but the probability of that excursion
-is $O(\exp(-c/T))$ --- non-perturbative, below every polynomial-in-$T$
-term in the expansion. The Dupire PDE captures the exponentially small
-cross-side leakage; the closed-form maps do not, by design.
-
-\begin{figure}[t]
-\centering\includegraphics[width=0.78\textwidth]{F1_happy}
-\caption{Happy case: smile (top), error vs PDE in bps with BBF0 (middle),
-and the same error with BBF0 excluded (bottom) so the PHL1-vs-GHLOW2
-comparison is legible.}
-\label{fig:happy}
-\end{figure}
-
-\begin{figure}[t]
-\centering\includegraphics[width=0.78\textwidth]{F2_concave}
-\caption{Concave case: the converted smile is concave. Panels as in
-Figure~\ref{fig:happy} (smile; error with BBF0; error without BBF0).}
-\label{fig:concave}
-\end{figure}
-
-\begin{figure}[t]
+\begin{figure}[!htbp]
 \centering\includegraphics[width=0.78\textwidth]{F3_knot}
 \caption{Unhappy case: a fake at-the-money knot. Three panels --- smile
 (top), error vs PDE in bps with BBF0 (middle), and the same error with
@@ -567,7 +555,7 @@ legible at all.}
 \label{fig:knot}
 \end{figure}
 
-\begin{figure}[t]
+\begin{figure}[!htbp]
 \centering\includegraphics[width=0.72\textwidth]{F4_kernel}
 \caption{The two pieces of the ATM-knot correction in annualised \% for
 the knot case. Solid green: the \emph{universal} directed kernel
@@ -584,6 +572,19 @@ $\sigma_2(0)$ value jump, and decays to zero on the wings as the clip
 engages.}
 \label{fig:kernel}
 \end{figure}
+
+\paragraph{Why the correction is one-sided.}
+At every order in the small-$T$ polynomial expansion (BBF0, PHL1,
+GHLOW2, $K_1$), the correction for a strike $k$ depends on the
+local-vol surface only along the Varadhan-style geodesic between the
+forward and the strike, i.e.\ inside $[\min(0,k),\max(0,k)]$. Our
+perturbation $\delta k^{3}H(k)$ lives only in $k>0$, so for a strike
+$k<0$ the geodesic sits entirely in the untouched region and the
+correction is rigorously zero. A Brownian bridge from $0$ to $k<0$
+\emph{can} fluctuate into $k>0$, but the probability of that excursion
+is $O(\exp(-c/T))$ --- non-perturbative, below every polynomial-in-$T$
+term in the expansion. The Dupire PDE captures the exponentially small
+cross-side leakage; the closed-form maps do not, by design.
 
 \section{Conclusion}
 
