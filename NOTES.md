@@ -309,6 +309,57 @@ the closed-form maps don't, by design.
 knot), which loses the w=0 collapse on the bridge integral and is
 genuinely harder.
 
+**Cleaner reformulation for the next paper rewrite** (insight settled
+2026-05-22, deferred): the layered "PHL1c / GHLOW2c / GHLOW2cc"
+hierarchy is bookkeeping, not three distinct corrections. To first
+order in δ on the k>0 side, all three collapse to
+
+```
+σ_BS(k) ≈ σ_BS^{smooth}(k) + δ · σ_total³ · K_1(k/σ_total, 0) · H(k)
+```
+
+where `σ_BS^{smooth}` is whatever truncation of the asymptotic
+expansion (PHL1, GHLOW2, …) you take *evaluated on the underlying
+smooth cubic γ — not the piecewise (γ, γ+δ) one*. `K_1` is the *full,
+un-directed* bridge integral. There is **one** correction, the K_1
+piece; PHL1 vs GHLOW2 just chooses how many smooth-cubic terms to
+keep in the baseline.
+
+Algebra confirming this: GHLOW2cc(k) = GHLOW2(perturbed) +
+δ·σ_total³·K_1^dir − (σ_2(perturbed) − σ_2(unperturbed)) = BBF0_p +
+σ_1_p + σ_2_u + δ·σ_total³·K_1^dir. Taylor-expanding BBF0_p and σ_1_p
+in δ gives `BBF0_u + (x³/4)δσ_total³ + σ_1_u + (x/4)δσ_total³`. The
+`x³/4 + x/4` exactly cancels the same subtraction inside `K_1^dir`,
+leaving `GHLOW2_u + δ·σ_total³·K_1`.
+
+Why the implementation chose `GHLOW2(perturbed) + corrections`
+instead: (i) baseline stays numerically faithful to the actual
+perturbed surface, exact in δ to whatever order GHLOW2 captures
+(the equivalence above is only first-order in δ); (ii) reuses the
+existing BBF0/PHL1/GHLOW2 machinery without an "evaluate on
+smooth-extrapolated cubic on k>0" code path. So the current code is
+correct — it's the paper's *framing* that's bookkeeping-heavy, not
+the implementation.
+
+**Paper rewrite TODO when revisited:**
+- Collapse §"The at-the-money knot correction" and §"σ_2 value jump
+  and its repair" into one §"The knot correction"; lead with the
+  one-line formula `σ_BS = σ_BS^{smooth} + δ·σ_total³·K_1·H(k)`.
+- Drop the "universal kernel" / "extension piece" / "directed kernel"
+  vocabulary — they're all the same K_1 in the clean framing.
+- Suffix naming: PHL1c / GHLOW2c / GHLOW2cc become parameter choices
+  (which truncation of the smooth-cubic expansion), not three named
+  methods. Probably collapse to "PHL1 + K_1" and "GHLOW2 + K_1".
+- F4 (the kernel plot) becomes much simpler: just `K_1(x, 0)` once,
+  not "universal vs extension piece".
+- Note in §Implementation: code chooses perturbed-baseline form for
+  numerical/code-reuse reasons; explain the algebraic equivalence.
+
+Implementation work this would imply: probably none if we keep the
+perturbed-baseline form. Or: add a `kernel-only` mode that returns
+`δ·σ_total³·K_1` directly and stacks on `GHLOW2(unperturbed
+extrapolation)`. Defer until rewriting.
+
 **Load-bearing math kept in NOTES** (not in the paper):
 the σ_2(0) closed-form derivation. σ_2(k) has the structure
 `B(k)/k² + 3σ_1²/(2·iv_hm)` with `B = −3σ_1·iv_hm² + iv_hm⁵/8 +
