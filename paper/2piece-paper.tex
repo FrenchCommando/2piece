@@ -132,10 +132,23 @@ extended to local--stochastic models by Lorig--Pagliarani--Pascucci
 \citep{lorig2017}, derives implied-vol
 expansions by Taylor-expanding the diffusion coefficients about a
 point where they are assumed smooth; the knot case here is non-smooth
-at the natural expansion point and lies outside that scope. De~Marco's
-harmonic-mean characterisation \citep{demarco2021} pins what the
-leading-order map is approximating, and hence what the next-order gap
-(the object PHL1c closes) actually is.
+at the natural expansion point and lies outside that scope. A further
+parallel route due to Medvedev and Scaillet
+\citep{medvedevScaillet2007} writes the implied-vol PDE in
+moneyness-degree $\theta=k/(\stot\sqrt T)$ and solves an ODE in
+$\theta$ at each order in $\sqrt T$; the polynomial-in-$\theta$
+solution class assumed there is broken by the non-smooth forcing a
+$C^2$ knot would inject into the same ODE. A
+quadrature-based alternative due to Guyon and Henry-Labord\`ere
+\citep{guyonHenryLabordere2010} sidesteps the smoothness assumption
+entirely --- their heat-kernel estimator writes $\siv^2$ as a
+weighted space--time average of $\sloc^2$ evaluated at quadrature
+points, so a $C^2$ knot is handled by construction with no
+correction term --- at the cost of a 2D quadrature per strike and
+no closed-form $\siv(k;\theta)$ for an optimiser to differentiate.
+De~Marco's harmonic-mean characterisation \citep{demarco2021} pins
+what the leading-order map is approximating, and hence what the
+next-order gap (the object PHL1c closes) actually is.
 
 \paragraph{Direct implied-vol parametrisations.} The other side of the
 design choice is to parametrise the implied-vol surface directly. SABR

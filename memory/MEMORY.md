@@ -3,3 +3,5 @@
 - [example-params](example-params.md) — SPXW example params + knot-case δ=68619 rationale
 - [theta-options-private](theta-options-private.md) — theta-options is the user's PRIVATE repo; never leak it into public 2piece files
 - [naming-convention](naming-convention.md) — lowercase `c` suffix for "+correction"; the bare `corr` abbreviation is FORBIDDEN (collides with correlation)
+- [related-work-search](related-work-search.md) — for any literature pass, walk sibling notes folders (e.g. `theta-options\local_vol\*.md`) BEFORE web search; key skip-list entries by author+year+topic, not author alone
+- [memory-location](memory-location.md) — memory lives in repo `memory/` only; never write into `.claude/projects/<slug>/memory/` on this project (repo self-containment per CLAUDE.md)

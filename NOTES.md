@@ -583,6 +583,58 @@ Net result: 0 preemptions. Confidence level for the C²-knot result
 being original raised from "in-training pattern-completion suggests
 yes" to "actively searched four angles, none found".
 
+### Re-searched 2026-05-22 (corrected framing: alternative-methodology)
+
+The 2026-05-21 pass was framed strictly as a *preemption check* — "did
+anyone else publish this C²-knot correction first?" That filter
+correctly returns "no" for methodologically-distinct papers that don't
+claim a knot correction, but it also drops papers a reviewer would
+expect us to position against. Re-ran with the prompt: "is there a
+related-but-different methodology that solves the same root problem
+(smoothness assumption breaking at C² knots) that a reader would
+expect a comparison sentence for?" Also: walked
+`theta-options\local_vol\*.md` — sibling-project paper-summary notes,
+not searched in the prior pass.
+
+Two new cites added:
+
+- **Guyon–Henry-Labordère 2010** (SSRN 1663878) — the heat-kernel-
+  expansion / quadrature alternative. Writes σ_BS² as a weighted
+  space–time average of σ²_loc evaluated at quadrature points; C² knot
+  handled by construction with no correction term. Trade-off: 2D
+  quadrature per strike, no closed-form `σ_iv(k;θ)` for an optimiser
+  to differentiate. Positioned as the "if you don't need closed form"
+  alternative. Missed in the 2026-05-21 pass partly because of a
+  name collision with "Guyon path-dependent volatility 2014" in the
+  skip list — abbreviated "Guyon …" entries should be keyed by
+  `author+year+topic` to disambiguate.
+- **Medvedev–Scaillet 2007**, *RFS* 20(2):427–459 (earlier as NCCR
+  FINRISK WP No. 275, January 2006) — the ODE-in-moneyness-degree
+  alternative. Writes the IV PDE in θ = k/(σ√T), expands in √T,
+  solves ODEs in θ at each order. Methodologically parallel to
+  PHL/GHLOW heat-kernel; the polynomial-in-θ solution class breaks
+  on the non-smooth forcing a C² knot injects — same smoothness-
+  assumption pattern as LPP. Surfaced from sibling notes file
+  `medvedev_scaillet_2006.md` (read for the first time today).
+
+Considered-and-skip on this pass (no preemption, no reviewer-pushback
+risk): Henry-Labordère 2005 HAL preprint (2008 book already cites the
+σ₁ formula; Schrödinger framing isn't used here), Piterbarg Markovian
+projection (wrong direction), Alòs/Malliavin (smooth-only), Reghai
+conditional-distribution estimator (covered by guyonHenryLabordere2010
+citation), six recent arXiv papers Jan 2025 → 2026-05-22 (Pirjol–Zhu
+2024 IR-LV short-mat, Pirjol et al 2024 VIX/Asian/RV options, Cheng–
+Cheng 2024 model-independent cumulant IV expansion, Yang et al 2025
+LV-input denoising) — all smooth-coefficient or different problem.
+
+Process lesson, generalised: when a project has a sibling notes /
+research folder, related-work passes should `ls` that folder first.
+Sibling notes are higher-signal than arXiv keyword searches because
+the user has already triaged what they think matters. The
+`theta-options\local_vol\*.md` folder was not consulted on
+2026-05-21, which is why both new cites are findings from
+re-reading the user's own filing cabinet rather than from web search.
+
 ### How this lands in the paper (final structure)
 
 A **Related Work** section between §1 Introduction and §2 Setup, 4
@@ -599,7 +651,12 @@ paragraphs:
    Pagliarani–Pascucci / Lorig–Pagliarani–Pascucci as the parallel
    adjoint-expansion methodology (paper notes their smoothness-at-
    expansion-point hypothesis and that the knot case lies outside that
-   scope); De Marco's harmonic-mean characterisation.
+   scope); Medvedev–Scaillet 2007 as the ODE-in-θ parallel route
+   (polynomial-in-θ solution class broken by C²-knot forcing, same
+   smoothness pattern); Guyon–Henry-Labordère 2010 as the quadrature
+   alternative (handles knots by construction; trades closed-form
+   `σ_iv(k;θ)` for a 2D quadrature per strike); De Marco's harmonic-
+   mean characterisation.
 3. **Direct IV-side parametrisations** — SABR (Hagan et al), SVI /
    arbitrage-free SVI (Gatheral, Gatheral–Jacquier), Andreasen–Huge,
    Itkin–Lipton — the design choice the paper is implicitly defending;
@@ -648,6 +705,12 @@ paper answers.
       author tracking, topic search) returned 0 preemptions of the
       C²-knot result. Itkin–Lipton 2018 added to bib. Search log in
       "Searched 2026-05-21 and skipped" subsection above.
+- [x] Re-search 2026-05-22 with corrected (alternative-methodology)
+      framing — added `guyonHenryLabordere2010` (HKE quadrature
+      alternative) and `medvedevScaillet2007` (ODE-in-θ parallel
+      route) to bib, plus matching positioning sentences in §Related
+      Work paragraph 2 of the paper. Process lesson logged in
+      "Re-searched 2026-05-22" subsection above.
 
 ### PDF distribution (non-obvious — do not re-track in repo)
 The compiled PDF is **not** tracked in the repo. Source of truth is
