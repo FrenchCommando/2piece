@@ -135,7 +135,7 @@ point where they are assumed smooth; the knot case here is non-smooth
 at the natural expansion point and lies outside that scope. De~Marco's
 harmonic-mean characterisation \citep{demarco2021} pins what the
 leading-order map is approximating, and hence what the next-order gap
-(the object PHL1 plus the correction close) actually is.
+(the object PHL1c closes) actually is.
 
 \paragraph{Direct implied-vol parametrisations.} The other side of the
 design choice is to parametrise the implied-vol surface directly. SABR
@@ -290,9 +290,12 @@ kernel, which decays on both sides:
 The corrected method, with PHL1 evaluated on the perturbed surface so the
 cancellation is exact to first order, is
 \begin{equation}
-\siv^{\mathrm{PHL1+corr}}(k)=\siv^{\mathrm{PHL1}}(k)
+\siv^{\mathrm{PHL1c}}(k)=\siv^{\mathrm{PHL1}}(k)
    +\delta\cdot\stot^{3}\cdot\Phi_{BB}^{\mathrm{dir}}(k/\stot,0).
 \end{equation}
+We use the suffix ``c'' (lower-case) throughout for ``the closed-form
+knot correction appropriate to this baseline''; thus PHL1c, and later
+GHLOW2c.
 The bridge integral \eqref{eq:phibb} is evaluated with a 32-point
 Gauss--Legendre rule.
 
@@ -316,8 +319,67 @@ the option's time value underflows and implied vol is not recoverable, are
 trimmed rather than faked.
 
 Figure~\ref{fig:knot}: the same DTE~1 cubic with a fake ATM knot
-($\delta$ the real first-knot jump, moved to $k=0$). PHL1 is visibly biased
-near the knot; PHL1 plus $\Phi_{BB}^{\mathrm{dir}}$ tracks the PDE.
+($\delta$ the real first-knot jump, moved to $k=0$). PHL1 is visibly
+biased near the knot; PHL1c tracks the PDE.
+
+The figure also shows GHLOW2c --- the $T^{2}$-baseline analogue of
+PHL1c. Off the knot it tracks the PDE more tightly than PHL1c
+(capturing the smooth $\sigma_2 T^2$ term PHL1 omits). Naively stacking
+the PHL1 kernel $\Phi_{BB}^{\mathrm{dir}}$ on top of GHLOW2 would leave
+an analytic value jump at $k=0$ that we close in closed form below.
+
+\paragraph{The $\sigma_2$ value jump and its repair.}
+The naive PHL1-style directed kernel subtracts only BBF0's and
+$\sigma_1$'s $\delta$-variations from $\Phi_{BB}$. GHLOW2 carries one
+more $\delta$-variation, $\sigma_2$'s, and $\sigma_2(0)$ depends on
+$\sloc'''(0)=6\gamma$ via the second-order Yoshida coefficient. The
+$u_1/u_0$ integrand carries $\sloc'''$ through its first variation, and
+the constraint that makes $\sigma_2(0)$ finite leaves a
+$\gamma$-linear residual at the next order. Crucially, every Yoshida
+ingredient at $k=0$ is algebraic in $(\sigma,\beta,\alpha,\gamma)$ ---
+the ATM restriction $w=0$ removes the integrals, just as it removed the
+diverging polynomial in $\Phi_{BB}$ --- so the jump is a closed scalar.
+Working in total-vol units $s=\sigma/\mathrm{scale}$, $b=\beta/\mathrm{scale}$,
+$g=\gamma/\mathrm{scale}$, the $\gamma$-linear piece of $\sigma_2(0)$ is
+$s^3 b g / 20$, so $\gamma$ jumping by $\delta$ at the knot produces a
+GHLOW2 value discontinuity
+\begin{equation}
+\Delta\sigma_2(0)
+= \frac{s^3 b\,\delta_{\mathrm{total}}}{20}
+\;=\; \frac{\sigma^3\beta\,\delta}{20\,\mathrm{scale}^4}
+\quad(\text{annualised \%}),
+\label{eq:ghlow2-gap}
+\end{equation}
+which for the SPXW DTE~1 preset is $-0.171$~bps. Subtracting $\sigma_2$'s
+$\delta$-variation in addition to BBF0's $x^3/4$ and $\sigma_1$'s $x/4$
+gives the GHLOW2-directed kernel
+\begin{equation}
+\Phi_{BB,\,\mathrm{GHLOW2}}^{\mathrm{dir}}(x,0)
+= \Phi_{BB}(x,0)
+  - \tfrac{x^3}{4}\Hev(x)
+  - \tfrac{x}{4}\Hev(x)
+  - \frac{\sigma_2(k;\gamma+\delta)-\sigma_2(k;\gamma)}{\delta\,\stot^3}\Hev(x),
+\quad k=x\stot.
+\label{eq:ghlow2-dir}
+\end{equation}
+In parallel with the PHL1c equation, the corrected GHLOW2 method is
+\begin{equation}
+\siv^{\mathrm{GHLOW2c}}(k)=\siv^{\mathrm{GHLOW2}}(k)
+   +\delta\cdot\stot^{3}\cdot\Phi_{BB,\,\mathrm{GHLOW2}}^{\mathrm{dir}}(k/\stot,0),
+\label{eq:ghlow2c}
+\end{equation}
+with GHLOW2 again evaluated on the perturbed surface so the cancellation
+is exact to first order. The new subtraction is no longer a universal
+$x$-only function as the PHL1 kernel's was; it carries the unperturbed
+cubic's $(b,a,g)$ parametrically, with $b/20$ at $x=0$ matching
+\eqref{eq:ghlow2-gap} exactly. It remains bounded for the same $w=0$
+reason --- no bridge-integral offset, no diverging polynomial --- and is
+evaluated directly through the same $\sigma_2$ closed forms already used
+for the GHLOW2 baseline. Figure~\ref{fig:knot} shows GHLOW2c with this
+extended kernel: the residual at $k=0$ collapses to numerical noise
+($\sim10^{-4}$~bps, more than three orders below the PHL1-kernel residual), and
+GHLOW2c now tracks the PDE more tightly than PHL1c across the band
+while remaining value-continuous at the knot.
 
 \begin{figure}[t]
 \centering\includegraphics[width=0.78\textwidth]{F1_happy}
@@ -336,8 +398,32 @@ Figure~\ref{fig:happy} (smile; error with BBF0; error without BBF0).}
 
 \begin{figure}[t]
 \centering\includegraphics[width=0.78\textwidth]{F3_knot}
-\caption{Unhappy case: a fake at-the-money knot. PHL1$+$correction
-recovers the PDE that PHL1 alone misses near $k=0$.}
+\caption{Unhappy case: a fake at-the-money knot. Six curves on each
+panel, with the asymptotic order in $T$ at the knot:
+\textbf{PDE} (black, ground truth: Dupire forward equation with a
+Rannacher-then-Crank--Nicolson scheme);
+\textbf{BBF0} (grey dashed, $T^{0}$: inverse harmonic mean of $\sloc$,
+smooth across the knot since $1/\sloc$ stays $C^{2}$);
+\textbf{PHL1} (blue, $T^{1}$: BBF0 $+$ $\sigma_1 T$, smooth-cubic-accurate
+but develops a localised slope kink at $k=0$ because $\sigma_1$'s
+derivation assumes $\sloc\in C^{3}$);
+\textbf{PHL1c} (red, $T^{1}+T^{3/2}$: PHL1 $+$ the universal directed
+Brownian-bridge kernel $\Phi_{BB}^{\mathrm{dir}}$, repairing the slope
+kink to first order in $\delta$);
+\textbf{GHLOW2} (teal, $T^{2}$: PHL1 $+$ $\sigma_2 T^{2}$, smooth-cubic
+accuracy raised one order but carrying an analytic value jump at $k=0$
+\eqref{eq:ghlow2-gap} of $-0.171$~bps for this preset, because $\sigma_2(0)$
+depends on $\sloc'''(0) = 6\gamma$ and $\gamma$ jumps by $\delta$ at the
+knot);
+\textbf{GHLOW2c} (orange, $T^{2}+T^{3/2}$: GHLOW2 $+$ the extended
+directed kernel \eqref{eq:ghlow2-dir}, which subtracts $\sigma_2$'s
+$\delta$-variation in addition to the BBF0 and $\sigma_1$ pieces and
+cancels the value jump while remaining bounded for the same $w=0$ reason).
+The error panel (bps vs PDE) makes the ladder concrete: BBF0
+$\gtrsim 60$~bps off, PHL1 a few bps off with a knot kink, PHL1c and
+GHLOW2 within $\sim 1$~bp (each missing something different --- PHL1c
+the smooth-cubic $\sigma_2 T^{2}$ term, GHLOW2 the knot residual), and
+GHLOW2c collapsing to numerical noise.}
 \label{fig:knot}
 \end{figure}
 
@@ -366,8 +452,8 @@ one-dimensional Brownian-bridge integral $\Phi_{BB}(x,0)$ with peak
 $3\sqrt{2\pi}/128$ and no fitted constants. After subtracting the
 variation PHL1 already captures, the residual decays on both sides
 and adds directly to PHL1. On parameters calibrated from real SPXW
-surfaces PHL1 plus correction tracks the Dupire PDE where PHL1 alone
-is biased, and the correction is inert on smooth smiles.
+surfaces PHL1c tracks the Dupire PDE where PHL1 alone is biased, and
+the correction is inert on smooth smiles.
 
 The consequence is practical, not just numerical: ``piecewise-cubic with
 an at-the-money knot, mapped through PHL1'' is now a usable surface
@@ -380,9 +466,15 @@ truncation; $w=0$ removes that term and fixes the peak by a
 Beta-function moment. The peak $3\sqrt{2\pi}/128$ is the $C^{2}$
 companion, in log-normal Black IV, to the $C^{0}$ normal-IV constant
 $\tfrac{1}{16}\sqrt{\pi/2}$ of Costeanu and Pirjol --- adjacent slots
-of the same Duhamel-perturbation table they began. Extending the
-bounded form to $w\neq0$, and to the second-order $\Delta\gamma$
-term, is the natural next step.
+of the same Duhamel-perturbation table they began. The same $w=0$
+collapse extends naturally to the $T^{2}$ baseline: subtracting
+$\sigma_2$'s $\delta$-variation in \eqref{eq:ghlow2-dir} closes a
+$\gamma$-linear value jump in $\sigma_2$ given in closed form by
+\eqref{eq:ghlow2-gap}, and the GHLOW2c method that results is
+value-continuous at the knot while inheriting the smooth-cubic
+$\sigma_2 T^2$ accuracy off it. The remaining natural extension is the
+$w\neq0$ case --- moving the knot off the forward --- which is more
+involved because the bounded-polynomial collapse used here disappears.
 
 \section{Reproducibility}
 

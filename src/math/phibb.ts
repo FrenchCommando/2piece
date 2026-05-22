@@ -17,6 +17,8 @@
  */
 import { gaussLegendre } from './gl';
 import { normCdf, normPdf } from './normal';
+import { sigma2 } from './ghlow2';
+import type { CubicCoeffs } from './cubic';
 
 export const PHI_BB_PEAK = (3 * Math.sqrt(2 * Math.PI)) / 128;
 
@@ -68,7 +70,36 @@ export function phiBBDirected(x: number, w: number): number {
  * @param delta        gamma discontinuity (Delta_gamma), annualised-% units
  * @param sigmaTotal   sigma_loc(0)/scale  (= sigma_knot at an ATM knot)
  */
-export function knotSpike(k: number, delta: number, sigmaTotal: number): number {
+export function knotSpikePhl1(k: number, delta: number, sigmaTotal: number): number {
   const x = k / sigmaTotal;
   return delta * sigmaTotal ** 3 * phiBBDirected(x, 0);
+}
+
+/**
+ * GHLOW2-directed knot correction. The PHL1 directed kernel subtracts BBF0's
+ * (x^3/4) and sigma_1's (x/4) delta-variations — universal in x. GHLOW2 has
+ * one more delta-variation, sigma_2's, which carries the unperturbed cubic's
+ * (b, a, g) parametrically and is not a universal x-function. For x > 0 we
+ * subtract it explicitly so the directed kernel cancels GHLOW2's analytic
+ * value jump at the knot; for x ≤ 0 the source perturbation does not move
+ * the baseline at all and the PHL1-directed kernel is the right answer.
+ *
+ * Closed-form via existing `sigma2()` machinery: for the polynomial branch
+ * (|k|<1e-3) the coefficients are explicit polynomials in (σ,β,α,γ,scale)
+ * from `sigma2PolyCoeffsFromCubic`; we just difference the perturbed and
+ * unperturbed cubic. At x=0 this evaluates to b/20 · δ·σ_total^3 ann.%, the
+ * scalar derived in the paper.
+ */
+export function knotSpikeGhlow2(
+  k: number,
+  c: CubicCoeffs,
+  delta: number,
+  sigmaTotal: number,
+  scale: number,
+): number {
+  const phl1Piece = knotSpikePhl1(k, delta, sigmaTotal);
+  if (k <= 0 || delta === 0) return phl1Piece;
+  const cPerturbed: CubicCoeffs = { ...c, gamma: c.gamma + delta };
+  const sigma2VarPct = (sigma2(k, cPerturbed, scale) - sigma2(k, c, scale)) * scale;
+  return phl1Piece - sigma2VarPct;
 }

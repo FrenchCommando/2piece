@@ -116,7 +116,7 @@ kernel, which decays on both sides:
 The corrected method is then
 
 ```
-PHL1+correction(k) = PHL1(k) + δ·σ_total³·Φ_BB^directed(k/σ_total, 0)
+PHL1c(k) = PHL1(k) + δ·σ_total³·Φ_BB^directed(k/σ_total, 0)
 ```
 
 with PHL1 evaluated on the perturbed surface (so the cancellation is exact to
@@ -137,11 +137,12 @@ are correctly trimmed:
 ![Concave](figures/F2_concave.svg)
 
 Unhappy case — the happy cubic with a fake knot moved to k = 0. PHL1 alone is
-biased near the knot; PHL1 + the Φ_BB correction recovers the PDE:
+biased near the knot; PHL1c recovers the PDE, and GHLOW2c additionally
+closes the analytic value jump from σ_2:
 
 ![Knot](figures/F3_knot.svg)
 
-The applied correction in annualised % (the gap PHL1+corr adds to PHL1; it is
+The applied correction in annualised % (the gap PHL1c adds to PHL1; it is
 the dimensionless directed kernel, peak `3√(2π)/128`, scaled by `δ·σ_total³`):
 
 ![Correction](figures/F4_kernel.svg)

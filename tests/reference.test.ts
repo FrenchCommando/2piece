@@ -10,7 +10,7 @@ import { bbf0 } from '../src/math/bbf0';
 import { phl1 } from '../src/math/phl1';
 import { ghlow2 } from '../src/math/ghlow2';
 import { sigmaLoc } from '../src/math/cubic';
-import { phiBB, phiBBDirected, PHI_BB_PEAK, knotSpike } from '../src/math/phibb';
+import { phiBB, phiBBDirected, PHI_BB_PEAK, knotSpikePhl1 } from '../src/math/phibb';
 import { computeCurves } from '../src/math/model';
 
 const HAPPY: CubicCoeffs = {
@@ -65,10 +65,10 @@ describe('knot case (spike + PHL1 + PDE) vs Python reference', () => {
   const sigmaTotal: number = r.sigma_total;
   it('Phi_BB spike matches phl1s_spike', () => {
     r.k.forEach((k: number, i: number) => {
-      close(knotSpike(k, delta, sigmaTotal), r.spike[i], 1e-7, 1e-7);
+      close(knotSpikePhl1(k, delta, sigmaTotal), r.spike[i], 1e-7, 1e-7);
     });
   });
-  it('full model curves track the reference (PHL1, PHL1+corr, PDE)', () => {
+  it('full model curves track the reference (PHL1, PHL1c, PDE)', () => {
     const curves = computeCurves({ ...HAPPY, delta, dte: 1 }, 401);
     // The fixture sampled k_eval[::40]; reproduce that subsample.
     r.k.forEach((kRef: number, idx: number) => {
@@ -83,7 +83,7 @@ describe('knot case (spike + PHL1 + PDE) vs Python reference', () => {
         }
       });
       close(curves.phl1[j], r.phl1[idx], 5e-4, 5e-3);
-      close(curves.phl1Corrected[j], r.phl1_plus_corr[idx], 5e-4, 5e-3);
+      close(curves.phl1c[j], r.phl1_plus_corr[idx], 5e-4, 5e-3);
       close(curves.pde[j], r.pde[idx], 2e-3, 0.05);
     });
   });

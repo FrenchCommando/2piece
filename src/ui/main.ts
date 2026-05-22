@@ -35,15 +35,18 @@ const FIELDS: { key: keyof ModelInputs; label: string; step: string }[] = [
   { key: 'delta', label: 'δ (knot Δγ at k=0)', step: '10000' },
 ];
 
-// Five methods in T-order: PDE (truth), BBF0 (T^0), PHL1 (T^1),
-// PHL1+correction (T^1 + T^{3/2}), GHLOW2+correction (T^2 + T^{3/2}).
-// The +correction curves collapse to their baselines when delta = 0.
+// Six methods in T-order: PDE (truth), BBF0 (T^0), PHL1 (T^1),
+// PHL1c (T^1 + T^{3/2}), GHLOW2 (T^2), GHLOW2c (T^2 + T^{3/2}). The 'c'
+// suffix is the closed-form correction; full word "correction" is used in
+// prose when clarity wins (the bare "corr" abbreviation collides with
+// correlation). The 'c' curves collapse to their baselines when delta = 0.
 const METHODS = [
   { key: 'pde', label: 'PDE' },
   { key: 'bbf0', label: 'BBF0' },
   { key: 'phl1', label: 'PHL1' },
-  { key: 'phl1Corrected', label: 'PHL1 + correction' },
-  { key: 'ghlow2Corrected', label: 'GHLOW2 + correction' },
+  { key: 'phl1c', label: 'PHL1c' },
+  { key: 'ghlow2', label: 'GHLOW2' },
+  { key: 'ghlow2c', label: 'GHLOW2c' },
 ] as const;
 type MethodKey = (typeof METHODS)[number]['key'];
 
@@ -121,12 +124,13 @@ app.innerHTML = `
       <li><b>PHL1</b> — BBF0 + the first-order <code>σ₁·T</code> heat-kernel
       correction (Henry-Labordère's expansion; explicit closed form from
       Gatheral et&nbsp;al., Thm.&nbsp;2.4).</li>
-      <li><b>PHL1 + correction</b> — PHL1 plus the closed-form
-      Brownian-bridge kernel that repairs the knot. Collapses to PHL1 when
-      <code>δ = 0</code>.</li>
-      <li><b>GHLOW2 + correction</b> — Gatheral–Hsu–Laurence–Ouyang–Wang
-      second-order <code>σ₂·T²</code> term added on top of PHL1, with the
-      same knot correction stacked on. Collapses to GHLOW2 when
+      <li><b>PHL1c</b> — PHL1 plus the closed-form Brownian-bridge kernel
+      that repairs the knot. Collapses to PHL1 when <code>δ = 0</code>.</li>
+      <li><b>GHLOW2c</b> — Gatheral–Hsu–Laurence–Ouyang–Wang
+      second-order <code>σ₂·T²</code> term added on top of PHL1, with an
+      extended directed kernel that also subtracts <code>σ₂</code>'s
+      δ-variation to close the analytic value jump at <code>k=0</code>
+      that the PHL1 kernel cannot reach. Collapses to GHLOW2 when
       <code>δ = 0</code>.</li>
     </ul>
 
@@ -139,9 +143,12 @@ app.innerHTML = `
     η = x·√(λ/(1−λ)),&nbsp;&nbsp;
     f(η) = (η³+3η)Φ(η) + (η²+2)φ(η)</code></p>
     <p>Subtracting the part PHL1 already moves (so it is not double-counted)
-    gives the directed kernel; the applied correction in annualised % is
-    <code>δ·σ_total³·Φ_BB^directed(k/σ_total, 0)</code> — exactly the gap
-    panel&nbsp;4 plots.</p>
+    gives the directed kernel; the applied PHL1 correction in annualised %
+    is <code>δ·σ_total³·Φ_BB^directed(k/σ_total, 0)</code> — exactly the
+    gap panel&nbsp;4 plots. GHLOW2 carries one additional δ-variation,
+    <code>σ₂</code>'s, so its directed kernel subtracts that piece as
+    well (cubic-parameter-dependent — not universal in <code>x</code> the
+    way PHL1's is — but still bounded thanks to <code>w=0</code>).</p>
 
     <h2>Trust</h2>
     <p>Everything is computed in your browser. The math core is a 1:1 port
@@ -289,17 +296,18 @@ function draw(): void {
     ...vis('pde', { label: 'PDE (truth)', x: c.k, y: c.pde, color: '#18181b', width: 2 }),
     ...vis('bbf0', { label: 'BBF0', x: c.k, y: c.bbf0, color: '#a1a1aa', dash: [5, 4] }),
     ...vis('phl1', { label: 'PHL1', x: c.k, y: c.phl1, color: '#2563eb' }),
-    ...vis('phl1Corrected', {
-      label: 'PHL1 + corr',
+    ...vis('phl1c', {
+      label: 'PHL1c',
       x: c.k,
-      y: c.phl1Corrected,
+      y: c.phl1c,
       color: '#dc2626',
       width: 1.8,
     }),
-    ...vis('ghlow2Corrected', {
-      label: 'GHLOW2 + corr',
+    ...vis('ghlow2', { label: 'GHLOW2', x: c.k, y: c.ghlow2, color: '#0d9488' }),
+    ...vis('ghlow2c', {
+      label: 'GHLOW2c',
       x: c.k,
-      y: c.ghlow2Corrected,
+      y: c.ghlow2c,
       color: '#ea580c',
       width: 1.8,
     }),
@@ -323,17 +331,23 @@ function draw(): void {
       dash: [5, 4],
     }),
     ...vis('phl1', { label: 'PHL1 − PDE', x: c.k, y: errOf(c.phl1), color: '#2563eb' }),
-    ...vis('phl1Corrected', {
-      label: 'PHL1+corr − PDE',
+    ...vis('phl1c', {
+      label: 'PHL1c − PDE',
       x: c.k,
-      y: errOf(c.phl1Corrected),
+      y: errOf(c.phl1c),
       color: '#dc2626',
       width: 1.8,
     }),
-    ...vis('ghlow2Corrected', {
-      label: 'GHLOW2+corr − PDE',
+    ...vis('ghlow2', {
+      label: 'GHLOW2 − PDE',
       x: c.k,
-      y: errOf(c.ghlow2Corrected),
+      y: errOf(c.ghlow2),
+      color: '#0d9488',
+    }),
+    ...vis('ghlow2c', {
+      label: 'GHLOW2c − PDE',
+      x: c.k,
+      y: errOf(c.ghlow2c),
       color: '#ea580c',
       width: 1.8,
     }),
@@ -361,16 +375,17 @@ function draw(): void {
     },
   );
 
-  // The applied ATM-knot correction in annualised %: exactly
-  // (PHL1+corr) − PHL1 = (GHLOW2+corr) − GHLOW2 = δ·σ_total³·Φ_BB^directed(k/σ_total, 0).
-  // The kernel doesn't depend on which baseline it's added to.
-  const corr = c.phl1Corrected.map((v, i) => v - c.phl1[i]);
+  // The PHL1 correction in annualised %: exactly PHL1c − PHL1 =
+  // δ·σ_total³·Φ_BB^directed(k/σ_total, 0). Universal in x. GHLOW2's
+  // correction also subtracts σ_2's δ-variation and is not shown here —
+  // its shape depends parametrically on the cubic (b,a,g).
+  const phl1Spike = c.phl1c.map((v, i) => v - c.phl1[i]);
   drawChart(
     document.getElementById('c-ker') as HTMLCanvasElement,
-    [{ label: 'δ·σ_total³·Φ_BB^dir', x: c.k, y: corr, color: '#059669', width: 1.8 }],
+    [{ label: 'δ·σ_total³·Φ_BB^dir', x: c.k, y: phl1Spike, color: '#059669', width: 1.8 }],
     {
       title: knot
-        ? 'ATM-knot implied-vol correction (added to both PHL1 and GHLOW2)'
+        ? 'PHL1 ATM-knot correction (universal kernel · Φ_BB^dir)'
         : 'ATM-knot IV correction (δ = 0 ⇒ no knot, zero correction)',
       xlabel: 'log-moneyness k',
       ylabel: 'correction (annualised %)',

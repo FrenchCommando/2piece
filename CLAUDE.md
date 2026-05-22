@@ -92,7 +92,7 @@ same idea for params: pull SPXW 1DTE, only keep ATM values, first knot, disconti
 - PDE
 - BBF0
 - PHL1
-- PHL1+correction
+- PHL1c
 
 ## Credits
 

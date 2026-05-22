@@ -58,26 +58,17 @@ positioning.
   calibration pipeline), user reviewed. Kept "for now, can change later".
 - **Unhappy/knot case baseline:** **full happy cubic + Δγ jump at k=0**
   (realistic skew with the knot spike superimposed), not a flat-σ baseline.
+- **Naming convention** (locked 2026-05-21): lowercase `c` suffix for
+  "+correction" methods (PHL1c, GHLOW2c); the bare `corr` abbreviation
+  is forbidden because in finance it means correlation. Full rule +
+  identifier table in [`memory/naming-convention.md`](memory/naming-convention.md).
 
-## Example parameters (calibrated, baked into `examples/params.json`)
+## Example parameters
 
-Units: σ,β,α,γ are coefficients of `1,k,k²,k³` in **annualised %**,
-`k = log(K/F)`. Cubic: `σ_loc(k) = σ + β k + α k² + γ k³`.
-
-| case | source | DTE | σ | β | α | γ |
-|---|---|---|---|---|---|---|
-| happy (skew) | SPXW 2025-03-10 | 1 | 31.12869431205608 | -104.84746098573555 | 3076.241202978902 | -45158.46287590234 |
-| concave | SPXW 2025-03-10 | 3 | 28.303289918533753 | -91.01397782800612 | -2448.8648048728382 | 2808.9138721582217 |
-
-- Happy first knot (real): `k_p = +0.009370405484440836`,
-  `Δγ = γ₊ − γ_centre = +368618.7394437184`.
-- **Unhappy case** = happy cubic (DTE1 row) **+ `delta`·k³·H(k)** with the
-  knot at k=0 and `delta = +368618.7394437184`.
-
-Observed (sanity, matches CLAUDE.md narrative):
-- Happy: BBF0 ~66 bps below PDE at the down-skew wing; PHL1 & GHLOW2 ~nail PDE.
-- Concave: clean concave (frown) peak ≈ 28.5% near k≈-0.03; BBF0 ~43 bps off;
-  approximation valid where σ_loc > 0.
+Provenance, the table of σ/β/α/γ values, the knot-case δ = 68619
+rationale, and the sanity-observed bps numbers live in
+[`memory/example-params.md`](memory/example-params.md) — that is the
+single source of truth for the calibrated examples.
 
 ## The math (all in total-vol unless noted)
 
@@ -142,10 +133,10 @@ iv_hm_kernel(x,0) = x³/4   (x>0), 0 (x≤0)
 Φ_BB^directed(x,0) = Φ_BB(x,0) − iv_hm_kernel − σ₁_kernel
 ```
 This decays on both sides (the x³/4 of Φ_BB cancels iv_hm_kernel's leading
-term). PHL1+correction = PHL1 + Δγ·σ_total³·Φ_BB^directed(k/σ_total, 0),
-added on the perturbed side only; left side (k≤0) untouched by construction
-(H(k)). Knot envelope E=exp(-w²)=1 at w=0 (ATM) so it drops out — another
-reason the ATM restriction is clean.
+term). PHL1c = PHL1 + Δγ·σ_total³·Φ_BB^directed(k/σ_total, 0), added on the
+perturbed side only; left side (k≤0) untouched by construction (H(k)). Knot
+envelope E=exp(-w²)=1 at w=0 (ATM) so it drops out — another reason the ATM
+restriction is clean.
 
 ### Sanity check: same machinery reproduces Costeanu–Pirjol's C⁰ constant
 
@@ -196,23 +187,102 @@ kernel is deliberately not added to `phibb.ts`: it has no production
 use, and a 1-page derivation matching an exact-solution number to all
 digits is verification enough without a code maintenance burden.
 
-**Open structural choice: GHLOW2 + correction vs PHL1 + correction**
-(2026-05-20). The T-ordering at the knot reads `T⁰`(BBF0), `T¹`(PHL1
-σ_1·T), **`T^{3/2}`(this paper's knot correction)**, `T²`(GHLOW2
-σ_2·T²). So *"PHL1 + correction"* is consistent at order `T^{3/2}`
-but leaves `T²` (= GHLOW2's σ_2·T²) unmodeled; *"GHLOW2 + correction"*
-captures one more order. The 2piece paper currently uses
-PHL1+correction in Figure 3 (the knot figure) — chosen for narrative
-focus ("close PHL1's C³ gap") rather than asymptotic completeness.
-The upstream `theta-options/local_vol/NOTES_KNOT_CORRECTION.md`
-notes that the *same* `Φ_BB` closed form works on top of GHLOW2
-unchanged (their `GHLOW2rf` method) — and empirically beats
-PHL1+correction at every tested DTE. So the natural one-line
-extension of this paper would be to add GHLOW2+correction as a 5th
-curve in Figure 3 (option A from the 2026-05-20 discussion); the
-PHL1+correction headline stays. Deferred for now (scope). When
-revisiting, the math is identical (same kernel, GHLOW2 baseline
-instead of PHL1), and a single figure rerun is enough to land it.
+**Open structural choice: GHLOW2c vs PHL1c** (2026-05-20). The T-ordering
+at the knot reads `T⁰`(BBF0), `T¹`(PHL1 σ_1·T), **`T^{3/2}`(this paper's
+knot correction)**, `T²`(GHLOW2 σ_2·T²). So PHL1c is consistent at
+order `T^{3/2}` but leaves `T²` (= GHLOW2's σ_2·T²) unmodeled; GHLOW2c
+captures one more order. The 2piece paper currently uses PHL1c in
+Figure 3 (the knot figure) — chosen for narrative focus ("close PHL1's
+C³ gap") rather than asymptotic completeness. The upstream
+`theta-options/local_vol/NOTES_KNOT_CORRECTION.md` notes that the *same*
+`Φ_BB` closed form works on top of GHLOW2 unchanged (their `GHLOW2rf`
+method) — and empirically beats PHL1c at every tested DTE. So the
+natural one-line extension of this paper would be to add GHLOW2c as a
+5th curve in Figure 3 (option A from the 2026-05-20 discussion); the
+PHL1c headline stays. Deferred for now (scope). When revisiting, the
+math is identical (same kernel, GHLOW2 baseline instead of PHL1), and a
+single figure rerun is enough to land it.
+
+**Settled 2026-05-21:** UI now ships 5 separate toggles (PDE, BBF0,
+PHL1, PHL1c, GHLOW2c) — see commit history. While doing this
+we discovered a load-bearing math fact: **GHLOW2 has a real analytic
+value discontinuity at the ATM C² knot** (~0.17 bps for the knot
+preset), and `Φ_BB^dir` cannot repair it. Details:
+
+- σ_2(k) has the structure
+  `B(k)/k² + 3σ_1²/(2·iv_hm)` with
+  `B = −3σ_1·iv_hm² + iv_hm⁵/8 + (u_1/u_0)·iv_hm³`.
+- σ_2(0) finite requires `B(0)=0` (fixes σ_1(0); γ-free) and `B'(0)=0`.
+  Worked the symbolic γ-pieces:
+  `σ_1'(0) = (−b³ + 4abs + 12gs²)/48` carries `+12 g s²/48 = g s²/4`;
+  `(u_1/u_0)'(0)` carries `+3 s g/4` (from `f'(0) = 2a + 6g − …`).
+  In B'(0) they enter as `−3·σ_1'(0)·s²` and `+(u_1/u_0)'(0)·s³`, giving
+  `−3 g s⁴/4 + 3 g s⁴/4 = 0`. γ cancels exactly. ✓
+- σ_2(0) = (1/2)·B''(0) + 3σ_1(0)²/(2s). The 3σ_1² piece is γ-free.
+  Working out the γ-bearing parts of B''(0): σ_1''(0)|_γ = 3sbg/10,
+  (u_1/u_0)''(0)|_γ = bg/4, plus the σ_1'(0)|_γ and (u_1/u_0)'(0)|_γ
+  pieces threaded through. Sum:
+  `B''(0)|_γ = s³bg/10`. So σ_2(0)|_γ = s³bg/20 (exactly linear in g —
+  no quadratic or higher γ pieces survive at k=0, because σ_loc'''(0) =
+  6γ enters all relevant intermediates only linearly).
+- **Closed-form jump at the knot** (the deliverable: at w=0 it's a
+  clean scalar with no integrals — same payoff principle as the
+  bridge-polynomial collapse for Φ_BB):
+  ```
+  Δσ_2(0) = σ_2(0; γ+δ) − σ_2(0; γ)
+          = s³·b·δ_total/20                (total vol)
+          = σ³·β·δ/(20·scale⁴)             (annualised %)
+  ```
+  Knot-preset check: σ³β·δ/(20·scale⁴) for (σ,β,δ,scale) =
+  (31.1287, −104.847, 68619, 1587.45) gives **−1.71e-3 ann.% =
+  −0.171 bps**. Matches the empirical knot-side measurement at
+  k=±10⁻⁸ to displayed precision. ✓ (Δ was 368618.7 prior to
+  2026-05-21; reduced to 68619 for chart legibility — the gap scales
+  linearly with δ, so the −0.918 bps quoted earlier is the same
+  formula at the old δ.)
+- N_TERMS swept 5 → 32: gap is N-independent past N=5 (N=3,4 are
+  pre-convergence and bounce). N_TERMS = 5 is the math-justified value;
+  legacy 16 was defensive padding from the Python port's generic-σ_loc
+  algorithm fed cubic input. Set to 5.
+- N_TERMS itself was changed `16 → 5` since N=5 is fully converged for
+  cubic input. The legacy 16 was defensive padding from the Python port
+  (the iterative algorithm is generic-σ_loc and could in principle face
+  smoother-than-cubic input). At-the-knot consequence: zero, since the
+  γ-dependence is analytic.
+- `phiBBDirected(x, 0)` is **value-continuous at x=0** (both sides
+  → PHI_BB_PEAK; the ivHm/sigma1 subtractions vanish at x=0). So adding
+  it to PHL1 cleanly repairs PHL1's slope kink, but adding it to
+  GHLOW2 cannot repair GHLOW2's value jump — a different correction
+  kernel would be needed (specifically one designed against the
+  second-order Yoshida term, not against `σ_1`).
+- **Paper impact:** this becomes the natural motivation for the
+  "extending to the second-order Δγ term" sentence already in the
+  conclusion. Paper now mentions the gap explicitly (visible in
+  Figure~\ref{fig:knot} once the GHLOW2c curve is on) rather than
+  leaving it as an unexplained chart feature.
+
+**Settled 2026-05-21 (later that day):** the σ_2 directed extension
+was *not* deferred. User pushed: "we simplified the problem on purpose
+by forcing the knot at zero" — so the w=0 collapse that made Φ_BB
+clean also keeps σ_2's δ-variation a clean bounded polynomial in x with
+coefficients in (b, a, g). Implemented: `knotSpikeGhlow2` in
+`phibb.ts` subtracts σ_2's δ-variation per side from the PHL1-directed
+spike, computed via `sigma2(k; γ+δ) − sigma2(k; γ)` (the closed-form
+coefficients fall out of `sigma2PolyCoeffsFromCubic` for free; the
+implementation reuses that rather than re-deriving the Taylor algebra
+by hand). Empirical (δ=68619): gap at k=±10⁻⁸ collapses from
+−0.171 bps (PHL1 kernel) to ~1.1×10⁻⁴ bps (σ_2 kernel) — more than
+three orders of magnitude, i.e. float-noise-near-the-knot. (Scales
+linearly with δ; the old δ=368618.7 figures of −0.918 bps and
+≈10⁻⁴ bps residual give the same ratio.) The closed-form scalar `b/20`
+at x=0 matches
+\eqref{eq:ghlow2-gap}. GHLOW2c in the chart is now both
+value-continuous at the knot AND tighter against the PDE off-knot than
+PHL1c — the empirical claim from the upstream NOTES (GHLOW2rf beats
+PHL1c at every DTE) holds and is now also value-continuous, making
+GHLOW2c the higher-asymptotic-order method the conclusion flagged.
+Only remaining extension: w≠0 (off-ATM knot), which loses the w=0
+collapse and is genuinely harder.
 
 **Why our answer is `T^{3/2}`, not `√T`** (Table 5.1 sanity check):
 CP's Table 5.1 lists the *possible* powers of T at each perturbation
@@ -288,7 +358,7 @@ frozen cross-check fixture dumped from it.
 4 graphs (CLAUDE.md outline §Graphs):
 1. Happy: smile + diff vs PDE — PDE/BBF0/PHL1/GHLOW2.
 2. Concave example — same methods.
-3. Unhappy fake knot at k=0 — PDE/BBF0/PHL1/PHL1+correction.
+3. Unhappy fake knot at k=0 — PDE/BBF0/PHL1/PHL1c/GHLOW2c.
 (The interactive page shows the knot-case set live driven by σ/β/α/γ/δ/DTE;
 README/paper show 1–3 as static committed PNGs + the knot graph.)
 
@@ -550,7 +620,7 @@ paper answers.
       BBF0/PHL1/GHLOW2 1e-6, Φ_BB 1e-9, knot model vs PDE within tol).
 - [x] Vite app + canvas charts (debounced inputs, 4 charts, presets).
 - [x] TS figure script + committed SVGs (F1 happy 66.6bps, F2 concave
-      42.8bps, F3 knot 229.6bps, F4 kernel peak 0.058749).
+      42.8bps, F3 knot 66.6bps at δ=68619, F4 kernel peak 0.058749).
 - [x] README (formulas + figures + run instructions).
 - [x] LaTeX paper (`paper/2piece-paper.tex`, concise ATM-knot derivation) + refs.
 - [x] GitHub Actions: `pages.yml` (test+figures-check+build+deploy),

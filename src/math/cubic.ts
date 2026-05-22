@@ -26,7 +26,7 @@ export function sigmaLocDerivs(k: number, c: CubicCoeffs): [number, number, numb
   return [s, d1, d2];
 }
 
-export const N_TERMS = 16;
+export const N_TERMS = 5;
 
 /** Taylor coefficients c[0..n-1] of 1/(sigma + beta*t + alpha*t^2 + gamma*t^3). */
 export function reciprocalCubicTaylor(
