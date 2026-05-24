@@ -28,7 +28,11 @@ export function sigmaLocDerivs(
 	return [s, d1, d2];
 }
 
-export const N_TERMS = 5;
+// Each polyMultiply truncates to degree N_TERMS-1, so accuracy at the
+// sigma_2 polynomial/full-formula crossover (|k| = 1e-3) compounds across
+// nested products. N=5 gave a ~20-pt ghlow2 step at the threshold; N=8
+// closes it to 5 decimals, N=10 leaves margin.
+export const N_TERMS = 10;
 
 /** Taylor coefficients c[0..n-1] of 1/(sigma + beta*t + alpha*t^2 + gamma*t^3). */
 export function reciprocalCubicTaylor(

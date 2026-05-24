@@ -34,7 +34,7 @@ function smileFig(
 	inp: ModelInputs,
 	knot: boolean,
 ): void {
-	const c = computeCurves(inp, 401, FULL);
+	const c = computeCurves(inp, 1601, FULL);
 	// No knot: 4-curve set (BBF0/PHL1/GHLOW2). With knot: 7-curve set adding
 	// PHL1c, GHLOW2c (PHL1c-style universal kernel) and GHLOW2cc (extended
 	// kernel that also closes σ_2's value jump) alongside both baselines.
@@ -206,14 +206,14 @@ writeFileSync(
 		{
 			series: [
 				{
-					label: "R^(3,1)_1 = δ·σ³·K₁^dir",
+					label: "R_1 = δ·σ³·K₁^dir",
 					x: kc.k,
 					y: universalSpike,
 					color: "#059669",
 					width: 1.8,
 				},
 				{
-					label: "R^(3,1)_2 − R^(3,1)_1 (σ₂ extension)",
+					label: "R_2 − R_1",
 					x: kc.k,
 					y: extensionSpike,
 					color: "#9333ea",
@@ -222,7 +222,7 @@ writeFileSync(
 				},
 			],
 			opts: {
-				title: `ATM-knot IV corrections R^(3,1)_n  (kernel peak K₁(0,0) = ${K1_PEAK.toFixed(5)})`,
+				title: "ATM-knot IV corrections R_n",
 				xlabel: "log-moneyness k",
 				ylabel: "correction (annualised %)",
 				zeroLine: true,
