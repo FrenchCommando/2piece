@@ -138,6 +138,19 @@ symbol `K_1` / `K_1^dir` / `K_1^ext`; TS code `K1` / `K1Dir` / `K1_PEAK`
 in `src/math/kernel.ts`; CI fixture `tests/reference.json` uses matching
 keys `K1_w0` / `K1` / `K1_dir`.
 
+**Reconsidered 2026-05-23 — name kept.** CP2011 reserves "kernel" for
+the Gaussian propagator `G₀` (integrand of the Duhamel operator) and
+calls their universal constant a "(universal) coefficient" and the full
+T-power piece a "correction". By that strict reading our `K_1` (a value
+of an integral, not the integrand of one) is not a kernel. Decision:
+keep "kernel" anyway — `K_1(x, 0)` sits in a convolution-shaped
+expression `δ·σ³·K_1·source` and reads naturally as a kernel in the
+broader convolution-shape sense; the role-not-strict-definition usage
+is common in the heat-kernel-expansion literature we cite. "Correction"
+is already used for the full `δ·σ³·K_1·H(k)` term (matches CP). "Spike"
+for the resulting IV curve (in code: `knotSpikePhl1`,
+`knotSpikeGhlow2cc`) stays — descriptive of the curve shape.
+
 ### Quick-reference table — methods, kernels, terms
 
 | name | = | order in T at the knot | code field |
