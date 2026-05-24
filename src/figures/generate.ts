@@ -206,14 +206,14 @@ writeFileSync(
 		{
 			series: [
 				{
-					label: "universal K₁^dir",
+					label: "R^(3,1)_1 = δ·σ³·K₁^dir",
 					x: kc.k,
 					y: universalSpike,
 					color: "#059669",
 					width: 1.8,
 				},
 				{
-					label: "extension (σ_2 piece)",
+					label: "R^(3,1)_2 − R^(3,1)_1 (σ₂ extension)",
 					x: kc.k,
 					y: extensionSpike,
 					color: "#9333ea",
@@ -222,7 +222,7 @@ writeFileSync(
 				},
 			],
 			opts: {
-				title: `ATM-knot IV corrections (universal kernel peak K₁(0,0) = ${K1_PEAK.toFixed(5)})`,
+				title: `ATM-knot IV corrections R^(3,1)_n  (kernel peak K₁(0,0) = ${K1_PEAK.toFixed(5)})`,
 				xlabel: "log-moneyness k",
 				ylabel: "correction (annualised %)",
 				zeroLine: true,

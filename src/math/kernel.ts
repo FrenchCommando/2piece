@@ -16,6 +16,14 @@
  *
  * K_1^dir subtracts PHL1's own iv_hm/sigma_1 variation so it is not
  * double-counted (the x^3 growth cancels and the kernel decays both sides).
+ *
+ * Paper-side symbol (eq:R-def): the full corrections
+ *   R^(3,1)_1(x, w) ≡ δ·σ³·K_1^dir(x, w)   (universal — implemented by knotSpikePhl1)
+ *   R^(3,1)_2(x, w) ≡ δ·σ³·K_1^ext(x, w)   (extended  — implemented by knotSpikeGhlow2cc)
+ * Arguments (x, w) = (k/σ, k_knot/σ) inherited from K_1; callers always pass
+ * w=0 (ATM knot). Superscripts (3, 1) = derivative-jump level + Duhamel order
+ * (constants of this paper). Subscript = baseline T-order whose δ-variations
+ * the kernel subtracts.
  */
 
 import type { CubicCoeffs } from "./cubic";

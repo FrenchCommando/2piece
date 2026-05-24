@@ -120,10 +120,21 @@ K_1^dir(x,0) = K_1(x,0) − x³/4 − x/4      (x > 0; = K_1 otherwise)
 The corrected method is then
 
 ```
-PHL1c(k)    = PHL1(k)   + δ·σ_total³·K_1^dir(k/σ_total, 0)
-GHLOW2c(k)  = GHLOW2(k) + δ·σ_total³·K_1^dir(k/σ_total, 0)   (same universal kernel, T² baseline)
-GHLOW2cc(k) = GHLOW2(k) + δ·σ_total³·K_1^ext(k/σ_total, 0)   (extended kernel, also kills σ₂'s value jump)
+PHL1c(k)    = PHL1(k)   + R^(3,1)_1(k/σ, 0)
+GHLOW2c(k)  = GHLOW2(k) + R^(3,1)_1(k/σ, 0)    (same universal correction, T² baseline)
+GHLOW2cc(k) = GHLOW2(k) + R^(3,1)_2(k/σ, 0)    (extended correction, also kills σ₂'s value jump)
+
+R^(3,1)_1(x, w) = δ · σ³ · K_1^dir(x, w)       (universal correction)
+R^(3,1)_2(x, w) = δ · σ³ · K_1^ext(x, w)       (extended correction)
 ```
+
+Arguments `(x, w) = (k/σ, k_knot/σ)` inherited from K_1; the ATM
+restriction `w = 0` is visible at every callsite. The superscripts
+`(3, 1)` encode the constants of this paper: `3` is the σ_loc''' = γ
+jump level, `1` is the Duhamel-expansion order (first order in δ). The
+subscript `n` is what varies — the baseline T-order whose δ-variations
+are subtracted from the bridge integral K_1 to build the kernel.
+CP2011's universal coefficient is `R^(1,1)_0(0, 0)` in the same family.
 
 with the baseline evaluated on the perturbed surface (so the cancellation is
 exact to first order). The extended GHLOW2cc kernel subtracts σ₂'s
@@ -156,12 +167,13 @@ legible:
 ![Knot](figures/F3_knot.svg)
 
 The two pieces of the ATM-knot correction in annualised %: solid green is
-the universal kernel (PHL1c−PHL1 = GHLOW2c−GHLOW2, dimensionless peak
-`3√(2π)/128`, scaled by `δ·σ_total³`); dashed purple is the σ₂ extension
-piece (GHLOW2cc−GHLOW2c) — the small `(β,α,γ)`-parametric bit the
-extended kernel adds on top of the universal one. The extension lives
-only on `k > 0`, starts at `|Δσ_2(0)| = 0.171 bps` (closing the value
-jump), and decays to zero as the clip engages:
+the universal correction `R^(3,1)_1 = δ·σ³·K₁^dir` (= PHL1c−PHL1 =
+GHLOW2c−GHLOW2, kernel peak `K₁(0,0) = 3√(2π)/128`); dashed purple is
+the σ₂ extension piece `R^(3,1)_2 − R^(3,1)_1` (= GHLOW2cc−GHLOW2c) —
+the small `(β,α,γ)`-parametric bit the extended correction adds on top
+of the universal one. The extension lives only on `k > 0`, starts at
+`|Δσ_2(0)| = 0.171 bps` (closing the value jump), and decays to zero as
+the clip engages:
 
 ![Correction](figures/F4_kernel.svg)
 

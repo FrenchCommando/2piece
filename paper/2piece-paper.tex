@@ -334,11 +334,32 @@ The two kernels define our three closed-form knot corrections: PHL1c
 (PHL1 baseline + universal kernel), GHLOW2c (GHLOW2 baseline +
 universal kernel), and GHLOW2cc (GHLOW2 baseline + extended kernel
 $=$ universal kernel $+$ extension).
+\paragraph{The correction symbol.} Following the $\sigma_1, \sigma_2$
+convention where each closed-form contribution to $\siv$ is a named
+quantity, write
+\begin{equation}
+R^{(3, 1)}_{1}(x, w) \;\equiv\; \delta\cdot\sigma^{3}\cdot K_1^{\mathrm{dir}}(x, w),
+\qquad
+R^{(3, 1)}_{2}(x, w) \;\equiv\; \delta\cdot\sigma^{3}\cdot K_1^{\mathrm{ext}}(x, w),
+\label{eq:R-def}
+\end{equation}
+with $(x, w) = (k/\sigma, k_{\mathrm{knot}}/\sigma)$ inherited from
+$K_1$'s arguments, and $K_1^{\mathrm{ext}}$ the extended kernel
+\eqref{eq:ghlow2-dir} of Section~\ref{sec:results}. The two
+superscripts are the constants of this paper: $3$ is the
+$\sigma_{\mathrm{loc}}'''$ jump level, and $1$ is the Duhamel-expansion
+order (first order in $\delta$). The lone subscript $n$ is what varies
+between the two corrections --- the baseline T-order whose
+$\delta$-variations are subtracted from the bridge integral $K_1$ to
+give the kernel. The ATM restriction $w=0$ is visible at every
+callsite. Costeanu and Pirjol's universal coefficient
+\citep{costeanuPirjol2011} sits in the same family at
+$R^{(1, 1)}_{0}(0, 0)$.
+
 The corrected PHL1 method, with PHL1 evaluated on the perturbed surface
 so the cancellation is exact to first order, is
 \begin{equation}
-\siv^{\mathrm{PHL1c}}(k)=\siv^{\mathrm{PHL1}}(k)
-   +\delta\cdot\sigma^{3}\cdot K_1^{\mathrm{dir}}(k/\sigma,0).
+\siv^{\mathrm{PHL1c}}(k)=\siv^{\mathrm{PHL1}}(k)+R^{(3, 1)}_{1}(k/\sigma, 0).
 \end{equation}
 We use the suffix ``c'' (lower-case) throughout for ``one closed-form
 knot-correction layer applied to this baseline'': PHL1c and GHLOW2c
@@ -361,10 +382,10 @@ Name      & Definition                            & Order in $T$ at the knot \\
 \midrule
 BBF0      & $k\,/\!\int_0^k\!dy/\sloc(y)$         & $T^{0}$ \\
 PHL1      & BBF0 $+$ $\sigma_1$                   & $T^{1}$ \\
-PHL1c     & PHL1 $+$ universal kernel             & $T^{1}+T^{3/2}$ \\
+PHL1c     & PHL1 $+$ $R^{(3, 1)}_{1}$             & $T^{1}+T^{3/2}$ \\
 GHLOW2    & PHL1 $+$ $\sigma_2$                   & $T^{2}$ \\
-GHLOW2c   & GHLOW2 $+$ universal kernel           & $T^{2}+T^{3/2}$ \\
-GHLOW2cc  & GHLOW2 $+$ extended kernel            & $T^{2}+T^{3/2}$ \\
+GHLOW2c   & GHLOW2 $+$ $R^{(3, 1)}_{1}$           & $T^{2}+T^{3/2}$ \\
+GHLOW2cc  & GHLOW2 $+$ $R^{(3, 1)}_{2}$           & $T^{2}+T^{3/2}$ \\
 \midrule
 \multicolumn{3}{l}{\textit{Kernels and terms} (each scales by $\delta\,\sigma^{3}$ to give an IV-level correction in ann.\,\%)}\\
 \midrule
@@ -424,8 +445,7 @@ The figure also shows two $T^{2}$-baseline analogues of PHL1c.
 \textbf{GHLOW2c} stacks the universal directed kernel
 $K_1^{\mathrm{dir}}$ \eqref{eq:K1-dir} on the GHLOW2 baseline:
 \begin{equation}
-\siv^{\mathrm{GHLOW2c}}(k)=\siv^{\mathrm{GHLOW2}}(k)
-   +\delta\cdot\sigma^{3}\cdot K_1^{\mathrm{dir}}(k/\sigma,0).
+\siv^{\mathrm{GHLOW2c}}(k)=\siv^{\mathrm{GHLOW2}}(k)+R^{(3, 1)}_{1}(k/\sigma, 0).
 \label{eq:ghlow2c}
 \end{equation}
 Equivalently, $\siv^{\mathrm{GHLOW2c}}=\siv^{\mathrm{PHL1c}}+\sigma_2$
@@ -462,44 +482,45 @@ K_1^{\mathrm{ext}}(x,0)
 = K_1(x,0)
   - \tfrac{x^3}{4}\Hev(x)
   - \tfrac{x}{4}\Hev(x)
-  - \frac{\sigma_2(k;\gamma+\delta)-\sigma_2(k;\gamma)}{\delta\,\sigma^3}\Hev(x),
-\quad k=x\sigma.
+  - \mathrm{clamp}\!\left(
+       \frac{\sigma_2(x\sigma;\gamma+\delta)-\sigma_2(x\sigma;\gamma)}{\delta\,\sigma^3};
+       \;0,\,\tfrac{\beta}{20}
+     \right)\Hev(x).
 \label{eq:ghlow2-dir}
 \end{equation}
+Here $\mathrm{clamp}(z;\,a,b)$ denotes $z$ clipped to the closed
+interval between $a$ and $b$ (orientation chosen by their signs;
+$\tfrac{\beta}{20}=\Delta\sigma_2(0)/(\delta\sigma^3)$ via
+\eqref{eq:ghlow2-gap}).
 The first three terms reproduce the universal kernel
 \eqref{eq:K1-dir} for $x>0$; the fourth, $(\beta,\alpha,\gamma)$-parametric piece
 is the \emph{extension} foreshadowed earlier --- what makes the kernel
-\emph{extended}, and what closes the value jump below. The extension
-lives only on $x>0$ (one-sided perturbation) and collapses to zero on
-the wings under the clip introduced below.
+\emph{extended}, and what closes the value jump. The extension
+lives only on $x>0$ (one-sided perturbation) and the clamp in
+\eqref{eq:ghlow2-dir} forces it to zero on the wings.
 The fully-corrected GHLOW2 method is then
 \begin{equation}
-\siv^{\mathrm{GHLOW2cc}}(k)=\siv^{\mathrm{GHLOW2}}(k)
-   +\delta\cdot\sigma^{3}\cdot K_1^{\mathrm{ext}}(k/\sigma,0),
+\siv^{\mathrm{GHLOW2cc}}(k)=\siv^{\mathrm{GHLOW2}}(k)+R^{(3, 1)}_{2}(k/\sigma, 0),
 \label{eq:ghlow2cc}
 \end{equation}
 with GHLOW2 again evaluated on the perturbed surface so the cancellation
 is exact to first order. The new $\sigma_2$ subtraction is no longer a
 universal $x$-only function as the PHL1 kernel's was; it carries the
 unperturbed cubic's $(\beta,\alpha,\gamma)$ parametrically, with the
-$x=0$ value matching \eqref{eq:ghlow2-gap} exactly. Note that the $w=0$ collapse
+$x=0$ value matching \eqref{eq:ghlow2-gap} exactly. The $w=0$ collapse
 that made the bridge integral bounded does \emph{not} extend to the
 $\sigma_2$ piece: $\sigma_2$ has a $\xi^{3}/(8 d^{5})$ term with
 $d=O(1)$ on the wings, so the raw $\sigma_2$ $\delta$-variation grows
-like $k^{3}$. We keep the construction bounded by clipping the
-$\sigma_2$ piece to the closed interval between $0$ and
-$\Delta\sigma_2(0)$ \eqref{eq:ghlow2-gap}: at $k=0^{+}$ the raw value
-already equals $\Delta\sigma_2(0)$, so the clip is inactive there and
-the value jump is closed exactly; past the engagement point
-($x\approx 1$ for the SPXW preset) the bare $\sigma_2$ piece flips
-sign and starts to grow, and the clip cuts it off at zero, so the
-extended kernel collapses back to the universal $K_1^{\mathrm{dir}}$
-on the wings. The clip is $C^{0}$ but not $C^{1}$ at the engagement
-point, which lives outside the option-meaningful band. The choice of
-the zero-side bound (rather than the symmetric $-\Delta\sigma_2(0)$)
-is what guarantees the asymptotic collapse onto the universal kernel,
-removing any wing-band residual the symmetric clip would otherwise
-leave at $\pm|\Delta\sigma_2(0)|$. Figure~\ref{fig:knot} shows both
+like $k^{3}$. The clamp in \eqref{eq:ghlow2-dir} is what bounds the
+construction. At $k=0^{+}$ the raw value equals exactly the cap
+$\beta/20$ so the clamp is inactive and the value jump is closed;
+past the engagement point ($x\approx 1$ for the SPXW preset) the bare
+piece reverses sign and the clamp pins it at $0$, so the extended
+kernel collapses back to the universal $K_1^{\mathrm{dir}}$ on the
+wings. The clamp is $C^{0}$ but not $C^{1}$ at engagement, outside
+the option-meaningful band. The zero-side bound (rather than the
+symmetric $\pm|\Delta\sigma_2(0)|$) is what guarantees the wing
+collapse. Figure~\ref{fig:knot} shows both
 GHLOW2c (universal kernel, $\sim$$0.16$~bps max error but a visible
 $-0.171$~bps value jump at $k=0$) and GHLOW2cc (extended kernel with
 clipping, $\sim$$0.15$~bps max error and value-continuous at the knot
@@ -567,8 +588,8 @@ legible at all.}
 \begin{figure}[!htbp]
 \centering\includegraphics[width=0.72\textwidth]{F4_kernel}
 \caption{The two pieces of the ATM-knot correction in annualised \% for
-the knot case. Solid green: the \emph{universal} directed kernel
-$\delta\,\sigma^{3}\,K_1^{\mathrm{dir}}(k/\sigma,0)$, exactly the
+the knot case. Solid green: the universal correction $R^{(3, 1)}_{1}(k/\sigma, 0)
+= \delta\,\sigma^{3}\,K_1^{\mathrm{dir}}(k/\sigma, 0)$, exactly the
 gap PHL1c adds to PHL1 \emph{and} the gap GHLOW2c adds to GHLOW2 (both
 identical, sharing the $K_1(0,0)=3\sqrt{2\pi}/128$ peak and
 decaying on both sides). Dashed purple: the \emph{extension piece}

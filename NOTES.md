@@ -111,6 +111,51 @@ positioning.
   local in `model.ts` for the strike-band width — both legitimate
   derived-quantity uses, not input merges.
 
+- **`R^(d, m)_n` notation for the corrections** (2026-05-23). The full
+  knot-correction terms — what gets added to the PHL1/GHLOW2 baseline —
+  now have a single symbol, in the spirit of how `σ_1` and `σ_2` each
+  name a whole correction term rather than one factor inside it:
+  ```
+  R^(3, 1)_1(x, w) ≡ δ · σ³ · K_1^dir(x, w)    (universal)
+  R^(3, 1)_2(x, w) ≡ δ · σ³ · K_1^ext(x, w)    (extended)
+  ```
+  Two superscripts are the constants of this paper: `3` is the
+  derivative-jump level (γ = σ_loc''' jumps), `1` is the Duhamel
+  order. The subscript `n` is the baseline T-order whose δ-variations
+  are subtracted from the bridge integral `K_1`. Arguments `(x, w) =
+  (k/σ, k_knot/σ)` inherit from `K_1` so the ATM restriction `w=0` is
+  visible at every callsite. CP2011's universal coefficient sits in
+  the same family at `R^(1, 1)_0(0, 0)`. Methods read cleanly:
+  `PHL1c = PHL1 + R^(3,1)_1(k/σ, 0)`, etc. Applied across paper,
+  NOTES, README, kernel.ts docstring, ui/main.ts explainer, and the
+  F4 SVG legend + title. Author initial chosen by user — `R` (Ren).
+  Kept `K_1`, `K_1^dir`, `K_1^ext` as kernel building blocks inside
+  R's definition (parallel to how `σ_1` is built from `iv_hm` and an
+  integral that don't get renamed).
+
+- **Clip baked into eq:ghlow2-dir** (2026-05-23). The σ_2-piece clip
+  used to live only in code (`knotSpikeGhlow2cc` clamps to `[0,
+  Δσ_2(0)]`) and in prose around the formula. The formula itself
+  showed the unclipped raw σ_2 δ-variation — so by the letter of
+  eq:ghlow2-dir, `R^(3,1)_2` was the unclipped form, while the
+  shipped code was clipped. Real gap, not just stylistic: without the
+  clip the σ_2 piece grows like k³ on the wings and GHLOW2cc would
+  diverge. Fixed by putting `clamp(·; 0, β/20)` directly into
+  eq:ghlow2-dir with a one-sentence definition of the clamp operator
+  after the equation; pruned the prose that previously described the
+  clip mechanics (now visible in the formula). Paper formula now
+  matches shipped code.
+
+- **F4 legend mislabelled** (caught 2026-05-23). Pre-rename, the F4
+  series label was "universal K₁^dir" but the y-axis is in annualised
+  %, and the curve plotted is `phl1c − phl1 = δ·σ³·K₁^dir` — i.e.,
+  the full correction with the δ·σ³ prefactor (peak ≈ 0.2 bps for the
+  SPXW preset), not the dimensionless kernel (peak ≈ 0.06). Same
+  mismatch on the σ_2-extension legend. The R-notation pass fixed
+  both: legends now read `R^(3,1)_1 = δ·σ³·K₁^dir` and
+  `R^(3,1)_2 − R^(3,1)_1 (σ_2 extension)`, which actually name what's
+  on screen. SVG regenerated.
+
 ## Example parameters
 
 Provenance, the table of σ/β/α/γ values, the knot-case δ = 68619
@@ -215,8 +260,7 @@ IV via Newton inversion of undiscounted price (puts for k<0 via parity).
 ### The ATM-knot correction (the contribution)
 
 Perturbation `δσ_loc(k) = Δγ·k³·H(k)` (knot at k_knot=0 ⇒ w=0).
-First order (Δγ): `δσ_IV = Δγ · σ_total³ · K_1^dir(x, 0)`,
-`x = k/σ_total`.
+First order (Δγ): `δσ_IV = Δγ · σ³ · K_1^dir(x, 0)`, `x = k/σ`.
 
 ```
 K_1(x,0) = ∫₀¹ (λ(1-λ))^{3/2} f(η) dλ ,  η = x·√(λ/(1-λ))
@@ -229,11 +273,17 @@ iv_hm_kernel(x,0) = x³/4   (x>0), 0 (x≤0)
 σ₁_kernel(x,0)    = x/4     (x>0), 0 (x≤0)
 K_1^dir(x,0) = K_1(x,0) − iv_hm_kernel − σ₁_kernel
 ```
-This decays on both sides (the x³/4 of K_1 cancels iv_hm_kernel's leading
-term). PHL1c = PHL1 + Δγ·σ_total³·K_1^dir(k/σ_total, 0), added on the
-perturbed side only; left side (k≤0) untouched by construction (H(k)). Knot
-envelope E=exp(-w²)=1 at w=0 (ATM) so it drops out — another reason the ATM
-restriction is clean.
+This decays on both sides. **The correction symbol**:
+```
+R^(3,1)_1(x, w) = δ · σ³ · K_1^dir(x, w)        (universal correction)
+R^(3,1)_2(x, w) = δ · σ³ · K_1^ext(x, w)        (extended; adds σ₂ δ-var)
+```
+Arguments `(x, w)` inherited from K_1: `x = k/σ`, `w = k_knot/σ`.
+Superscripts `(3, 1)`: derivative-jump level (3, σ_loc''') and Duhamel
+order (1, first order in δ). Subscript `n`: baseline T-order subtracted
+in the kernel. CP2011's universal coefficient is `R^(1,1)_0(0, 0)`.
+Methods at the ATM knot (w=0): `PHL1c = PHL1 + R^(3,1)_1(k/σ, 0)`;
+`GHLOW2c = GHLOW2 + R^(3,1)_1(k/σ, 0)`; `GHLOW2cc = GHLOW2 + R^(3,1)_2(k/σ, 0)`.
 
 ### Sanity check: same machinery reproduces Costeanu–Pirjol's C⁰ constant
 

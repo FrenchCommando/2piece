@@ -149,22 +149,25 @@ app.innerHTML = `
 
     <h2>The correction</h2>
     <p>To first order in the jump <code>δ</code>, with
-    <code>x = k/σ_total</code> and the knot at ATM, the implied-vol error is
-    the first-order Duhamel kernel <code>K₁(x,0)</code> — a one-dimensional
-    bridge integral with peak <code>3√(2π)/128 ≈ 0.05875</code>:</p>
-    <p class="eq"><code>K₁(x,0) = ∫₀¹ (λ(1−λ))^{3/2} f(η) dλ,&nbsp;&nbsp;
-    η = x·√(λ/(1−λ)),&nbsp;&nbsp;
+    <code>x = k/σ</code> and the knot at ATM (<code>w = 0</code>), the
+    implied-vol error is the first-order Duhamel kernel
+    <code>K₁(x, w)</code> — a one-dimensional bridge integral with peak
+    <code>3√(2π)/128 ≈ 0.05875</code>:</p>
+    <p class="eq"><code>K₁(x, w) = ∫₀¹ (λ(1−λ))^{3/2} f(η) dλ,&nbsp;&nbsp;
+    η = [λx − (1−λ)w] / √(λ(1−λ)),&nbsp;&nbsp;
     f(η) = (η³+3η)Φ(η) + (η²+2)φ(η)</code></p>
     <p>Subtracting the part PHL1 already moves (so it is not double-counted)
-    gives the directed kernel; the applied PHL1 correction in annualised %
-    is <code>δ·σ_total³·K₁^directed(k/σ_total, 0)</code> — exactly the
+    gives the directed kernel <code>K₁^dir</code>; the applied PHL1
+    correction, in annualised %, is
+    <code>R^(3,1)_1(k/σ, 0) = δ·σ³·K₁^dir(k/σ, 0)</code> — exactly the
     solid-green curve in panel&nbsp;4 (and the same gap GHLOW2c adds to
     GHLOW2, since the kernel is universal). GHLOW2 carries one additional
     δ-variation, <code>σ₂</code>'s, so the <i>extended</i> directed
-    kernel subtracts that piece as well (cubic-parameter-dependent — not
-    universal in <code>x</code> the way PHL1's is — but still bounded
-    thanks to <code>w=0</code>); adding that on top yields GHLOW2cc, the
-    dashed-purple curve in panel&nbsp;4.</p>
+    kernel <code>K₁^ext</code> subtracts that piece as well
+    (cubic-parameter-dependent — not universal in <code>x</code> the way
+    PHL1's is — but still bounded thanks to <code>w = 0</code>); adding
+    <code>R^(3,1)_2(k/σ, 0) = δ·σ³·K₁^ext(k/σ, 0)</code> on top of
+    GHLOW2 yields GHLOW2cc, the dashed-purple curve in panel&nbsp;4.</p>
 
     <h2>Trust</h2>
     <p>Everything is computed in your browser. The math core is checked
@@ -456,7 +459,7 @@ function draw(): void {
 		byId<HTMLCanvasElement>("c-ker"),
 		[
 			{
-				label: "universal K₁^dir",
+				label: "R^(3,1)_1 = δ·σ³·K₁^dir",
 				x: c.k,
 				y: universalSpike,
 				color: "#059669",
