@@ -1,4 +1,4 @@
-# Implied volatility at a cubic local-vol knot pinned at the money
+# Short-maturity implied volatility at a non-smooth ATM local-volatility knot
 
 A focused note + in-browser tool on a practical question: the standard way
 to parametrise an implied-vol surface is to fit a local-vol cubic and push

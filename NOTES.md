@@ -698,7 +698,9 @@ Marco now rough vol / VIX — none have done LV knot regularity work);
 arXiv topic search. New candidates surfaced:
 - **Paulot 2009/2015**, arXiv:0906.0658 — heat-kernel-based 2nd-order
   IV expansion for SV models, SABR application. Smooth-SV cousin of
-  GHLOW2 on the SV side. Same "skip" rationale as BBF 2004. **Skip.**
+  GHLOW2 on the SV side. Cited as a parenthetical alongside
+  `gatheral2012`, mirroring how BBF 2004 is cited alongside BBF 2002
+  (LV vs SV pairing in the same heat-kernel lineage). **Keep.**
 - **Friz–Gassiat–Pigato 2018**, arXiv:1811.00267 (Ann. Appl. Proba.
   2021) — precise asymptotics for rough SV via regularity structures.
   Different model class + different methodology. **Skip.**
