@@ -60,7 +60,7 @@ total vol ↔ annualised %, with `n = max(1, DTE)` business days and
 BBF0(k) = k / ∫₀ᵏ dy / σ_loc(y)            BBF0(0) = σ_loc(0)
 ```
 
-**PHL1** — BBF0 + the first-order `σ₁·T` heat-kernel correction
+**PHL1** — BBF0 + the first-order σ₁ heat-kernel correction
 (Henry-Labordère's heat-kernel expansion; we use the explicit per-strike
 closed form of Gatheral–Hsu–Laurence–Ouyang–Wang, Thm. 2.4, and keep the
 conventional label "PHL1"):
@@ -73,7 +73,7 @@ PHL1 = iv_hm + σ₁ ,
 (evaluated cancellation-free from the cubic coefficients near `|k| < 1e-3`).
 
 **GHLOW2** — PHL1 + the Gatheral–Hsu–Laurence–Ouyang–Wang second-order
-`σ₂·T²` term (their eq. 3.19, time-homogeneous, r = 0):
+σ₂ term (their eq. 3.19, time-homogeneous, r = 0):
 
 ```
 σ₂ = -3σ₁/d² + 3σ₁²/(2·iv_hm) + ξ³/(8d⁵) + ξ·(u₁/u₀)/d³ ,
@@ -128,7 +128,7 @@ GHLOW2cc(k) = GHLOW2(k) + δ·σ_total³·K_1^ext(k/σ_total, 0)   (extended ker
 with the baseline evaluated on the perturbed surface (so the cancellation is
 exact to first order). The extended GHLOW2cc kernel subtracts σ₂'s
 δ-variation in addition to BBF0's `x³/4` and σ₁'s `x/4` — the only
-parametric (`b,a,g`-dependent) piece, still bounded thanks to `w=0`. The
+parametric (`β,α,γ`-dependent) piece, still bounded thanks to `w=0`. The
 full derivation is in [`paper/2piece-paper.tex`](paper/2piece-paper.tex).
 
 ## Figures
@@ -158,7 +158,7 @@ legible:
 The two pieces of the ATM-knot correction in annualised %: solid green is
 the universal kernel (PHL1c−PHL1 = GHLOW2c−GHLOW2, dimensionless peak
 `3√(2π)/128`, scaled by `δ·σ_total³`); dashed purple is the σ₂ extension
-piece (GHLOW2cc−GHLOW2c) — the small `(b,a,g)`-parametric bit the
+piece (GHLOW2cc−GHLOW2c) — the small `(β,α,γ)`-parametric bit the
 extended kernel adds on top of the universal one. The extension lives
 only on `k > 0`, starts at `|Δσ_2(0)| = 0.171 bps` (closing the value
 jump), and decays to zero as the clip engages:

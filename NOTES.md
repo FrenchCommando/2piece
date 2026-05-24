@@ -75,6 +75,42 @@ positioning.
   with inline `biome-ignore` comments. `npm run lint` (CI) and
   `npm run lint:fix` (local).
 
+- **Paper units convention** (settled 2026-05-23):
+  - §Setup leads with a `\paragraph{Units}` block stating the
+    two-bucket rule: displays (figures, error tables, the cubic
+    definition) in annualised %, asymptotic-map formulas in total-vol.
+    Hoisted from the scale paragraph so the convention is visible
+    upfront rather than buried mid-§Setup.
+  - `\stot` macro retired — paper uses `σ` throughout. Under the
+    silent-rescaling convention σ_total = σ as numbers; the dual symbol
+    was justified only under the old mixed convention.
+  - `(b, a, g)` retired in favour of `(β, α, γ)` in prose
+    ("(β,α,γ)-parametric"). The paper's local `b=β/scale, g=γ/scale`
+    definition (former L437-438) added no information once silent
+    rescaling is in place; formulas like `Δσ₂(0) = σ³β·δ/20` now read
+    cleanly in total-vol.
+  - σ₁, σ₂ written without T factors in formulas (`PHL1 = BBF0 + σ_1`,
+    `GHLOW2 = PHL1 + σ_2`) — T-folded convention matches code.
+    Literature attributions at paper L33, L237, L249 retain `σ₁·T` /
+    `σ₂·T²` as the literature label; the L237 passage explicitly
+    juxtaposes the two forms to mark the convention shift.
+  - **Bug caught during this pass:** `σ_2·T` (single T factor — neither
+    convention) at paper L431, L535 and NOTES L257. All three fixed
+    to `σ_2`.
+
+- **`knotSpike*` API uniformised** (2026-05-23):
+  `knotSpikePhl1(k, sigma, delta, scale)` and
+  `knotSpikeGhlow2cc(k, c, delta, scale)` replace the prior
+  `(..., sigmaTotal)` signatures. Same `(k, c-or-σ, ..., scale)` shape
+  as `phl1`/`ghlow2`: expose the natural inputs, derive
+  `sigmaTotal = sigma / scale` inside one place. The pre-merged
+  `sigmaTotal` argument was the only function-level violation of the
+  pattern; merging two inputs at the boundary hid which functions
+  needed σ vs scale separately. `sigmaTotal` survives as a derived
+  output field on `ModelCurves` (UI status line, scan script) and as a
+  local in `model.ts` for the strike-band width — both legitimate
+  derived-quantity uses, not input merges.
+
 ## Example parameters
 
 Provenance, the table of σ/β/α/γ values, the knot-case δ = 68619
@@ -108,9 +144,9 @@ keys `K1_w0` / `K1` / `K1_dir`.
 |---|---|---|---|
 | **Methods** | | | |
 | BBF0 | `k / ∫₀ᵏ dy/σ_loc(y)` (inverse harmonic mean) | `T⁰` | `bbf0` |
-| PHL1 | BBF0 + σ₁·T | `T¹` | `phl1` |
+| PHL1 | BBF0 + σ₁ | `T¹` | `phl1` |
 | PHL1c | PHL1 + **universal kernel** | `T¹ + T^{3/2}` | `phl1c` |
-| GHLOW2 | PHL1 + σ₂·T² | `T²` | `ghlow2` |
+| GHLOW2 | PHL1 + σ₂ | `T²` | `ghlow2` |
 | GHLOW2c | GHLOW2 + **universal kernel** | `T² + T^{3/2}` | `ghlow2c` |
 | GHLOW2cc | GHLOW2 + **extended kernel** | `T² + T^{3/2}` | `ghlow2cc` |
 | **Kernels & terms** (scale by `δ·σ_total³` for ann %) | | | |
@@ -133,7 +169,7 @@ BBF0(k) = k / ∫₀ᵏ dy/σ_loc(y)        ;  BBF0(0) = σ_loc(0)   (L'Hôpital
 ```
 Gauss–Legendre (16 pt) on [0,k]. σ_loc in annualised %.
 
-### PHL1 — BBF0 + σ₁·T  (Henry-Labordère)
+### PHL1 — BBF0 + σ₁  (Henry-Labordère's σ₁·T, T folded into scale)
 
 `PHL1 = iv_hm + σ₁` in total vol (T folded into scale). With
 `iv_hm = BBF0/scale`, `σ₀ = σ_atm/scale`, `σ_loc_t = σ_loc(k)/scale`:
@@ -144,7 +180,7 @@ Near `|k| < 1e-3`: cancellation kills digits → evaluate the log1p argument
 `P(k)/k²` analytically from the cubic via a reciprocal-cubic Taylor series
 (`single_piece_log1p_arg` port). Output ×scale for annualised %.
 
-### GHLOW2 — + σ₂·T²  (Gatheral–Hsu–Laurence–Ouyang–Wang 2009, eq 3.19)
+### GHLOW2 — + σ₂  (Gatheral–Hsu–Laurence–Ouyang–Wang 2009, eq 3.19, T folded)
 
 `GHLOW2 = iv_hm + σ₁ + σ₂` (total vol). For `|k| ≥ 1e-3`, ξ=−k, d=ξ/iv_hm:
 ```
@@ -254,7 +290,7 @@ for the same w=0 reason" as K_1 itself. Two things became visible:
 Two changes shipped:
 
 - **Renamed and split.** New **GHLOW2c** = GHLOW2 + the universal
-  K_1^dir only (equivalently PHL1c + σ_2·T). The previous GHLOW2c
+  K_1^dir only (equivalently PHL1c + σ_2). The previous GHLOW2c
   (universal + σ_2 extension) is renamed **GHLOW2cc**. Suffix rule
   promoted to convention: **number of `c`'s = number of closed-form
   correction layers**. Code field `ghlow2cc`; spike function renamed
@@ -288,7 +324,7 @@ NOTES §"The math"):
 - *universal kernel* `K_1^dir` — a pure x-function, used by PHL1c
   and GHLOW2c.
 - *extension* / *extension piece* — the σ_2-only subtraction term
-  alone, `(b,a,g)`-parametric, lives only on k>0, clipped.
+  alone, `(β,α,γ)`-parametric, lives only on k>0, clipped.
 - *extended kernel* `K_1^ext` — the whole object in
   eq:ghlow2-dir = universal + extension; used by GHLOW2cc.
 "universal" / "extended" are my coinage, not literature standard;
@@ -309,56 +345,17 @@ the closed-form maps don't, by design.
 knot), which loses the w=0 collapse on the bridge integral and is
 genuinely harder.
 
-**Cleaner reformulation for the next paper rewrite** (insight settled
-2026-05-22, deferred): the layered "PHL1c / GHLOW2c / GHLOW2cc"
-hierarchy is bookkeeping, not three distinct corrections. To first
-order in δ on the k>0 side, all three collapse to
-
-```
-σ_BS(k) ≈ σ_BS^{smooth}(k) + δ · σ_total³ · K_1(k/σ_total, 0) · H(k)
-```
-
-where `σ_BS^{smooth}` is whatever truncation of the asymptotic
-expansion (PHL1, GHLOW2, …) you take *evaluated on the underlying
-smooth cubic γ — not the piecewise (γ, γ+δ) one*. `K_1` is the *full,
-un-directed* bridge integral. There is **one** correction, the K_1
-piece; PHL1 vs GHLOW2 just chooses how many smooth-cubic terms to
-keep in the baseline.
-
-Algebra confirming this: GHLOW2cc(k) = GHLOW2(perturbed) +
-δ·σ_total³·K_1^dir − (σ_2(perturbed) − σ_2(unperturbed)) = BBF0_p +
-σ_1_p + σ_2_u + δ·σ_total³·K_1^dir. Taylor-expanding BBF0_p and σ_1_p
-in δ gives `BBF0_u + (x³/4)δσ_total³ + σ_1_u + (x/4)δσ_total³`. The
-`x³/4 + x/4` exactly cancels the same subtraction inside `K_1^dir`,
-leaving `GHLOW2_u + δ·σ_total³·K_1`.
-
-Why the implementation chose `GHLOW2(perturbed) + corrections`
-instead: (i) baseline stays numerically faithful to the actual
-perturbed surface, exact in δ to whatever order GHLOW2 captures
-(the equivalence above is only first-order in δ); (ii) reuses the
-existing BBF0/PHL1/GHLOW2 machinery without an "evaluate on
-smooth-extrapolated cubic on k>0" code path. So the current code is
-correct — it's the paper's *framing* that's bookkeeping-heavy, not
-the implementation.
-
-**Paper rewrite TODO when revisited:**
-- Collapse §"The at-the-money knot correction" and §"σ_2 value jump
-  and its repair" into one §"The knot correction"; lead with the
-  one-line formula `σ_BS = σ_BS^{smooth} + δ·σ_total³·K_1·H(k)`.
-- Drop the "universal kernel" / "extension piece" / "directed kernel"
-  vocabulary — they're all the same K_1 in the clean framing.
-- Suffix naming: PHL1c / GHLOW2c / GHLOW2cc become parameter choices
-  (which truncation of the smooth-cubic expansion), not three named
-  methods. Probably collapse to "PHL1 + K_1" and "GHLOW2 + K_1".
-- F4 (the kernel plot) becomes much simpler: just `K_1(x, 0)` once,
-  not "universal vs extension piece".
-- Note in §Implementation: code chooses perturbed-baseline form for
-  numerical/code-reuse reasons; explain the algebraic equivalence.
-
-Implementation work this would imply: probably none if we keep the
-perturbed-baseline form. Or: add a `kernel-only` mode that returns
-`δ·σ_total³·K_1` directly and stacks on `GHLOW2(unperturbed
-extrapolation)`. Defer until rewriting.
+**Algebraic aside, not a rewrite trigger** (2026-05-22). To first
+order in δ, PHL1c and GHLOW2cc both reduce to
+`σ_BS^{smooth}(γ-only) + δ·σ_total³·K_1(x,0)·H(k)`, with the *full*
+(un-directed) `K_1`. Sketch: GHLOW2cc = BBF0_p + σ_1_p + σ_2_u +
+δ·σ_total³·K_1^dir; Taylor-expand BBF0_p, σ_1_p in δ to get
+`(x³/4 + x/4)·δ·σ_total³`, which cancels the same subtraction inside
+K_1^dir, leaving GHLOW2_u + δ·σ_total³·K_1 + O(δ²). **GHLOW2c does
+not** collapse — it retains the σ_2 value jump, which is exactly why
+GHLOW2cc exists. The identity is first-order in δ only; the shipped
+perturbed-baseline form is exact in δ to each method's order. Kept
+as a derivation curiosity, not a paper or code change.
 
 **Load-bearing math kept in NOTES** (not in the paper):
 the σ_2(0) closed-form derivation. σ_2(k) has the structure

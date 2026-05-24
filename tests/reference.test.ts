@@ -66,10 +66,10 @@ describe("knot case (spike + PHL1 + PDE) vs reference fixture", () => {
 	// biome-ignore lint/suspicious/noExplicitAny: JSON fixture indexing
 	const r = (ref as any).knot;
 	const delta: number = r.delta;
-	const sigmaTotal: number = r.sigma_total;
+	const scale: number = r.scale;
 	it("K_1 spike matches phl1s_spike", () => {
 		r.k.forEach((k: number, i: number) => {
-			close(knotSpikePhl1(k, delta, sigmaTotal), r.spike[i], 1e-7, 1e-7);
+			close(knotSpikePhl1(k, HAPPY.sigma, delta, scale), r.spike[i], 1e-7, 1e-7);
 		});
 	});
 	it("full model curves track the reference (PHL1, PHL1c, PDE)", () => {

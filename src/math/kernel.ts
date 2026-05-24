@@ -69,15 +69,17 @@ export function K1Dir(x: number, w: number): number {
  * PHL1 + ATM-knot correction spike, in annualised %. Knot fixed at k=0 so
  * w = 0 and the Gaussian far-knot envelope is exp(0) = 1.
  *
- * @param k            log-moneyness
- * @param delta        gamma discontinuity (Delta_gamma), annualised-% units
- * @param sigmaTotal   sigma_loc(0)/scale  (= sigma_knot at an ATM knot)
+ * Same (k, sigma, ..., scale) shape as `phl1`/`ghlow2`: sigma is the ATM
+ * vol in annualised %, scale converts to total vol. The two are passed
+ * separately so callers don't have to pre-merge them into sigma_total.
  */
 export function knotSpikePhl1(
 	k: number,
+	sigma: number,
 	delta: number,
-	sigmaTotal: number,
+	scale: number,
 ): number {
+	const sigmaTotal = sigma / scale;
 	const x = k / sigmaTotal;
 	return delta * sigmaTotal ** 3 * K1Dir(x, 0);
 }
@@ -87,7 +89,7 @@ export function knotSpikePhl1(
  * K_1^dir subtracts BBF0's (x^3/4) and sigma_1's (x/4) delta-variations —
  * universal in x; that piece alone, added to GHLOW2, gives GHLOW2c (the
  * "PHL1c-style" partial correction). GHLOW2 has one more delta-variation,
- * sigma_2's, which carries the unperturbed cubic's (b, a, g) parametrically
+ * sigma_2's, which carries the unperturbed cubic's (β, α, γ) parametrically
  * and is not a universal x-function. For x > 0 we subtract it explicitly so
  * the directed kernel additionally cancels GHLOW2's analytic value jump at
  * the knot — the resulting curve is GHLOW2cc. For x ≤ 0 the source
@@ -115,10 +117,9 @@ export function knotSpikeGhlow2cc(
 	k: number,
 	c: CubicCoeffs,
 	delta: number,
-	sigmaTotal: number,
 	scale: number,
 ): number {
-	const phl1Piece = knotSpikePhl1(k, delta, sigmaTotal);
+	const phl1Piece = knotSpikePhl1(k, c.sigma, delta, scale);
 	if (k <= 0 || delta === 0) return phl1Piece;
 	const cPerturbed: CubicCoeffs = { ...c, gamma: c.gamma + delta };
 	const sigma2VarPct =

@@ -191,7 +191,7 @@ smileFig(
 //   - universal K_1^dir = PHL1c − PHL1 = GHLOW2c − GHLOW2  (BBF0/σ_1
 //                         δ-variations subtracted from K_1; full magnitude)
 //   - extension piece   = GHLOW2cc − GHLOW2c               (the σ_2 piece
-//                          only; the additional, (b,a,g)-parametric piece
+//                          only; the additional, (β,α,γ)-parametric piece
 //                          that distinguishes the extended kernel from the
 //                          universal one)
 // The extension lives entirely on k > 0 — it is non-zero only there because

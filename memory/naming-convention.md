@@ -15,7 +15,7 @@ wins:
 | concept | name |
 |---|---|
 | PHL1 + universal K_1^dir kernel | **PHL1c** |
-| GHLOW2 + the same universal K_1^dir kernel (= PHL1c + σ₂T²) | **GHLOW2c** |
+| GHLOW2 + the same universal K_1^dir kernel (= PHL1c + σ₂) | **GHLOW2c** |
 | GHLOW2 + extended directed kernel (also kills σ₂'s δ-variation) | **GHLOW2cc** |
 
 The number of `c`'s equals the number of independent closed-form

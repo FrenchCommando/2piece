@@ -120,7 +120,7 @@ app.innerHTML = `
     <h2>The methods</h2>
     <p>The four closed forms sit on a time-ordering at the ATM knot —
     <code>T⁰</code> (BBF0), <code>T¹</code> (PHL1), <code>T^{3/2}</code>
-    (this paper's knot correction), <code>T²</code> (GHLOW2's σ₂·T²) — so
+    (this paper's knot correction), <code>T²</code> (GHLOW2's σ₂) — so
     the correction lives between PHL1 and GHLOW2 and can be stacked on
     either baseline.</p>
     <ul>
@@ -130,14 +130,14 @@ app.innerHTML = `
       are dropped rather than faked.</li>
       <li><b>BBF0</b> — leading-order inverse harmonic mean
       <code>k / ∫₀ᵏ dy/σ_loc(y)</code> (Berestycki–Busca–Florent).</li>
-      <li><b>PHL1</b> — BBF0 + the first-order <code>σ₁·T</code> heat-kernel
+      <li><b>PHL1</b> — BBF0 + the first-order <code>σ₁</code> heat-kernel
       correction (Henry-Labordère's expansion; explicit closed form from
       Gatheral et&nbsp;al., Thm.&nbsp;2.4).</li>
       <li><b>PHL1c</b> — PHL1 plus the closed-form first-order Duhamel
       kernel that repairs the knot. Collapses to PHL1 when
       <code>δ = 0</code>.</li>
       <li><b>GHLOW2c</b> — GHLOW2 with the same universal K₁^dir kernel
-      that PHL1c uses, equivalently <code>PHL1c + σ₂·T²</code>. Repairs the
+      that PHL1c uses, equivalently <code>PHL1c + σ₂</code>. Repairs the
       σ₁ slope kink at the knot but still carries the analytic value jump
       from σ₂(0)'s δ-variation. Collapses to GHLOW2 when
       <code>δ = 0</code>.</li>
@@ -445,7 +445,7 @@ function draw(): void {
 	//   universalSpike  = PHL1c − PHL1   = GHLOW2c − GHLOW2  (the universal
 	//                                       directed kernel itself)
 	//   extensionSpike  = GHLOW2cc − GHLOW2c  (the σ_2 extension piece — the
-	//                                       small, (b,a,g)-parametric bit the
+	//                                       small, (β,α,γ)-parametric bit the
 	//                                       extended kernel adds on top of
 	//                                       the universal one)
 	// The extension lives only on k > 0 and decays to zero on the wings as

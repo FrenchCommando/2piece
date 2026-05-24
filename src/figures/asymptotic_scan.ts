@@ -58,8 +58,8 @@ for (const x of xs) {
 	// perturbed cubic (k > 0 side): gamma -> gamma + delta
 	const cPert: CubicCoeffs = { ...cubic, gamma: cubic.gamma + knot.delta };
 	const sLocPert = sigmaLoc(k, cPert) + 0; // already incorporates delta on k>0 side
-	const u = knotSpikePhl1(k, knot.delta, sigmaTotal);
-	const e = knotSpikeGhlow2cc(k, cubic, knot.delta, sigmaTotal, scale);
+	const u = knotSpikePhl1(k, knot.sigma, knot.delta, scale);
+	const e = knotSpikeGhlow2cc(k, cubic, knot.delta, scale);
 	console.log(
 		`${x.toFixed(2).padStart(6)}        ${k.toFixed(4).padStart(8)}   ${sLocPert.toFixed(2).padStart(12)}            ${u.toExponential(3).padStart(12)}            ${e.toExponential(3).padStart(12)}`,
 	);

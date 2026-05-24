@@ -38,7 +38,7 @@ export interface ModelCurves {
 	 * delta-variations subtracted). Equals PHL1 when delta=0. */
 	phl1c: number[];
 	/** GHLOW2c = GHLOW2 + the same universal K_1^dir kernel that PHL1c
-	 * uses (i.e. PHL1c + sigma_2 T^2). Repairs the sigma_1 slope kink at
+	 * uses (i.e. PHL1c + sigma_2). Repairs the sigma_1 slope kink at
 	 * the knot but still carries the analytic value jump from sigma_2(0)'s
 	 * delta-variation. Equals GHLOW2 when delta=0. */
 	ghlow2c: number[];
@@ -138,19 +138,19 @@ export function computeCurves(
 		mask(ghlow2(kk, effectiveCubic(kk, c, inp.delta), scale), i),
 	);
 	// PHL1c: PHL1 + universal K_1^dir (BBF0 + σ_1 δ-variations subtracted).
-	// GHLOW2c: GHLOW2 + the same universal kernel — equivalent to PHL1c + σ_2 T².
+	// GHLOW2c: GHLOW2 + the same universal kernel — equivalent to PHL1c + σ_2.
 	//   Repairs σ_1's slope kink; σ_2's value jump at k=0 remains.
 	// GHLOW2cc: GHLOW2 + extended kernel K_1^ext = K_1^dir minus σ_2's
 	//   δ-variation (the b/20·δ·σ_total^3 scalar at x=0). Closes the value
 	//   jump too. All three reduce to their baseline when delta=0.
 	const phl1cCurve = phl1Curve.map(
-		(p, i) => p + knotSpikePhl1(k[i], inp.delta, sigmaTotal),
+		(p, i) => p + knotSpikePhl1(k[i], inp.sigma, inp.delta, scale),
 	);
 	const ghlow2cCurve = ghlow2Curve.map(
-		(g, i) => g + knotSpikePhl1(k[i], inp.delta, sigmaTotal),
+		(g, i) => g + knotSpikePhl1(k[i], inp.sigma, inp.delta, scale),
 	);
 	const ghlow2ccCurve = ghlow2Curve.map(
-		(g, i) => g + knotSpikeGhlow2cc(k[i], c, inp.delta, sigmaTotal, scale),
+		(g, i) => g + knotSpikeGhlow2cc(k[i], c, inp.delta, scale),
 	);
 
 	// PDE on a widened grid so Dirichlet boundary mass is negligible.
