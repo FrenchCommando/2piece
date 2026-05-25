@@ -585,6 +585,15 @@ Figure~\ref{fig:happy} (smile; error with BBF0; error without BBF0).}
 
 \subsection{Knot case}\label{sec:results-knot}
 
+\begin{figure}[!htbp]
+\centering\includegraphics[width=0.78\textwidth]{F4_knot}
+\caption{Unhappy case: fake ATM knot at $k=0$. Smile (top); error vs
+PDE in bps with BBF0 (middle); same error with BBF0 excluded (bottom)
+so the PHL1/PHL1c and GHLOW2/GHLOW2c/GHLOW2cc comparison is legible.
+Curves and the error ladder are described in the surrounding text.}
+\label{fig:knot}
+\end{figure}
+
 Figure~\ref{fig:knot}: the same DTE~1 cubic with a fake ATM knot
 ($\delta$ the real first-knot jump, moved to $k=0$). PHL1 is visibly
 biased near the knot; PHL1c tracks the PDE. GHLOW2c and GHLOW2cc, both
@@ -629,15 +638,6 @@ kink, the PHL1c--GHLOW2 residual swap, the GHLOW2c step, and the
 GHLOW2cc collapse legible at all. Figure~\ref{fig:kernel} (in
 \S\ref{sec:extension}) plots the two correction pieces $R^{(3,1)}_1$
 and $R^{(3,1)}_2 - R^{(3,1)}_1$ separately on this same knot example.
-
-\begin{figure}[!htbp]
-\centering\includegraphics[width=0.78\textwidth]{F4_knot}
-\caption{Unhappy case: fake ATM knot at $k=0$. Smile (top); error vs
-PDE in bps with BBF0 (middle); same error with BBF0 excluded (bottom)
-so the PHL1/PHL1c and GHLOW2/GHLOW2c/GHLOW2cc comparison is legible.
-Curves and the error ladder are described in the surrounding text.}
-\label{fig:knot}
-\end{figure}
 
 \section{Conclusion}
 
