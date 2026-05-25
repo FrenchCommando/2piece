@@ -31,7 +31,7 @@ jobs:
           restore-keys: |
             apt-texlive-${{ runner.os }}-
 
-      - name: Install LaTeX and SVG tooling
+      - name: Install LaTeX
         run: |
           set -e
           APT_CACHE="${{ github.workspace }}/.apt-cache"
@@ -42,17 +42,10 @@ jobs:
             -o APT::Keep-Downloaded-Packages=true \
             texlive-latex-recommended texlive-latex-extra \
             texlive-fonts-recommended texlive-bibtex-extra biber \
-            librsvg2-bin fonts-dejavu-core
+            fonts-dejavu-core
           # apt writes some files (e.g. archives/lock, mode 640 root) the
           # runner can't read; chown so actions/cache can tar the dir.
           sudo chown -R "$(id -u):$(id -g)" "$APT_CACHE"
-
-      # pdflatex cannot embed SVG directly; rasterise-free SVG -> PDF.
-      - name: Convert figures SVG -> PDF
-        run: |
-          for f in figures/*.svg; do
-            rsvg-convert -f pdf -o "figures/$(basename "${f%.svg}").pdf" "$f"
-          done
 
       - name: Compile paper
         working-directory: paper

@@ -4,3 +4,16 @@ dist/
 .idea/
 .vite/
 *.log
+
+# LaTeX intermediates and built PDF (paper/). .tex and .bib are sources.
+paper/*.aux
+paper/*.bbl
+paper/*.bcf
+paper/*.blg
+paper/*.fdb_latexmk
+paper/*.fls
+paper/*.out
+paper/*.pdf
+paper/*.run.xml
+paper/*.synctex.gz
+paper/*.toc

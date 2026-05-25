@@ -16,6 +16,10 @@
   "devDependencies": {
     "@biomejs/biome": "2.4.15",
     "@types/node": "^24.12.2",
+    "@types/pdfkit": "^0.17.6",
+    "@types/svg-to-pdfkit": "^0.1.4",
+    "pdfkit": "^0.18.0",
+    "svg-to-pdfkit": "^0.1.8",
     "tsx": "^4.22.3",
     "typescript": "~6.0.2",
     "vite": "^8.0.4",

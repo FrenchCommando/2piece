@@ -3,9 +3,11 @@
  * (full-resolution PDE) — `npm run figures` then `git diff` lets a cloner
  * confirm the images are identical. Run: `npx tsx src/figures/generate.ts`.
  */
-import { mkdirSync, writeFileSync } from "node:fs";
+import { createWriteStream, mkdirSync, writeFileSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
+import PDFDocument from "pdfkit";
+import SVGtoPDF from "svg-to-pdfkit";
 import examples from "../../examples/params.json";
 import { K1_PEAK } from "../math/kernel";
 import { computeCurves, type ModelInputs } from "../math/model";
@@ -15,6 +17,52 @@ import { renderSvg, type Series } from "./svg";
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), "..", "..");
 const OUT = join(ROOT, "figures");
 mkdirSync(OUT, { recursive: true });
+
+// Pending PDF stream flushes; awaited at end-of-script so the process
+// doesn't exit before all writes complete.
+const pendingPdfs: Promise<void>[] = [];
+
+// SVG units are CSS pixels (96 DPI); PDF units are points (72 DPI). Without
+// this factor the PDF page is sized to the raw px count, but svg-to-pdfkit
+// only fills 72/96 = 75 % of it — leaving 25 % blank on right and bottom.
+const PX_TO_PT = 72 / 96;
+
+/**
+ * Write both `<name>.svg` (text, diffable, web preview) and `<name>.pdf`
+ * (binary, embedded into the paper by `\includegraphics{<name>}`). pdflatex
+ * picks the PDF over the SVG by extension-search precedence, so a single
+ * pipeline keeps web and paper artifacts in lockstep — no external
+ * SVG→PDF converter (rsvg, inkscape) needed on contributors' machines.
+ */
+function writeFigure(name: string, svg: string): void {
+	writeFileSync(join(OUT, `${name}.svg`), svg);
+	const widthMatch = /\bwidth="(\d+)"/.exec(svg);
+	const heightMatch = /\bheight="(\d+)"/.exec(svg);
+	if (!widthMatch || !heightMatch) {
+		throw new Error(`Cannot parse SVG dimensions for ${name}`);
+	}
+	const wPt = Number.parseInt(widthMatch[1], 10) * PX_TO_PT;
+	const hPt = Number.parseInt(heightMatch[1], 10) * PX_TO_PT;
+	// Fixed epoch dates so byte-identical SVGs produce byte-identical PDFs —
+	// otherwise pdfkit stamps CreationDate/ModDate at construction and every
+	// `npm run figures` shows a dirty `git diff` even when the figure didn't
+	// actually change.
+	const doc = new PDFDocument({
+		size: [wPt, hPt],
+		margin: 0,
+		info: { CreationDate: new Date(0), ModDate: new Date(0) },
+	});
+	const stream = createWriteStream(join(OUT, `${name}.pdf`));
+	doc.pipe(stream);
+	SVGtoPDF(doc, svg, 0, 0, { width: wPt, height: hPt });
+	doc.end();
+	pendingPdfs.push(
+		new Promise<void>((resolve, reject) => {
+			stream.on("finish", () => resolve());
+			stream.on("error", reject);
+		}),
+	);
+}
 
 const EX = (
 	examples as { examples: (ModelInputs & { id: string; label: string })[] }
@@ -155,7 +203,7 @@ function smileFig(
 		},
 	});
 	const svg = renderSvg(panels);
-	writeFileSync(join(OUT, file), svg);
+	writeFigure(file, svg);
 	const maxBbf =
 		Math.max(
 			...c.bbf0
@@ -168,20 +216,20 @@ function smileFig(
 
 // F1 happy, F2 concave (no knot): PDE/BBF0/PHL1/GHLOW2.
 smileFig(
-	"F1_happy.svg",
+	"F1_happy",
 	"Happy case — SPXW 2025-03-10 DTE 1 (monotone skew)",
 	byId("happy"),
 	false,
 );
 smileFig(
-	"F2_concave.svg",
+	"F2_concave",
 	"Concave case — SPXW 2025-03-10 DTE 3 (concave smile)",
 	byId("concave"),
 	false,
 );
 // F3 unhappy fake knot at k=0: PDE/BBF0/PHL1/PHL1c/GHLOW2/GHLOW2c/GHLOW2cc.
 smileFig(
-	"F3_knot.svg",
+	"F3_knot",
 	"Unhappy case — fake ATM knot at k=0",
 	byId("knot"),
 	true,
@@ -200,8 +248,8 @@ smileFig(
 const kc = computeCurves(byId("knot"), 401, FULL);
 const universalSpike = kc.phl1c.map((v, i) => v - kc.phl1[i]);
 const extensionSpike = kc.ghlow2cc.map((v, i) => v - kc.ghlow2c[i]);
-writeFileSync(
-	join(OUT, "F4_kernel.svg"),
+writeFigure(
+	"F4_kernel",
 	renderSvg([
 		{
 			series: [
@@ -233,3 +281,6 @@ writeFileSync(
 );
 // eslint-disable-next-line no-console
 console.log("F4_kernel.svg: K_1 peak =", K1_PEAK.toFixed(6));
+
+// Wait for all PDF stream writes to flush before exiting.
+await Promise.all(pendingPdfs);

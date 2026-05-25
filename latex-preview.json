@@ -1,0 +1,11 @@
+{
+  "mainFile": "paper/2piece-paper.tex",
+  "debounceMs": 800,
+  "figureWatch": [
+    "src/figures/**/*.ts",
+    "src/math/**/*.ts",
+    "src/util.ts",
+    "examples/params.json"
+  ],
+  "figureCommand": "npm run figures"
+}
