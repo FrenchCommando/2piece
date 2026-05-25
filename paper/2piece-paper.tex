@@ -404,57 +404,21 @@ closed only by GHLOW2cc, on $k>0$).}
 \label{tab:summary}
 \end{table}
 
-\section{Results}\label{sec:results}
+\subsection{Extension to the GHLOW2 baseline}\label{sec:extension}
 
-Parameters come from real SPXW surfaces calibrated with a 20-parameter
-piecewise-cubic local-vol model; we keep the centre cubic and (for the knot
-case) the first-knot coefficient jump moved to ATM. The Dupire forward PDE
-(Rannacher start then Crank--Nicolson) is the ground truth.
-
-Figure~\ref{fig:happy}: a smooth monotone-skew smile (SPXW 2025-03-10
-DTE~1, no knot). BBF0 sits $\sim$67~bps from the Dupire PDE across the
-band while PHL1 and GHLOW2 close to a few bps. The bps gap is not the
-objective in itself --- it is the measure of how far each map is from the
-model's true Dupire implied vol, i.e.\ of the static-arbitrage slack PHL1
-removes relative to BBF0.
-
-\begin{figure}[!htbp]
-\centering\includegraphics[width=0.78\textwidth]{F1_happy}
-\caption{Happy case: smile (top), error vs PDE in bps with BBF0 (middle),
-and the same error with BBF0 excluded (bottom) so the PHL1-vs-GHLOW2
-comparison is legible.}
-\label{fig:happy}
-\end{figure}
-
-Figure~\ref{fig:concave}: a concave converted smile (DTE~3).
-The approximation remains good where vol is positive; the deep wings, where
-the option's time value underflows and implied vol is not recoverable, are
-trimmed rather than faked.
-
-\begin{figure}[!htbp]
-\centering\includegraphics[width=0.78\textwidth]{F2_concave}
-\caption{Concave case: the converted smile is concave. Panels as in
-Figure~\ref{fig:happy} (smile; error with BBF0; error without BBF0).}
-\label{fig:concave}
-\end{figure}
-
-Figure~\ref{fig:knot}: the same DTE~1 cubic with a fake ATM knot
-($\delta$ the real first-knot jump, moved to $k=0$). PHL1 is visibly
-biased near the knot; PHL1c tracks the PDE.
-
-The figure also shows two $T^{2}$-baseline analogues of PHL1c.
-\textbf{GHLOW2c} stacks the universal directed kernel
-$K_1^{\mathrm{dir}}$ \eqref{eq:K1-dir} on the GHLOW2 baseline:
+The same universal directed kernel \eqref{eq:K1-dir} stacks on the
+GHLOW2 baseline to define
 \begin{equation}
-\siv^{\mathrm{GHLOW2c}}(k)=\siv^{\mathrm{GHLOW2}}(k)+R^{(3, 1)}_{1}(k/\sigma, 0).
+\siv^{\mathrm{GHLOW2c}}(k)=\siv^{\mathrm{GHLOW2}}(k)+R^{(3, 1)}_{1}(k/\sigma, 0),
 \label{eq:ghlow2c}
 \end{equation}
-Equivalently, $\siv^{\mathrm{GHLOW2c}}=\siv^{\mathrm{PHL1c}}+\sigma_2$
-in total-vol form. Off the knot it tracks the PDE more tightly than
-PHL1c (capturing the smooth $\sigma_2$ term PHL1 omits). It leaves,
-however, an analytic value jump at $k=0$ that the universal kernel
-cannot reach --- closed by the \emph{extended} directed kernel
-introduced below, yielding GHLOW2cc.
+equivalently $\siv^{\mathrm{GHLOW2c}}=\siv^{\mathrm{PHL1c}}+\sigma_2$
+in total-vol form. Off the knot GHLOW2c is closer to the true Dupire
+IV than PHL1c by the smooth $\sigma_2$ term PHL1 omits. At the knot
+itself, however, the GHLOW2 baseline carries one more $\delta$-variation
+than PHL1 does --- $\sigma_2$'s --- which the universal kernel does not
+subtract, leaving an analytic value jump at $k=0$. The \emph{extended}
+directed kernel introduced next closes that jump, yielding GHLOW2cc.
 
 \paragraph{The $\sigma_2$ value jump and its repair.}
 The universal directed kernel \eqref{eq:K1-dir} subtracts only BBF0's
@@ -542,6 +506,47 @@ wings. The clamp is $C^{0}$ but not $C^{1}$ at engagement, outside
 the option-meaningful band. The zero-side bound (rather than the
 symmetric $\pm|\Delta\sigma_2(0)|$) is what guarantees the wing
 collapse.
+
+\section{Results}\label{sec:results}
+
+Parameters come from real SPXW surfaces calibrated with a 20-parameter
+piecewise-cubic local-vol model; we keep the centre cubic and (for the knot
+case) the first-knot coefficient jump moved to ATM. The Dupire forward PDE
+(Rannacher start then Crank--Nicolson) is the ground truth.
+
+Figure~\ref{fig:happy}: a smooth monotone-skew smile (SPXW 2025-03-10
+DTE~1, no knot). BBF0 sits $\sim$67~bps from the Dupire PDE across the
+band while PHL1 and GHLOW2 close to a few bps. The bps gap is not the
+objective in itself --- it is the measure of how far each map is from the
+model's true Dupire implied vol, i.e.\ of the static-arbitrage slack PHL1
+removes relative to BBF0.
+
+\begin{figure}[!htbp]
+\centering\includegraphics[width=0.78\textwidth]{F1_happy}
+\caption{Happy case: smile (top), error vs PDE in bps with BBF0 (middle),
+and the same error with BBF0 excluded (bottom) so the PHL1-vs-GHLOW2
+comparison is legible.}
+\label{fig:happy}
+\end{figure}
+
+Figure~\ref{fig:concave}: a concave converted smile (DTE~3).
+The approximation remains good where vol is positive; the deep wings, where
+the option's time value underflows and implied vol is not recoverable, are
+trimmed rather than faked.
+
+\begin{figure}[!htbp]
+\centering\includegraphics[width=0.78\textwidth]{F2_concave}
+\caption{Concave case: the converted smile is concave. Panels as in
+Figure~\ref{fig:happy} (smile; error with BBF0; error without BBF0).}
+\label{fig:concave}
+\end{figure}
+
+Figure~\ref{fig:knot}: the same DTE~1 cubic with a fake ATM knot
+($\delta$ the real first-knot jump, moved to $k=0$). PHL1 is visibly
+biased near the knot; PHL1c tracks the PDE. GHLOW2c and GHLOW2cc, both
+introduced in \S\ref{sec:extension}, lift the comparison onto the
+$T^{2}$ baseline and additionally close (for GHLOW2cc) the $\sigma_2$
+value jump at the knot.
 
 Figure~\ref{fig:knot} plots all seven curves --- with the asymptotic
 order in $T$ at the knot ---
