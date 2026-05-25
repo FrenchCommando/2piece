@@ -120,37 +120,37 @@ function smileFig(
 	const e = (y: number[]) => y.map((v, i) => (v - c.pde[i]) * 100);
 	const err: Series[] = [
 		{
-			label: "BBF0 − PDE",
+			label: "BBF0",
 			x: c.k,
 			y: e(c.bbf0),
 			color: "#a1a1aa",
 			dash: "5 4",
 		},
-		{ label: "PHL1 − PDE", x: c.k, y: e(c.phl1), color: "#2563eb" },
+		{ label: "PHL1", x: c.k, y: e(c.phl1), color: "#2563eb" },
 		...(knot
 			? [
 					{
-						label: "PHL1c − PDE",
+						label: "PHL1c",
 						x: c.k,
 						y: e(c.phl1c),
 						color: "#dc2626",
 						width: 1.8,
 					} as Series,
 					{
-						label: "GHLOW2 − PDE",
+						label: "GHLOW2",
 						x: c.k,
 						y: e(c.ghlow2),
 						color: "#0d9488",
 					} as Series,
 					{
-						label: "GHLOW2c − PDE",
+						label: "GHLOW2c",
 						x: c.k,
 						y: e(c.ghlow2c),
 						color: "#f59e0b",
 						width: 1.8,
 					} as Series,
 					{
-						label: "GHLOW2cc − PDE",
+						label: "GHLOW2cc",
 						x: c.k,
 						y: e(c.ghlow2cc),
 						color: "#9333ea",
@@ -159,7 +159,7 @@ function smileFig(
 				]
 			: [
 					{
-						label: "GHLOW2 − PDE",
+						label: "GHLOW2",
 						x: c.k,
 						y: e(c.ghlow2),
 						color: "#ea580c",
