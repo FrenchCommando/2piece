@@ -214,28 +214,28 @@ function smileFig(
 	console.log(`${file}: max|BBF0−PDE| = ${maxBbf.toFixed(1)} bps`);
 }
 
-// F1 happy, F2 concave (no knot): PDE/BBF0/PHL1/GHLOW2.
+// F2 happy, F3 concave (no knot): PDE/BBF0/PHL1/GHLOW2.
 smileFig(
-	"F1_happy",
+	"F2_happy",
 	"Happy case — SPXW 2025-03-10 DTE 1 (monotone skew)",
 	byId("happy"),
 	false,
 );
 smileFig(
-	"F2_concave",
+	"F3_concave",
 	"Concave case — SPXW 2025-03-10 DTE 3 (concave smile)",
 	byId("concave"),
 	false,
 );
-// F3 unhappy fake knot at k=0: PDE/BBF0/PHL1/PHL1c/GHLOW2/GHLOW2c/GHLOW2cc.
+// F4 unhappy fake knot at k=0: PDE/BBF0/PHL1/PHL1c/GHLOW2/GHLOW2c/GHLOW2cc.
 smileFig(
-	"F3_knot",
+	"F4_knot",
 	"Unhappy case — fake ATM knot at k=0",
 	byId("knot"),
 	true,
 );
 
-// F4: the universal kernel and the σ_2 extension piece for the knot example.
+// F1: the universal kernel and the σ_2 extension piece for the knot example.
 //   - universal K_1^dir = PHL1c − PHL1 = GHLOW2c − GHLOW2  (BBF0/σ_1
 //                         δ-variations subtracted from K_1; full magnitude)
 //   - extension piece   = GHLOW2cc − GHLOW2c               (the σ_2 piece
@@ -249,7 +249,7 @@ const kc = computeCurves(byId("knot"), 401, FULL);
 const universalSpike = kc.phl1c.map((v, i) => v - kc.phl1[i]);
 const extensionSpike = kc.ghlow2cc.map((v, i) => v - kc.ghlow2c[i]);
 writeFigure(
-	"F4_kernel",
+	"F1_kernel",
 	renderSvg([
 		{
 			series: [
@@ -280,7 +280,7 @@ writeFigure(
 	]),
 );
 // eslint-disable-next-line no-console
-console.log("F4_kernel.svg: K_1 peak =", K1_PEAK.toFixed(6));
+console.log("F1_kernel.svg: K_1 peak =", K1_PEAK.toFixed(6));
 
 // Wait for all PDF stream writes to flush before exiting.
 await Promise.all(pendingPdfs);

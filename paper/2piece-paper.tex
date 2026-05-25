@@ -512,12 +512,49 @@ the option-meaningful band. The zero-side bound (rather than the
 symmetric $\pm|\Delta\sigma_2(0)|$) is what guarantees the wing
 collapse.
 
+Figure~\ref{fig:kernel} plots the two correction pieces separately on
+the knot example used later in \S\ref{sec:results-knot}. The
+\emph{universal} piece $R^{(3,1)}_1 =
+\delta\,\sigma^{3}\,K_1^{\mathrm{dir}}$ is exactly the gap PHL1c adds
+to PHL1 \emph{and} the gap GHLOW2c adds to GHLOW2 (both identical,
+sharing the $K_1(0,0)=3\sqrt{2\pi}/128$ peak and decaying on both
+sides). The \emph{extension piece} $R^{(3,1)}_2 - R^{(3,1)}_1$ is what
+GHLOW2cc adds on top of GHLOW2c: it lives only on $k>0$ (one-sided
+perturbation), starts at the closed-form ATM scalar
+$|\Delta\sigma_2(0)| = 0.171$~bps that closes the $\sigma_2(0)$ value
+jump, and decays to zero on the wings as the clip engages.
+
+\begin{figure}[!htbp]
+\centering\includegraphics[width=0.72\textwidth]{F1_kernel}
+\caption{The two pieces of the ATM-knot correction in annualised \%
+for the knot example of \S\ref{sec:results-knot}: universal correction
+$R^{(3,1)}_1$ (solid green) and $\sigma_2$ extension piece
+$R^{(3,1)}_2 - R^{(3,1)}_1$ (dashed purple). Roles are described in
+the surrounding text.}
+\label{fig:kernel}
+\end{figure}
+
+\paragraph{Why the correction is one-sided.}
+At every order in the small-$T$ polynomial expansion (BBF0, PHL1,
+GHLOW2, $K_1$), the correction for a strike $k$ depends on the
+local-vol surface only along the Varadhan-style geodesic between the
+forward and the strike, i.e.\ inside $[\min(0,k),\max(0,k)]$. Our
+perturbation $\delta k^{3}H(k)$ lives only in $k>0$, so for a strike
+$k<0$ the geodesic sits entirely in the untouched region and the
+correction is rigorously zero. A Brownian bridge from $0$ to $k<0$
+\emph{can} fluctuate into $k>0$, but the probability of that excursion
+is $O(\exp(-c/T))$ --- non-perturbative, below every polynomial-in-$T$
+term in the expansion. The Dupire PDE captures the exponentially small
+cross-side leakage; the closed-form maps do not, by design.
+
 \section{Results}\label{sec:results}
 
 Parameters come from real SPXW surfaces calibrated with a 20-parameter
 piecewise-cubic local-vol model; we keep the centre cubic and (for the knot
 case) the first-knot coefficient jump moved to ATM. The Dupire forward PDE
 (Rannacher start then Crank--Nicolson) is the ground truth.
+
+\subsection{Smooth cases (no knot)}\label{sec:results-smooth}
 
 Figure~\ref{fig:happy}: a smooth monotone-skew smile (SPXW 2025-03-10
 DTE~1, no knot). BBF0 sits $\sim$67~bps from the Dupire PDE across the
@@ -527,7 +564,7 @@ model's true Dupire implied vol, i.e.\ of the static-arbitrage slack PHL1
 removes relative to BBF0.
 
 \begin{figure}[!htbp]
-\centering\includegraphics[width=0.78\textwidth]{F1_happy}
+\centering\includegraphics[width=0.78\textwidth]{F2_happy}
 \caption{Happy case: smile (top), error vs PDE in bps with BBF0 (middle),
 and the same error with BBF0 excluded (bottom) so the PHL1-vs-GHLOW2
 comparison is legible.}
@@ -540,11 +577,13 @@ the option's time value underflows and implied vol is not recoverable, are
 trimmed rather than faked.
 
 \begin{figure}[!htbp]
-\centering\includegraphics[width=0.78\textwidth]{F2_concave}
+\centering\includegraphics[width=0.78\textwidth]{F3_concave}
 \caption{Concave case: the converted smile is concave. Panels as in
 Figure~\ref{fig:happy} (smile; error with BBF0; error without BBF0).}
 \label{fig:concave}
 \end{figure}
+
+\subsection{Knot case}\label{sec:results-knot}
 
 Figure~\ref{fig:knot}: the same DTE~1 cubic with a fake ATM knot
 ($\delta$ the real first-knot jump, moved to $k=0$). PHL1 is visibly
@@ -587,49 +626,18 @@ extended kernel additionally closes that step (continuous at the knot
 to numerical precision), strictly improving on GHLOW2c with no
 trade-off. The bottom panel, with BBF0 removed, is what makes the PHL1
 kink, the PHL1c--GHLOW2 residual swap, the GHLOW2c step, and the
-GHLOW2cc collapse legible at all.
-
-Figure~\ref{fig:kernel} plots the two correction pieces separately on
-the same knot example. The \emph{universal} piece $R^{(3,1)}_1 =
-\delta\,\sigma^{3}\,K_1^{\mathrm{dir}}$ is exactly the gap PHL1c adds
-to PHL1 \emph{and} the gap GHLOW2c adds to GHLOW2 (both identical,
-sharing the $K_1(0,0)=3\sqrt{2\pi}/128$ peak and decaying on both
-sides). The \emph{extension piece} $R^{(3,1)}_2 - R^{(3,1)}_1$ is what
-GHLOW2cc adds on top of GHLOW2c: it lives only on $k>0$ (one-sided
-perturbation), starts at the closed-form ATM scalar
-$|\Delta\sigma_2(0)| = 0.171$~bps that closes the $\sigma_2(0)$ value
-jump, and decays to zero on the wings as the clip engages.
+GHLOW2cc collapse legible at all. Figure~\ref{fig:kernel} (in
+\S\ref{sec:extension}) plots the two correction pieces $R^{(3,1)}_1$
+and $R^{(3,1)}_2 - R^{(3,1)}_1$ separately on this same knot example.
 
 \begin{figure}[!htbp]
-\centering\includegraphics[width=0.78\textwidth]{F3_knot}
+\centering\includegraphics[width=0.78\textwidth]{F4_knot}
 \caption{Unhappy case: fake ATM knot at $k=0$. Smile (top); error vs
 PDE in bps with BBF0 (middle); same error with BBF0 excluded (bottom)
 so the PHL1/PHL1c and GHLOW2/GHLOW2c/GHLOW2cc comparison is legible.
 Curves and the error ladder are described in the surrounding text.}
 \label{fig:knot}
 \end{figure}
-
-\begin{figure}[!htbp]
-\centering\includegraphics[width=0.72\textwidth]{F4_kernel}
-\caption{The two pieces of the ATM-knot correction in annualised \%
-for the knot case: universal correction $R^{(3,1)}_1$ (solid green) and
-$\sigma_2$ extension piece $R^{(3,1)}_2 - R^{(3,1)}_1$ (dashed purple).
-Roles are described in the surrounding text.}
-\label{fig:kernel}
-\end{figure}
-
-\paragraph{Why the correction is one-sided.}
-At every order in the small-$T$ polynomial expansion (BBF0, PHL1,
-GHLOW2, $K_1$), the correction for a strike $k$ depends on the
-local-vol surface only along the Varadhan-style geodesic between the
-forward and the strike, i.e.\ inside $[\min(0,k),\max(0,k)]$. Our
-perturbation $\delta k^{3}H(k)$ lives only in $k>0$, so for a strike
-$k<0$ the geodesic sits entirely in the untouched region and the
-correction is rigorously zero. A Brownian bridge from $0$ to $k<0$
-\emph{can} fluctuate into $k>0$, but the probability of that excursion
-is $O(\exp(-c/T))$ --- non-perturbative, below every polynomial-in-$T$
-term in the expansion. The Dupire PDE captures the exponentially small
-cross-side leakage; the closed-form maps do not, by design.
 
 \section{Conclusion}
 

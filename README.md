@@ -148,13 +148,13 @@ full derivation is in [`paper/2piece-paper.tex`](paper/2piece-paper.tex).
 Happy case — calibrated SPXW 2025-03-10 DTE 1 (monotone skew, no knot). BBF0
 sits ~67 bps off the PDE; PHL1 and GHLOW2 essentially nail it:
 
-![Happy](figures/F1_happy.svg)
+![Happy](figures/F2_happy.svg)
 
 Concave case — calibrated SPXW 2025-03-10 DTE 3. The converted smile is
 concave; the approximation holds where vol is positive and the deep wings
 are correctly trimmed:
 
-![Concave](figures/F2_concave.svg)
+![Concave](figures/F3_concave.svg)
 
 Unhappy case — the happy cubic with a fake knot moved to k = 0. PHL1 alone is
 biased near the knot; PHL1c repairs the σ₁ slope kink. Stacking the same
@@ -165,7 +165,7 @@ value-continuous at k=0 (≈0.4 bps max error). Three panels: smile, error
 with BBF0, and error with BBF0 excluded so the corrected residuals are
 legible:
 
-![Knot](figures/F3_knot.svg)
+![Knot](figures/F4_knot.svg)
 
 The two pieces of the ATM-knot correction in annualised %: solid green is
 the universal correction `R^(3,1)_1 = δ·σ³·K₁^dir` (= PHL1c−PHL1 =
@@ -176,7 +176,7 @@ of the universal one. The extension lives only on `k > 0`, starts at
 `|Δσ_2(0)| = 0.171 bps` (closing the value jump), and decays to zero as
 the clip engages:
 
-![Correction](figures/F4_kernel.svg)
+![Correction](figures/F1_kernel.svg)
 
 ## Running locally
 
