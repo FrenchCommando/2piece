@@ -9,8 +9,8 @@
 
 \graphicspath{{figures/}{../figures/}}
 
-\title{Short-maturity implied volatility at a\\
-non-smooth ATM local-volatility knot}
+\title{Implied-volatility asymptotics at a\\
+$C^{2}$ ATM local-volatility knot}
 \author{Martial Ren\\\texttt{martialren@gmail.com}}
 \date{\today}
 
@@ -233,8 +233,11 @@ the Units convention above.
 \ivhm(k)=k\Big/\!\int_0^k \frac{dy}{\sloc(y)},
 \qquad \ivhm(0)=\sloc(0),
 \end{equation}
-whose use as a parametric local-vol-to-implied-vol representation, and its
-structure, are studied in detail by De~Marco \citep{demarco2021}.
+whose use as a smile parametrisation has practitioner precedent in Hagan
+and Woodward \citep{haganWoodward1999}, who fit market smiles through an
+equivalent constant-vol approximation; the structural properties of the
+harmonic-mean representation itself are characterised in detail by
+De~Marco \citep{demarco2021}.
 The next-to-leading heat-kernel expansion of Henry-Labord\`ere
 \citep{henrylabordere2008} adds a $\sigma_1 T$ term, giving
 $\siv\approx\ivhm+\sigma_1$. We use the explicit per-strike closed form of
@@ -247,7 +250,8 @@ that correction as stated by Gatheral, Hsu, Laurence, Ouyang and Wang
 \label{eq:phl1}
 \end{equation}
 (Henry-Labord\`ere's own local-to-implied first-order result is the same
-correction in the equivalent Hagan--Woodward midpoint form.) The GHLOW2
+correction in the equivalent Hagan--Woodward \citep{haganWoodward1999}
+midpoint form.) The GHLOW2
 refinement adds a further $\sigma_2 T^2$ term from the same source
 \citep{gatheral2012}. BBF0 is a harmonic mean of $\sloc$: a $C^2$ knot only
 jumps $\sloc'''$, so the integrand $1/\sloc$ stays $C^2$ and $\ivhm$ is
