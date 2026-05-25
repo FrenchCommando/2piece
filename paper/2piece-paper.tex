@@ -196,19 +196,9 @@ sees.
 
 \subsection{Local-volatility parametrisation}\label{sec:setup-lv}
 
-\paragraph{Units.} Two regimes throughout the paper. Anything displayed
---- the cubic definition below, figures, error tables --- is in
-annualised \%. Anything inside an asymptotic-map formula --- BBF0,
-$\sigma_1$, $\sigma_2$, the kernels $K_1$ / $K_1^{\mathrm{dir}}$ /
-$K_1^{\mathrm{ext}}$, the knot correction --- is in total-vol units.
-The scale factor introduced after eq.~\eqref{eq:perturb} converts at
-the boundary; within either regime the symbols $\sigma,\beta,\alpha,
-\gamma,\delta$ denote that regime's numerical values. This matches
-practitioner convention: plotting is in annualised vols, numerical
-methods are in total-vol.
-
-Work in log-moneyness $k=\log(K/F)$, forward measure ($F=1$, $r=0$), single
-maturity. The local volatility is time-homogeneous and cubic in
+Work in log-moneyness $k=\log(K/F)$, forward measure ($F=1$, $r=0$, so
+the underlying is driftless and there are no rates or dividends to
+discount), single maturity. The local volatility is time-homogeneous and cubic in
 log-moneyness, in annualised \% units:
 \begin{equation}
 \sloc(k) = \sigma + \beta k + \alpha k^2 + \gamma k^3 .
@@ -227,22 +217,36 @@ calibrator produces, with the knot moved to ATM.
 We use the Black $T=1$ convention; $\mathrm{scale}=\sqrt{252/n}\cdot 100$
 maps total vol to annualised \% for $n=\max(1,\mathrm{DTE})$ business
 days. Each cubic coefficient is divided by $\mathrm{scale}$ when it
-enters an asymptotic-map formula and multiplied back at the output, per
-the Units convention above.
+enters an asymptotic-map formula and multiplied back at the output.
+
+\paragraph{Units.} Two regimes throughout the paper. Anything displayed
+--- the cubic definition above, figures, error tables --- is in
+annualised \%. Anything inside an asymptotic-map formula --- BBF0,
+$\sigma_1$, $\sigma_2$, the kernels $K_1$ / $K_1^{\mathrm{dir}}$ /
+$K_1^{\mathrm{ext}}$, the knot correction --- is in total-vol units.
+The scale factor above converts at the boundary; within either regime
+the symbols $\sigma,\beta,\alpha,\gamma,\delta$ denote that regime's
+numerical values. This matches practitioner convention: plotting is in
+annualised vols, numerical methods are in total-vol.
 
 \subsection{The asymptotic maps}\label{sec:setup-maps}
 
-\paragraph{Notation.} The small-$T$ heat-kernel expansion of the
-local-vol transition density (Berestycki--Busca--Florent
-\citep{berestycki2002}, Henry-Labord\`ere \citep{henrylabordere2008},
-Gatheral et al.\ \citep{gatheral2012}) yields a closed-form expansion
-of the implied volatility, $\siv \approx \sigma_0 + \sigma_1\,T +
-\sigma_2\,T^{2} + \cdots$, with each $\sigma_n$ a closed-form
-functional of $\sloc$. Under our $T=1$ convention
-(§\ref{sec:setup-lv}), the $T^{n}$ factors are absorbed into the
-$\sigma_n$ symbols and the expansion reads $\siv \approx \sigma_0 +
-\sigma_1 + \sigma_2 + \cdots$. The three baselines of this paper are
-the successive truncations:
+\paragraph{Notation.} Let $\siv(k)$ denote the Black--Scholes implied
+volatility recovered from the undiscounted call price $C(T,k)$ that
+the local-vol model \eqref{eq:perturb} generates via the Dupire
+forward equation; this is the ground-truth implied vol that every
+asymptotic map in this paper approximates, and the $\siv$ that
+appears in eq.~\eqref{eq:expansion} below. The small-$T$ heat-kernel
+expansion of the local-vol transition density
+(Berestycki--Busca--Florent \citep{berestycki2002},
+Henry-Labord\`ere \citep{henrylabordere2008}, Gatheral et al.\
+\citep{gatheral2012}) yields a closed-form expansion $\siv \approx
+\sigma_0 + \sigma_1\,T + \sigma_2\,T^{2} + \cdots$, with each
+$\sigma_n$ a closed-form functional of $\sloc$. Under our $T=1$
+convention (§\ref{sec:setup-lv}), the $T^{n}$ factors are absorbed
+into the $\sigma_n$ symbols and the expansion reads $\siv \approx
+\sigma_0 + \sigma_1 + \sigma_2 + \cdots$. The three baselines of this
+paper are the successive truncations:
 \textbf{BBF0} $=\sigma_0$,
 \textbf{PHL1} $=\sigma_0+\sigma_1$,
 \textbf{GHLOW2} $=\sigma_0+\sigma_1+\sigma_2$.
@@ -590,11 +594,8 @@ case) the first-knot coefficient jump moved to ATM. The Dupire forward PDE
 \subsection{Smooth cases (no knot)}\label{sec:results-smooth}
 
 Figure~\ref{fig:happy}: a smooth monotone-skew smile (SPXW 2025-03-10
-DTE~1, no knot). BBF0 sits $\sim$67~bps from the Dupire PDE across the
-band while PHL1 and GHLOW2 close to a few bps. The bps gap is not the
-objective in itself --- it is the measure of how far each map is from the
-model's true Dupire implied vol, i.e.\ of the static-arbitrage slack PHL1
-removes relative to BBF0.
+DTE~1, no knot). BBF0's error vs the Dupire PDE peaks at $\sim$67~bps;
+PHL1 and GHLOW2 close to a few bps.
 
 \begin{figure}[!htbp]
 \centering\includegraphics[width=0.78\textwidth]{F2_happy}
@@ -604,10 +605,10 @@ comparison is legible.}
 \label{fig:happy}
 \end{figure}
 
-Figure~\ref{fig:concave}: a concave converted smile (DTE~3).
-The approximation remains good where vol is positive; the deep wings, where
-the option's time value underflows and implied vol is not recoverable, are
-trimmed rather than faked.
+Figure~\ref{fig:concave}: a concave smile (DTE~3). BBF0's error peaks
+at $\sim$43~bps; PHL1 and GHLOW2 again close to a few bps. The deep
+wings, where the option's time value underflows and implied vol is not
+numerically recoverable, are trimmed rather than faked.
 
 \begin{figure}[!htbp]
 \centering\includegraphics[width=0.78\textwidth]{F3_concave}
