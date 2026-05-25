@@ -250,7 +250,7 @@ that correction as stated by Gatheral, Hsu, Laurence, Ouyang and Wang
 \textbf{PHL1} for it:
 \begin{equation}
 \sigma_1(k)=\frac{\sigma_0(k)^3}{2k^2}
-  \log\!\frac{\sqrt{\sloc(0)\,\sloc(k)}}{\sigma_0(k)} .
+  \log\!\frac{\sloc(0)\,\sloc(k)}{\sigma_0(k)^2} .
 \label{eq:phl1}
 \end{equation}
 (Henry-Labord\`ere's own local-to-implied first-order result is the same
@@ -706,6 +706,187 @@ $\sigma,\beta,\alpha,\gamma,\delta,$ DTE, is hosted at
 \url{https://frenchcommando.github.io/2piece/}.
 
 Parameters are calibrated from market data provided by \textbf{ThetaData}.
+
+\appendix
+
+\section{First-order Duhamel kernel}\label{app:K1}
+
+Working in log-moneyness $k=\log(K/F)$, $F=1$, $r=0$, the
+undiscounted call price $C(T,k)$ obeys the Dupire forward equation
+\begin{equation}
+\partial_T C
+= \tfrac{1}{2}\sloc^2(k)\,(\partial_{kk}-\partial_k)\,C.
+\label{eq:dupire-app}
+\end{equation}
+Split $\sloc^2(k)=\sigma^2 + v(k)$ around the ATM baseline
+$\sigma=\sloc(0)$. To first order in $\delta$, the perturbed
+local variance is
+\[
+\sloc^2(k) = (\sigma + \delta\,k^3\Hev(k))^2
+= \sigma^2 + 2\sigma\,\delta\,k^3\Hev(k) + O(\delta^2),
+\qquad v(k)=2\sigma\,\delta\,k^3\Hev(k).
+\]
+Decompose $C = C_0 + C_1 + O(\delta^2)$, where $C_0$ is the constant-$\sigma$
+Black price and $C_1$ satisfies
+\[
+\partial_T C_1 - \tfrac{1}{2}\sigma^2(\partial_{kk}-\partial_k)\,C_1
+= \tfrac{1}{2}v(k)\,(\partial_{kk}-\partial_k)\,C_0,
+\qquad C_1(0,k)=0.
+\]
+Duhamel's principle gives
+\begin{equation}
+C_1(T,k)
+= \tfrac{1}{2}\int_0^T\!\!dt \int dy\;
+   G_\sigma(T-t;\,k,y)\,v(y)\,\Gamma_0(t;y),
+\label{eq:duhamel}
+\end{equation}
+with $G_\sigma$ the constant-$\sigma$ Black propagator and
+$\Gamma_0(t;y) = (\partial_{kk}-\partial_k)C_0(t;y)$ the Black
+strike-gamma. The Breeden--Litzenberger identity makes
+$\Gamma_0(t;y) = \rho_\sigma(y;t)$, the lognormal transition density
+of $\log S_t/F$. Both $G_\sigma$ and $\rho_\sigma$ are Gaussian, and
+their product--viewed jointly in $(Y(t),Y(T))=(y,k)$--is the
+two-point Gaussian law of a Brownian bridge pinned at
+$(Y(0),Y(T))=(0,k)$.
+
+Substituting $\lambda=t/T$, the bridge marginal at time $\lambda T$ is
+\[
+Y(\lambda T)\,\big|\,Y(0)=0,\,Y(T)=k
+\;\sim\; \mathcal N\bigl(\lambda k,\;\sigma^2\lambda(1-\lambda)T\bigr).
+\]
+The spatial integral against $y^3\Hev(y)$ is the truncated third
+moment of this Gaussian. Writing $Z\sim\mathcal N(0,1)$ and shifting
+to centred coordinates $y = \lambda k + \sigma\sqrt{\lambda(1-\lambda)T}\,Z$,
+\[
+\mathbb E\bigl[Y(\lambda T)^3\,\Hev(Y(\lambda T))\bigr]
+= \bigl(\sigma^2\lambda(1-\lambda)T\bigr)^{3/2}\,f(\eta),
+\qquad
+f(\eta) = (\eta^3+3\eta)\,\Phi(\eta) + (\eta^2+2)\,\phi(\eta),
+\]
+with the dimensionless shift $\eta(\lambda;k) = \lambda
+k/\sqrt{\sigma^2\lambda(1-\lambda)T}$. ($f$ is the standard
+truncated-third-moment formula
+$\mathbb E[(\mu+\eta\nu)^3\Hev(\mu+\eta\nu)]/\nu^3$ specialised at
+unit variance, $\mu=\eta$.) The $1/\sqrt{t}$ in $\rho_\sigma$
+cancels the leading $\sqrt{\lambda}$ in the bridge variance, the
+outer time integral collapses to $T\,d\lambda$, and dividing
+\eqref{eq:duhamel} by the Black vega $\partial_{\sigma_{\mathrm{BS}}} C_0$
+converts the price perturbation to an implied-vol perturbation. With
+the $T=1$ convention and $x=k/\sigma$,
+$\eta(\lambda;x) = x\sqrt{\lambda/(1-\lambda)}$, and
+\begin{equation}
+\delta\siv(k) = \delta\,\sigma^3\,K_1(x,0) + O(\delta^2),
+\qquad
+K_1(x,0) = \int_0^1\!\bigl(\lambda(1-\lambda)\bigr)^{3/2}\,
+            f\bigl(\eta(\lambda;x)\bigr)\,d\lambda.
+\label{eq:K1-app}
+\end{equation}
+This is \eqref{eq:expansion}--\eqref{eq:K1}.
+
+\section{Closed-form peak \texorpdfstring{$K_1(0,0)=3\sqrt{2\pi}/128$}{K1(0,0) = 3 sqrt(2 pi)/128}}\label{app:K1-ATM}
+
+At $x=0$, $\eta(\lambda;0)\equiv0$, so $f(0) = (0)\Phi(0) +
+(0+2)\phi(0) = 2/\sqrt{2\pi}$. The bridge integral collapses to a
+Beta function:
+\[
+K_1(0,0) = \frac{2}{\sqrt{2\pi}}\int_0^1\!\bigl(\lambda(1-\lambda)\bigr)^{3/2}d\lambda
+= \frac{2}{\sqrt{2\pi}}\,B\!\bigl(\tfrac52,\tfrac52\bigr),
+\]
+with $B(a,b) = \Gamma(a)\Gamma(b)/\Gamma(a+b)$. Using
+$\Gamma(5/2) = \tfrac34\sqrt{\pi}$ and $\Gamma(5)=24$,
+\[
+B\!\bigl(\tfrac52,\tfrac52\bigr)
+= \frac{(\tfrac34\sqrt\pi)^2}{24}
+= \frac{9\pi/16}{24}
+= \frac{3\pi}{128},
+\]
+and so
+\[
+K_1(0,0) = \frac{2}{\sqrt{2\pi}}\cdot\frac{3\pi}{128}
+= \frac{6\pi}{128\sqrt{2\pi}}
+= \frac{3\sqrt{2\pi}}{128}
+\approx 0.05875.
+\]
+
+\section{\texorpdfstring{$\delta$-variation of BBF0 and PHL1 at $w=0$}{delta-variation of BBF0 and PHL1 at w=0}}\label{app:delta-var}
+
+This justifies the $x^3/4 + x/4$ subtraction in the universal directed
+kernel \eqref{eq:K1-dir}. Constant-$\sigma$ baseline
+$\sloc^0\equiv\sigma$, ATM-knot perturbation
+$\sloc(k) = \sigma + \delta\,k^3\Hev(k)$.
+
+\paragraph{BBF0.} For $k>0$, $1/\sloc(y) = 1/\sigma - \delta
+y^3/\sigma^2 + O(\delta^2)$, so
+\[
+\int_0^k\!\frac{dy}{\sloc(y)}
+= \frac{k}{\sigma} - \frac{\delta\,k^4}{4\sigma^2} + O(\delta^2),
+\qquad
+\sigma_0(k) = \frac{k}{\int_0^k dy/\sloc(y)}
+= \sigma + \frac{\delta\,k^3}{4} + O(\delta^2).
+\]
+(For $k\le0$ the perturbation has no support and $\sigma_0=\sigma$
+exactly.) Dividing the first-order coefficient $k^3/4$ by $\sigma^3$
+and writing $x=k/\sigma$ gives the kernel-form subtraction
+$x^3/4\cdot\Hev(x)$.
+
+\paragraph{PHL1.} Use eq.~\eqref{eq:phl1}, $\sigma_1(k) = \sigma_0(k)^3/(2k^2)
+\cdot \log\bigl(\sloc(0)\sloc(k)/\sigma_0(k)^2\bigr)$. With
+$\sloc(0)=\sigma$, $\sloc(k)=\sigma+\delta k^3$,
+$\sigma_0(k)=\sigma+\delta k^3/4$, the log argument is
+\[
+\frac{\sigma\,(\sigma+\delta k^3)}{(\sigma+\delta k^3/4)^2}
+= \frac{1 + \delta k^3/\sigma}{1 + \delta k^3/(2\sigma) + O(\delta^2)}
+= 1 + \frac{\delta\,k^3}{2\sigma} + O(\delta^2),
+\]
+so $\log(\cdot) = \delta k^3/(2\sigma) + O(\delta^2)$. The prefactor
+$\sigma_0(k)^3/(2k^2) = \sigma^3/(2k^2) + O(\delta)$, giving
+\[
+\sigma_1(k) = \frac{\sigma^3}{2k^2}\cdot\frac{\delta\,k^3}{2\sigma} + O(\delta^2)
+= \frac{\delta\,\sigma^2\,k}{4} + O(\delta^2).
+\]
+Dividing by $\sigma^3$ and writing $x=k/\sigma$, the kernel-form
+subtraction is $x/4\cdot\Hev(x)$.
+
+The two pieces together are the BBF0 and $\sigma_1$
+$\delta$-variations that the universal directed kernel
+\eqref{eq:K1-dir} subtracts from $K_1$ so that adding $R^{(3,1)}_1$
+to PHL1 does not double-count the variation PHL1 already captures.
+
+\section{The \texorpdfstring{$\sigma_2(0)$}{sigma\_2(0)} value jump scalar}\label{app:sig2-jump}
+
+The closed form $\Delta\sigma_2(0) = \sigma^3\beta\delta/20$
+\eqref{eq:ghlow2-gap} follows from the structure of
+\eqref{eq:sig2} at $k=0$. Write the bracket
+$B(k) = -3\sigma_1(k)\,\sigma_0(k)^2 + \sigma_0(k)^5/8
++ (u_1/u_0)(k)\,\sigma_0(k)^3$
+so that \eqref{eq:sig2} rearranges into
+\[
+\sigma_2(k) = \frac{B(k)}{k^2}
+\;+\; \frac{3\sigma_1(k)^2}{2\sigma_0(k)}.
+\]
+For $\sigma_2(0)$ to be finite, $B(0)=B'(0)=0$, which fixes the
+$\gamma$-free part of $u_1/u_0$ at $k=0$ and makes the
+$\gamma$-cancellation at first $k$-derivative explicit
+($\sigma_1'(0)|_\gamma$ contributes $-\tfrac34\,\sigma^4\gamma$ to $B'(0)$
+and $(u_1/u_0)'(0)|_\gamma$ contributes $+\tfrac34\,\sigma^4\gamma$).
+The $\gamma$-bearing piece survives at second order in $k$:
+\[
+B''(0)\big|_\gamma = \frac{\sigma^3\beta\gamma}{10},
+\]
+and L'H\^opital twice gives
+\[
+\sigma_2(0)\big|_\gamma = \frac{B''(0)|_\gamma}{2}
+= \frac{\sigma^3\beta\gamma}{20}.
+\]
+So $\sigma_2(0)$ depends on $\gamma$ exactly linearly. Replacing
+$\gamma$ by $\gamma+\delta$ at the knot ($k=0^+$) flips the
+$\gamma$-coefficient by $\delta$, producing the value jump
+\[
+\Delta\sigma_2(0) = \frac{\sigma^3\beta\,\delta}{20},
+\]
+which is \eqref{eq:ghlow2-gap}. The ATM restriction $w=0$ is what
+keeps every ingredient algebraic in $(\sigma,\beta,\alpha,\gamma)$
+and the jump scalar closed-form.
 
 \bibliographystyle{plainnat}
 \bibliography{refs}

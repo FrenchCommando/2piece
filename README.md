@@ -68,7 +68,7 @@ conventional label "PHL1"):
 
 ```
 PHL1 = σ_0 + σ₁ ,
-σ₁(k) = σ_0³/(2k²) · log( √(σ_loc(0)·σ_loc(k)) / σ_0 )
+σ₁(k) = σ_0³/(2k²) · log( σ_loc(0)·σ_loc(k) / σ_0² )
 ```
 
 (evaluated cancellation-free from the cubic coefficients near `|k| < 1e-3`).
