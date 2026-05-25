@@ -193,6 +193,13 @@ The figures are deterministic: `npm run figures` then `git diff figures/`
 should show no changes — that is how you confirm the committed images match
 the code.
 
+`paper/2piece-paper.tex` is built by CI on every push (download from the
+*Build paper* GitHub Release). For a live local loop, install the companion
+VS Code extension [**latex-preview**](https://github.com/FrenchCommando/latex-preview):
+it watches the `.tex` and the figure sources, reruns `npm run figures` +
+`texify` on save, and renders the resulting PDF in a side panel via pdf.js.
+The `latex-preview.json` at the repo root is the config it reads.
+
 ## How it is validated
 
 `src/math` is the single source of truth. Two cross-checks run in CI on
@@ -211,9 +218,10 @@ src/util.ts  byId / getContext2D / findOrThrow / mapGet helpers
 examples/    params.json   (calibrated SPXW cases)
 tests/       reference.json + cross-check against the frozen fixture
 paper/       2piece-paper.tex refs.bib   (LaTeX note; PDF built in CI)
-figures/     committed deterministic SVGs (README + paper share these)
+figures/     committed deterministic SVGs + PDFs (README + paper share these)
 memory/      project CLAUDE memory (repo is self-contained)
 NOTES.md     working log: math, decisions, status
+latex-preview.json    config for the latex-preview VS Code extension
 ```
 
 ## Credits

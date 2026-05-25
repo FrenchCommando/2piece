@@ -530,6 +530,38 @@ Rationale: a second Python implementation of K_1 / near-ATM polynomials /
 the Dupire PDE would silently drift from the TS that actually runs. This is
 the only intentional departure from the literal CLAUDE.md.
 
+## Figures: SVG and PDF emitted together (`npm run figures`)
+
+`src/figures/generate.ts` writes both `figures/<name>.svg` and
+`figures/<name>.pdf` per figure via `svg-to-pdfkit` + `pdfkit`. Reason: the
+README/Pages site needs the SVG (text, diffable, web-renderable); pdflatex
+needs PDF (it can't embed SVG natively). Previously CI did the SVG→PDF
+conversion at build time with `rsvg-convert`; now the figures script does it
+inline so the same `npm run figures` invocation produces both, no system
+tools needed (no librsvg / Inkscape install). CI workflow `paper.yml` was
+simplified accordingly — the `librsvg2-bin` apt install and the
+`rsvg-convert` loop are gone. Both `.svg` and `.pdf` are committed to
+`figures/`.
+
+Two non-obvious details inside `writeFigure`:
+
+1. **px → pt scaling for the PDF page size.** SVG dimensions are in CSS
+   pixels (96 DPI); PDF dimensions are in points (72 DPI). If you create
+   the PDF page with the raw SVG pixel count, `svg-to-pdfkit` renders the
+   content at 72/96 = 75 % of the page, leaving 25 % blank on the right
+   and bottom of every figure. The fix: multiply width/height by
+   `PX_TO_PT = 72/96` for both `PDFDocument({ size })` and the
+   `SVGtoPDF(..., { width, height })` options. Symptom if you ever break
+   this: figures look like they're floating in the top-left corner of a
+   bigger page.
+
+2. **Epoch-fixed `CreationDate` and `ModDate`** on the `PDFDocument` info.
+   pdfkit stamps `new Date()` by default, so byte-identical SVG inputs
+   would still produce different PDF bytes on each run — `git diff` would
+   flag every `npm run figures` even if no figure logically changed. Set
+   both to `new Date(0)` so the determinism story (the whole point of
+   committing the figures) survives.
+
 ## Literature review (scoping)
 
 Scope reminder: the paper is narrowly about (i) the LV→IV asymptotic family
