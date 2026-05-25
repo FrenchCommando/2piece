@@ -193,6 +193,8 @@ sees.
 
 \section{Setup}
 
+\subsection{Local-volatility parametrisation}\label{sec:setup-lv}
+
 \paragraph{Units.} Two regimes throughout the paper. Anything displayed
 --- the cubic definition below, figures, error tables --- is in
 annualised \%. Anything inside an asymptotic-map formula --- BBF0,
@@ -227,7 +229,9 @@ days. Each cubic coefficient is divided by $\mathrm{scale}$ when it
 enters an asymptotic-map formula and multiplied back at the output, per
 the Units convention above.
 
-\paragraph{The asymptotic maps.} The leading-order BBF map
+\subsection{The asymptotic maps}\label{sec:setup-maps}
+
+The leading-order BBF map
 \citep{berestycki2002} is the inverse harmonic mean
 \begin{equation}
 \sigma_0(k)\equiv\ivhm(k)=k\Big/\!\int_0^k \frac{dy}{\sloc(y)},
@@ -251,9 +255,21 @@ that correction as stated by Gatheral, Hsu, Laurence, Ouyang and Wang
 \end{equation}
 (Henry-Labord\`ere's own local-to-implied first-order result is the same
 correction in the equivalent Hagan--Woodward \citep{haganWoodward1999}
-midpoint form.) The GHLOW2
-refinement adds a further $\sigma_2 T^2$ term from the same source
-\citep{gatheral2012}. BBF0 is a harmonic mean of $\sloc$: a $C^2$ knot only
+midpoint form.) The \textbf{GHLOW2} refinement adds a further $\sigma_2
+T^2$ term from the same source \citep[eq.~3.19, time-homogeneous,
+$r=0$]{gatheral2012}:
+\begin{equation}
+\sigma_2(k)
+= -\frac{3\sigma_1}{d^{2}}
+  + \frac{3\sigma_1^{2}}{2\sigma_0}
+  + \frac{\xi^{3}}{8 d^{5}}
+  + \frac{\xi\,(u_1/u_0)}{d^{3}},
+\qquad \xi=-k,\quad d=\xi/\sigma_0,
+\label{eq:sig2}
+\end{equation}
+with $u_1/u_0$ the Yoshida heat-kernel ratio (the second-order term in
+the small-$T$ expansion of the transition density's leading
+coefficient). BBF0 is a harmonic mean of $\sloc$: a $C^2$ knot only
 jumps $\sloc'''$, so the integrand $1/\sloc$ stays $C^2$ and $\sigma_0$ is
 smooth across the knot --- BBF0 has no knot-specific error, only the generic
 leading-order gap present everywhere. The $\sigma_1$ expansion underlying
