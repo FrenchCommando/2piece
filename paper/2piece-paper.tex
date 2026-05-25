@@ -11,7 +11,7 @@
 
 \title{Implied-volatility asymptotics at a\\
 $C^{2}$ ATM local-volatility knot}
-\author{Martial Ren\\\texttt{martialren@gmail.com}}
+\author{Martial Ren\thanks{\texttt{martialren@gmail.com}}}
 \date{\today}
 
 \newcommand{\sloc}{\sigma_{\mathrm{loc}}}
@@ -681,14 +681,15 @@ involved because the bounded-polynomial collapse used here disappears.
 \section{Reproducibility}
 
 All numbers and figures are produced by the open TypeScript core in the
-companion repository, cross-checked against a committed numerical fixture
-to $10^{-6}$ (closed forms) and $10^{-9}$ (the kernel), and against the
-Dupire forward PDE on the knot-case model within tolerance. The figures
-are deterministic: regenerating them and diffing reproduces this paper
-exactly.
+companion repository
+(\url{https://github.com/FrenchCommando/2piece}). 
+The figures are deterministic: regenerating
+them and diffing reproduces this paper exactly. An interactive page
+that runs the same TypeScript core in-browser, with live controls for
+$\sigma,\beta,\alpha,\gamma,\delta,$ DTE, is hosted at
+\url{https://frenchcommando.github.io/2piece/}.
 
-\paragraph{Credits.} Market data for the calibrated example smiles:
-ThetaData.
+Parameters are calibrated from market data provided by \textbf{ThetaData}.
 
 \bibliographystyle{plainnat}
 \bibliography{refs}
