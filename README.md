@@ -54,10 +54,11 @@ Total vol uses the `T = 1` convention; `scale = √(252/n) · 100` converts
 total vol ↔ annualised %, with `n = max(1, DTE)` business days and
 `σ_total = σ/scale` the ATM total vol.
 
-**BBF0** — leading-order inverse harmonic mean (Berestycki–Busca–Florent):
+**BBF0** — leading-order inverse harmonic mean (Berestycki–Busca–Florent);
+the leading `σ_0` in the heat-kernel ladder:
 
 ```
-BBF0(k) = k / ∫₀ᵏ dy / σ_loc(y)            BBF0(0) = σ_loc(0)
+σ_0(k) ≡ BBF0(k) = k / ∫₀ᵏ dy / σ_loc(y)            σ_0(0) = σ_loc(0)
 ```
 
 **PHL1** — BBF0 + the first-order σ₁ heat-kernel correction
@@ -66,8 +67,8 @@ closed form of Gatheral–Hsu–Laurence–Ouyang–Wang, Thm. 2.4, and keep the
 conventional label "PHL1"):
 
 ```
-PHL1 = iv_hm + σ₁ ,
-σ₁(k) = iv_hm³/(2k²) · log( √(σ_loc(0)·σ_loc(k)) / iv_hm )
+PHL1 = σ_0 + σ₁ ,
+σ₁(k) = σ_0³/(2k²) · log( √(σ_loc(0)·σ_loc(k)) / σ_0 )
 ```
 
 (evaluated cancellation-free from the cubic coefficients near `|k| < 1e-3`).
@@ -76,8 +77,8 @@ PHL1 = iv_hm + σ₁ ,
 σ₂ term (their eq. 3.19, time-homogeneous, r = 0):
 
 ```
-σ₂ = -3σ₁/d² + 3σ₁²/(2·iv_hm) + ξ³/(8d⁵) + ξ·(u₁/u₀)/d³ ,
-ξ = -k ,  d = ξ/iv_hm ,  u₁/u₀ = Yoshida heat-kernel ratio
+σ₂ = -3σ₁/d² + 3σ₁²/(2·σ_0) + ξ³/(8d⁵) + ξ·(u₁/u₀)/d³ ,
+ξ = -k ,  d = ξ/σ_0 ,  u₁/u₀ = Yoshida heat-kernel ratio
 ```
 
 **Dupire PDE** — the ground truth. The forward equation in log-moneyness
@@ -109,7 +110,7 @@ f(η)     = (η³+3η)·Φ(η) + (η²+2)·φ(η)            (truncated 3rd mome
 peak K_1(0,0) = 3√(2π)/128 ≈ 0.05875
 ```
 
-PHL1 already absorbs part of this through its own `iv_hm`/`σ₁` variation;
+PHL1 already absorbs part of this through its own `σ_0`/`σ₁` variation;
 subtracting that piece (so it is not double-counted) gives the *directed*
 kernel `K_1^dir`, which decays on both sides:
 
