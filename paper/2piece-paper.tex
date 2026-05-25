@@ -230,8 +230,8 @@ the Units convention above.
 \paragraph{The asymptotic maps.} The leading-order BBF map
 \citep{berestycki2002} is the inverse harmonic mean
 \begin{equation}
-\ivhm(k)=k\Big/\!\int_0^k \frac{dy}{\sloc(y)},
-\qquad \ivhm(0)=\sloc(0),
+\sigma_0(k)\equiv\ivhm(k)=k\Big/\!\int_0^k \frac{dy}{\sloc(y)},
+\qquad \sigma_0(0)=\sloc(0),
 \end{equation}
 whose use as a smile parametrisation has practitioner precedent in Hagan
 and Woodward \citep{haganWoodward1999}, who fit market smiles through an
@@ -240,13 +240,13 @@ harmonic-mean representation itself are characterised in detail by
 De~Marco \citep{demarco2021}.
 The next-to-leading heat-kernel expansion of Henry-Labord\`ere
 \citep{henrylabordere2008} adds a $\sigma_1 T$ term, giving
-$\siv\approx\ivhm+\sigma_1$. We use the explicit per-strike closed form of
+$\siv\approx\sigma_0+\sigma_1$. We use the explicit per-strike closed form of
 that correction as stated by Gatheral, Hsu, Laurence, Ouyang and Wang
 \citep[Thm.~2.4]{gatheral2012}, and keep the conventional label
 \textbf{PHL1} for it:
 \begin{equation}
-\sigma_1(k)=\frac{\ivhm(k)^3}{2k^2}
-  \log\!\frac{\sqrt{\sloc(0)\,\sloc(k)}}{\ivhm(k)} .
+\sigma_1(k)=\frac{\sigma_0(k)^3}{2k^2}
+  \log\!\frac{\sqrt{\sloc(0)\,\sloc(k)}}{\sigma_0(k)} .
 \label{eq:phl1}
 \end{equation}
 (Henry-Labord\`ere's own local-to-implied first-order result is the same
@@ -254,7 +254,7 @@ correction in the equivalent Hagan--Woodward \citep{haganWoodward1999}
 midpoint form.) The GHLOW2
 refinement adds a further $\sigma_2 T^2$ term from the same source
 \citep{gatheral2012}. BBF0 is a harmonic mean of $\sloc$: a $C^2$ knot only
-jumps $\sloc'''$, so the integrand $1/\sloc$ stays $C^2$ and $\ivhm$ is
+jumps $\sloc'''$, so the integrand $1/\sloc$ stays $C^2$ and $\sigma_0$ is
 smooth across the knot --- BBF0 has no knot-specific error, only the generic
 leading-order gap present everywhere. The $\sigma_1$ expansion underlying
 PHL1 (and hence GHLOW2) is, by contrast, derived assuming $\sloc\in C^3$; at
@@ -317,9 +317,9 @@ Setting $w=0$ removes the $(1-\lambda)w$ term entirely and the correction is
 bounded with no hack --- the reason this note restricts to the ATM knot.
 
 \paragraph{Avoiding double counting.} PHL1 already moves under
-\eqref{eq:perturb} through its own $\ivhm$ and $\sigma_1$. Taylor-expanding
+\eqref{eq:perturb} through its own $\sigma_0$ and $\sigma_1$. Taylor-expanding
 \eqref{eq:phl1} in $\delta$ at $w=0$ gives, for $x>0$,
-$\ivhm$ varies as $x^3/4$ and $\sigma_1$ as $x/4$ (both zero for $x\le0$).
+$\sigma_0$ varies as $x^3/4$ and $\sigma_1$ as $x/4$ (both zero for $x\le0$).
 Subtracting these so they are not counted twice yields the \emph{directed}
 kernel, which decays on both sides:
 \begin{equation}
