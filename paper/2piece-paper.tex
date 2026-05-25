@@ -123,7 +123,8 @@ $\lambda\in[0,1]$ whose integrand is the conditional expectation of the
 source along a standard Brownian bridge.
 
 \paragraph{Higher-order LV-to-IV asymptotics.} The PHL1/GHLOW2 line
-derives from the heat-kernel expansion of the call-price PDE: BBF
+derives from the heat-kernel expansion of the local-vol transition
+density: BBF
 \citep{berestycki2002} is leading order (the same authors extended the
 heat-kernel approach to stochastic volatility in
 \citep{berestycki2004sv}), Henry-Labord\`ere \citep{henrylabordere2008}
@@ -231,6 +232,22 @@ the Units convention above.
 
 \subsection{The asymptotic maps}\label{sec:setup-maps}
 
+\paragraph{Notation.} The small-$T$ heat-kernel expansion of the
+local-vol transition density (Berestycki--Busca--Florent
+\citep{berestycki2002}, Henry-Labord\`ere \citep{henrylabordere2008},
+Gatheral et al.\ \citep{gatheral2012}) yields a closed-form expansion
+of the implied volatility, $\siv \approx \sigma_0 + \sigma_1\,T +
+\sigma_2\,T^{2} + \cdots$, with each $\sigma_n$ a closed-form
+functional of $\sloc$. Under our $T=1$ convention
+(§\ref{sec:setup-lv}), the $T^{n}$ factors are absorbed into the
+$\sigma_n$ symbols and the expansion reads $\siv \approx \sigma_0 +
+\sigma_1 + \sigma_2 + \cdots$. The three baselines of this paper are
+the successive truncations:
+\textbf{BBF0} $=\sigma_0$,
+\textbf{PHL1} $=\sigma_0+\sigma_1$,
+\textbf{GHLOW2} $=\sigma_0+\sigma_1+\sigma_2$.
+The explicit closed forms for each $\sigma_n$ follow.
+
 The leading-order BBF map
 \citep{berestycki2002} is the inverse harmonic mean
 \begin{equation}
@@ -243,7 +260,7 @@ equivalent constant-vol approximation; the structural properties of the
 harmonic-mean representation itself are characterised in detail by
 De~Marco \citep{demarco2021}.
 The next-to-leading heat-kernel expansion of Henry-Labord\`ere
-\citep{henrylabordere2008} adds a $\sigma_1 T$ term, giving
+\citep{henrylabordere2008} adds a $\sigma_1$ term, giving
 $\siv\approx\sigma_0+\sigma_1$. We use the explicit per-strike closed form of
 that correction as stated by Gatheral, Hsu, Laurence, Ouyang and Wang
 \citep[Thm.~2.4]{gatheral2012}, and keep the conventional label
