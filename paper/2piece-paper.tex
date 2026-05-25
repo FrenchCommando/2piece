@@ -382,8 +382,6 @@ introduced above.
 \centering
 \begin{tabular}{llll}
 \toprule
-\multicolumn{4}{l}{\textit{Methods} (each is a closed-form approximation to the Dupire IV)}\\
-\midrule
 Name      & Definition                                              & Smooth order & Knot correction \\
 \midrule
 BBF0      & $\sigma_0$                                              & $T^{0}$ & --- \\
@@ -392,24 +390,17 @@ PHL1c     & $\sigma_0 + \sigma_1 + R^{(3, 1)}_{1}$                  & $T^{1}$ & 
 GHLOW2    & $\sigma_0 + \sigma_1 + \sigma_2$                        & $T^{2}$ & --- \\
 GHLOW2c   & $\sigma_0 + \sigma_1 + R^{(3, 1)}_{1} + \sigma_2$       & $T^{2}$ & $T^{3/2}$ \\
 GHLOW2cc  & $\sigma_0 + \sigma_1 + R^{(3, 1)}_{1} + \sigma_2 + (R^{(3, 1)}_{2} - R^{(3, 1)}_{1})$ & $T^{2}$ & $T^{3/2},\,T^{2}$ \\
-\midrule
-\multicolumn{4}{l}{\textit{Kernels and terms} (each scales by $\delta\,\sigma^{3}$ to give an IV-level correction in ann.\,\%)}\\
-\midrule
-Name              & \multicolumn{2}{l}{Definition}                                     & Where it lives \\
-\midrule
-universal kernel  & \multicolumn{2}{l}{$K_1^{\mathrm{dir}}(x,0)$, eq.~\eqref{eq:K1-dir}}                                                & both sides; pure function of $x$ \\
-extension (piece) & \multicolumn{2}{l}{the $\sigma_2$ $\delta$-variation subtraction in eq.~\eqref{eq:ghlow2-dir}}                       & $x>0$ only; $(\beta,\alpha,\gamma)$-parametric \\
-extended kernel   & \multicolumn{2}{l}{$K_1^{\mathrm{ext}}$, eq.~\eqref{eq:ghlow2-dir}}                                                 & both sides; $=$ universal kernel $+$ extension \\
 \bottomrule
 \end{tabular}
-\caption{Summary of methods, kernels, and terms. The ``c'' suffix counts
-correction layers stacked on a baseline: one $c$ per layer. ``Smooth
-order'' is the heat-kernel-ladder accuracy in the no-knot case;
-``knot correction'' lists the orders at the knot the corrections
-restore on top of the smooth baseline --- $T^{3/2}$ from the universal
-kernel (the slope-kink term $\sigma_1/\sigma_2$ miss at $C^{2}$), and
-additionally $T^{2}$ from the extension piece (the $\sigma_2(0)$ value
-jump closed only by GHLOW2cc, on $k>0$).}
+\caption{The six closed-form approximations to the Dupire IV. The ``c''
+suffix counts correction layers stacked on a baseline: one $c$ per
+layer. ``Smooth order'' is the heat-kernel-ladder accuracy in the
+no-knot case; ``knot correction'' lists the orders at the knot the
+corrections restore on top of the smooth baseline --- $T^{3/2}$ from
+the universal kernel \eqref{eq:K1-dir} (the slope-kink term
+$\sigma_1/\sigma_2$ miss at $C^{2}$), and additionally $T^{2}$ from the
+extension piece \eqref{eq:extension} (the $\sigma_2(0)$ value jump
+closed only by GHLOW2cc, on $k>0$).}
 \label{tab:summary}
 \end{table}
 
