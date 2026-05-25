@@ -380,32 +380,36 @@ introduced above.
 
 \begin{table}[h]
 \centering
-\begin{tabular}{lll}
+\begin{tabular}{llll}
 \toprule
-\multicolumn{3}{l}{\textit{Methods} (each is a closed-form approximation to the Dupire IV)}\\
+\multicolumn{4}{l}{\textit{Methods} (each is a closed-form approximation to the Dupire IV)}\\
 \midrule
-Name      & Definition                            & Order in $T$ at the knot \\
+Name      & Definition                                              & Smooth order & Knot correction \\
 \midrule
-BBF0      & $k\,/\!\int_0^k\!dy/\sloc(y)$         & $T^{0}$ \\
-PHL1      & BBF0 $+$ $\sigma_1$                   & $T^{1}$ \\
-PHL1c     & PHL1 $+$ $R^{(3, 1)}_{1}$             & $T^{1}+T^{3/2}$ \\
-GHLOW2    & PHL1 $+$ $\sigma_2$                   & $T^{2}$ \\
-GHLOW2c   & GHLOW2 $+$ $R^{(3, 1)}_{1}$           & $T^{2}+T^{3/2}$ \\
-GHLOW2cc  & GHLOW2 $+$ $R^{(3, 1)}_{2}$           & $T^{2}+T^{3/2}$ \\
+BBF0      & $\sigma_0$                                              & $T^{0}$ & --- \\
+PHL1      & $\sigma_0 + \sigma_1$                                   & $T^{1}$ & --- \\
+PHL1c     & $\sigma_0 + \sigma_1 + R^{(3, 1)}_{1}$                  & $T^{1}$ & $T^{3/2}$ \\
+GHLOW2    & $\sigma_0 + \sigma_1 + \sigma_2$                        & $T^{2}$ & --- \\
+GHLOW2c   & $\sigma_0 + \sigma_1 + R^{(3, 1)}_{1} + \sigma_2$       & $T^{2}$ & $T^{3/2}$ \\
+GHLOW2cc  & $\sigma_0 + \sigma_1 + R^{(3, 1)}_{1} + \sigma_2 + (R^{(3, 1)}_{2} - R^{(3, 1)}_{1})$ & $T^{2}$ & $T^{3/2},\,T^{2}$ \\
 \midrule
-\multicolumn{3}{l}{\textit{Kernels and terms} (each scales by $\delta\,\sigma^{3}$ to give an IV-level correction in ann.\,\%)}\\
+\multicolumn{4}{l}{\textit{Kernels and terms} (each scales by $\delta\,\sigma^{3}$ to give an IV-level correction in ann.\,\%)}\\
 \midrule
-Name              & Definition                                              & Where it lives \\
+Name              & \multicolumn{2}{l}{Definition}                                     & Where it lives \\
 \midrule
-universal kernel  & $K_1^{\mathrm{dir}}(x,0)$, eq.~\eqref{eq:K1-dir} & both sides; pure function of $x$ \\
-extension (piece) & the $\sigma_2$ $\delta$-variation subtraction in eq.~\eqref{eq:ghlow2-dir} & $x>0$ only; $(\beta,\alpha,\gamma)$-parametric \\
-extended kernel   & $K_1^{\mathrm{ext}}$, eq.~\eqref{eq:ghlow2-dir} & both sides; $=$ universal kernel $+$ extension \\
+universal kernel  & \multicolumn{2}{l}{$K_1^{\mathrm{dir}}(x,0)$, eq.~\eqref{eq:K1-dir}}                                                & both sides; pure function of $x$ \\
+extension (piece) & \multicolumn{2}{l}{the $\sigma_2$ $\delta$-variation subtraction in eq.~\eqref{eq:ghlow2-dir}}                       & $x>0$ only; $(\beta,\alpha,\gamma)$-parametric \\
+extended kernel   & \multicolumn{2}{l}{$K_1^{\mathrm{ext}}$, eq.~\eqref{eq:ghlow2-dir}}                                                 & both sides; $=$ universal kernel $+$ extension \\
 \bottomrule
 \end{tabular}
 \caption{Summary of methods, kernels, and terms. The ``c'' suffix counts
-correction layers stacked on a baseline: one $c$ per layer. Both
-GHLOW2c and GHLOW2cc are at $T^{2}+T^{3/2}$ asymptotic order; they
-differ by the extension piece, which only kicks in for $k>0$.}
+correction layers stacked on a baseline: one $c$ per layer. ``Smooth
+order'' is the heat-kernel-ladder accuracy in the no-knot case;
+``knot correction'' lists the orders at the knot the corrections
+restore on top of the smooth baseline --- $T^{3/2}$ from the universal
+kernel (the slope-kink term $\sigma_1/\sigma_2$ miss at $C^{2}$), and
+additionally $T^{2}$ from the extension piece (the $\sigma_2(0)$ value
+jump closed only by GHLOW2cc, on $k>0$).}
 \label{tab:summary}
 \end{table}
 
@@ -503,7 +507,27 @@ The first three terms reproduce the universal kernel
 is the \emph{extension} foreshadowed earlier --- what makes the kernel
 \emph{extended}, and what closes the value jump. The extension
 lives only on $x>0$ (one-sided perturbation) and the clamp in
-\eqref{eq:ghlow2-dir} forces it to zero on the wings.
+\eqref{eq:ghlow2-dir} forces it to zero on the wings. Subtracting
+\eqref{eq:K1-dir} from \eqref{eq:ghlow2-dir} and rescaling by
+$\delta\,\sigma^{3}$ isolates the extension piece in IV units:
+\begin{equation}
+R^{(3, 1)}_{2}(k/\sigma, 0) - R^{(3, 1)}_{1}(k/\sigma, 0)
+= -\,\mathrm{clamp}\!\left(
+   \sigma_2(k;\gamma+\delta) - \sigma_2(k;\gamma);\;
+   0,\,\Delta\sigma_2(0)
+ \right)\Hev(k).
+\label{eq:extension}
+\end{equation}
+This makes the order content of the extension explicit: it is the
+clamped negative of $\sigma_2$'s $\delta$-variation, hence a $T^{2}$
+object in the heat-kernel ladder. At $k=0^{+}$ the clamp is inactive
+and it takes the value $-\Delta\sigma_2(0)$, exactly cancelling the
+GHLOW2c value jump; past the clamp engagement it pins to zero, so on
+the wings GHLOW2cc coincides with GHLOW2c. The universal kernel $R_1$
+itself remains $T^{3/2}$, so $R_2 = R_1 + (R_2 - R_1)$ is the sum of a
+$T^{3/2}$ slope-kink term and a $T^{2}$ value-jump term --- the two
+``knot correction'' orders listed for GHLOW2cc in
+Table~\ref{tab:summary}.
 The fully-corrected GHLOW2 method is then
 \begin{equation}
 \siv^{\mathrm{GHLOW2cc}}(k)=\siv^{\mathrm{GHLOW2}}(k)+R^{(3, 1)}_{2}(k/\sigma, 0),
