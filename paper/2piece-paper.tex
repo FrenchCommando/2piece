@@ -617,41 +617,54 @@ introduced in \S\ref{sec:extension}, lift the comparison onto the
 $T^{2}$ baseline and additionally close (for GHLOW2cc) the $\sigma_2$
 value jump at the knot.
 
-Figure~\ref{fig:knot} plots all seven curves --- with the asymptotic
-order in $T$ at the knot ---
-\textbf{PDE} (black, ground truth: Dupire forward equation,
-Rannacher-then-Crank--Nicolson);
-\textbf{BBF0} (grey dashed, $T^{0}$: inverse harmonic mean, smooth
-across the knot since $1/\sloc$ stays $C^{2}$);
-\textbf{PHL1} (blue, $T^{1}$: BBF0 $+$ $\sigma_1$, smooth-cubic-accurate
-but develops a localised slope kink at $k=0$ because $\sigma_1$'s
-derivation assumes $\sloc\in C^{3}$);
-\textbf{PHL1c} (red, $T^{1}+T^{3/2}$: PHL1 $+$ universal kernel
-$K_1^{\mathrm{dir}}$, repairing the slope kink to first order in
-$\delta$);
-\textbf{GHLOW2} (teal, $T^{2}$: PHL1 $+$ $\sigma_2$, raising
-smooth-cubic accuracy one order but inheriting the PHL1 slope kink and
-additionally jumping $-0.171$~bps in $\sigma_2(0)$);
-\textbf{GHLOW2c} (amber, $T^{2}+T^{3/2}$: GHLOW2 $+$ universal kernel,
-closes the kink but inherits the $\sigma_2$ value jump);
-\textbf{GHLOW2cc} (purple, $T^{2}+T^{3/2}+T^{2}$: GHLOW2 $+$ extended
-kernel, the additional $T^{2}$ term closing the $\sigma_2$ value jump
-\eqref{eq:extension})
---- and shows the error ladder for this preset, max $|\mathrm{err}|$ in
-bps over the smile band: BBF0 66.6 (off-scale in the middle panel);
-PHL1 3.2, capped by a sharp V-shaped slope kink at $k=0$ --- the
-signature of $\sigma_1$'s missing $C^3$ assumption; PHL1c 2.0 ---
-universal kernel repairs the kink, leaving a broad smooth residual that
-is the smooth-cubic $\sigma_2$ piece PHL1c does not move; GHLOW2 3.1
---- still carrying the PHL1 slope kink, now on top of the
-$\sigma_2(0)$ value jump; GHLOW2c $0.16$ --- universal kernel closes
-the kink, the $\sigma_2$ value jump remains and is visible as a step
-from $\sim\!0$ to $-0.15$~bps across $k=0$; GHLOW2cc $0.15$ ---
-extended kernel additionally closes that step (continuous at the knot
-to numerical precision), strictly improving on GHLOW2c with no
-trade-off. The bottom panel, with BBF0 removed, is what makes the PHL1
-kink, the PHL1c--GHLOW2 residual swap, the GHLOW2c step, and the
-GHLOW2cc collapse legible at all. Figure~\ref{fig:kernel} (in
+Figure~\ref{fig:knot} plots all seven curves, with the asymptotic
+order in $T$ at the knot:
+\begin{itemize}
+\item \textbf{PDE} (black): ground truth, Dupire forward equation,
+Rannacher-then-Crank--Nicolson.
+\item \textbf{BBF0} $= \sigma_0$ (grey dashed, $T^{0}$): inverse
+harmonic mean, smooth across the knot since $1/\sloc$ stays $C^{2}$.
+\item \textbf{PHL1} $= \sigma_0 + \sigma_1$ (blue, $T^{1}$):
+smooth-cubic-accurate but develops a localised slope kink at $k=0$
+because $\sigma_1$'s derivation assumes $\sloc\in C^{3}$.
+\item \textbf{PHL1c} $= \sigma_0 + \sigma_1 + R^{(3,1)}_{1}$ (red,
+$T^{1}+T^{3/2}$): universal kernel repairs the slope kink to first
+order in $\delta$.
+\item \textbf{GHLOW2} $= \sigma_0 + \sigma_1 + \sigma_2$ (teal,
+$T^{2}$): raises smooth-cubic accuracy one order but inherits the PHL1
+slope kink and additionally jumps $-0.171$~bps in $\sigma_2(0)$.
+\item \textbf{GHLOW2c} $= \sigma_0 + \sigma_1 + R^{(3,1)}_{1} +
+\sigma_2$ (amber, $T^{2}+T^{3/2}$): universal kernel closes the kink
+but inherits the $\sigma_2$ value jump.
+\item \textbf{GHLOW2cc} $= \sigma_0 + \sigma_1 + R^{(3,1)}_{1} +
+\sigma_2 + (R^{(3,1)}_{2} - R^{(3,1)}_{1})$ (purple,
+$T^{2}+T^{3/2}+T^{2}$): extended kernel adds the
+$\sigma_2$-$\delta$-variation subtraction \eqref{eq:extension} on top
+of GHLOW2c, closing the value jump.
+\end{itemize}
+
+The error ladder for this preset (max $|\mathrm{err}|$ in bps over the
+smile band):
+\begin{itemize}
+\item \textbf{BBF0}: 66.6 (off-scale in the middle panel).
+\item \textbf{PHL1}: 3.2, capped by a sharp V-shaped slope kink at
+$k=0$ --- the signature of $\sigma_1$'s missing $C^3$ assumption.
+\item \textbf{PHL1c}: 2.0; universal kernel repairs the kink, leaving
+a broad smooth residual that is the smooth-cubic $\sigma_2$ piece
+PHL1c does not move.
+\item \textbf{GHLOW2}: 3.1; still carrying the PHL1 slope kink, now on
+top of the $\sigma_2(0)$ value jump.
+\item \textbf{GHLOW2c}: $0.16$; universal kernel closes the kink, the
+$\sigma_2$ value jump remains and is visible as a step from
+$\sim\!0$ to $-0.15$~bps across $k=0$.
+\item \textbf{GHLOW2cc}: $0.15$; extended kernel additionally closes
+that step (continuous at the knot to numerical precision), strictly
+improving on GHLOW2c with no trade-off.
+\end{itemize}
+
+The bottom panel, with BBF0 removed, is what makes the PHL1 kink, the
+PHL1c--GHLOW2 residual swap, the GHLOW2c step, and the GHLOW2cc
+collapse legible at all. Figure~\ref{fig:kernel} (in
 \S\ref{sec:extension}) plots the two correction pieces $R^{(3,1)}_1$
 and $R^{(3,1)}_2 - R^{(3,1)}_1$ separately on this same knot example.
 
