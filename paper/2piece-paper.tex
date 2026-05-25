@@ -526,86 +526,69 @@ kernel collapses back to the universal $K_1^{\mathrm{dir}}$ on the
 wings. The clamp is $C^{0}$ but not $C^{1}$ at engagement, outside
 the option-meaningful band. The zero-side bound (rather than the
 symmetric $\pm|\Delta\sigma_2(0)|$) is what guarantees the wing
-collapse. Figure~\ref{fig:knot} shows both
-GHLOW2c (universal kernel, $\sim$$0.16$~bps max error but a visible
-$-0.171$~bps value jump at $k=0$) and GHLOW2cc (extended kernel with
-clipping, $\sim$$0.15$~bps max error and value-continuous at the knot
-to numerical precision). GHLOW2cc therefore strictly improves on
-GHLOW2c with no trade-off. Figure~\ref{fig:kernel} plots the universal
-kernel and the extension piece separately, on the same knot example.
+collapse.
 
-\begin{figure}[!htbp]
-\centering\includegraphics[width=0.78\textwidth]{F3_knot}
-\caption{Unhappy case: a fake at-the-money knot. Three panels --- smile
-(top), error vs PDE in bps with BBF0 (middle), and the same error with
-BBF0 excluded (bottom) so the PHL1/PHL1c and GHLOW2/GHLOW2c/GHLOW2cc
-comparison is legible. Curves, with the asymptotic order in $T$ at the
-knot:
-\textbf{PDE} (black, ground truth: Dupire forward equation with a
-Rannacher-then-Crank--Nicolson scheme);
-\textbf{BBF0} (grey dashed, $T^{0}$: inverse harmonic mean of $\sloc$,
-smooth across the knot since $1/\sloc$ stays $C^{2}$);
+Figure~\ref{fig:knot} plots all seven curves --- with the asymptotic
+order in $T$ at the knot ---
+\textbf{PDE} (black, ground truth: Dupire forward equation,
+Rannacher-then-Crank--Nicolson);
+\textbf{BBF0} (grey dashed, $T^{0}$: inverse harmonic mean, smooth
+across the knot since $1/\sloc$ stays $C^{2}$);
 \textbf{PHL1} (blue, $T^{1}$: BBF0 $+$ $\sigma_1$, smooth-cubic-accurate
 but develops a localised slope kink at $k=0$ because $\sigma_1$'s
 derivation assumes $\sloc\in C^{3}$);
-\textbf{PHL1c} (red, $T^{1}+T^{3/2}$: PHL1 $+$ the universal directed
-first-order Duhamel kernel $K_1^{\mathrm{dir}}$, repairing the slope
-kink to first order in $\delta$);
-\textbf{GHLOW2} (teal, $T^{2}$: PHL1 $+$ $\sigma_2$ --- the
-smooth-cubic accuracy is raised one order but the PHL1 slope kink is
-inherited unchanged, and $\sigma_2(0)$ additionally jumps by
-$-0.171$~bps for this preset \eqref{eq:ghlow2-gap} because
-$\sigma_2(0)$ depends on $\sloc'''(0)=6\gamma$ and $\gamma$ jumps by
-$\delta$ at the knot);
-\textbf{GHLOW2c} (amber, $T^{2}+T^{3/2}$: GHLOW2 $+$ the universal
-kernel $K_1^{\mathrm{dir}}$ \eqref{eq:K1-dir}, equivalently
-$\siv^{\mathrm{PHL1c}}+\sigma_2$ --- closes the slope kink but
-inherits the $-0.171$~bps $\sigma_2$ value jump, which is visible in
-the error panel as a one-sided step at $k=0$);
-\textbf{GHLOW2cc} (purple, $T^{2}+T^{3/2}$: GHLOW2 $+$ the extended
-kernel \eqref{eq:ghlow2-dir}, which adds the $(\beta,\alpha,\gamma)$-parametric
-$\sigma_2$ subtraction to the universal kernel; the $\sigma_2$ piece is
-clipped to $[\,0,\Delta\sigma_2(0)\,]$ so the extended kernel collapses
-back to the universal one on the wings).
-The error panels (bps vs PDE) make the ladder concrete, with max
-$|\mathrm{err}|$ over the smile band for this preset:
-\textbf{BBF0} 66.6~bps (off-scale in the middle panel);
-\textbf{PHL1} 3.2~bps, capped by a sharp V-shaped slope kink at $k=0$
---- the visible signature of $\sigma_1$'s missing $C^{3}$ assumption;
-\textbf{PHL1c} 2.0~bps --- universal kernel repairs the kink, leaving a
-broad, smooth residual that is the smooth-cubic $\sigma_2$ piece
-PHL1c does not move;
-\textbf{GHLOW2} 3.1~bps --- still carrying the PHL1 slope kink, now on
-top of the $\sigma_2(0)$ value jump;
-\textbf{GHLOW2c} $0.16$~bps --- universal kernel closes the kink, the
-$\sigma_2$ value jump remains and is visible as a step from
-$\sim\!0.00$ to $-0.15$~bps across $k=0$;
-\textbf{GHLOW2cc} $0.15$~bps --- extended kernel additionally closes
-that step (continuous at the knot to numerical precision); thanks to
-the zero-side clip on the $\sigma_2$ piece, on the wings GHLOW2cc
-coincides with GHLOW2c, so it strictly improves on GHLOW2c with no
-trade-off.
-The bottom panel, with BBF0 removed, is what makes the PHL1 kink, the
-PHL1c--GHLOW2 residual swap, the GHLOW2c step, and the GHLOW2cc collapse
-legible at all.}
+\textbf{PHL1c} (red, $T^{1}+T^{3/2}$: PHL1 $+$ universal kernel
+$K_1^{\mathrm{dir}}$, repairing the slope kink to first order in
+$\delta$);
+\textbf{GHLOW2} (teal, $T^{2}$: PHL1 $+$ $\sigma_2$, raising
+smooth-cubic accuracy one order but inheriting the PHL1 slope kink and
+additionally jumping $-0.171$~bps in $\sigma_2(0)$);
+\textbf{GHLOW2c} (amber, $T^{2}+T^{3/2}$: GHLOW2 $+$ universal kernel,
+closes the kink but inherits the $\sigma_2$ value jump);
+\textbf{GHLOW2cc} (purple, $T^{2}+T^{3/2}$: GHLOW2 $+$ extended kernel,
+also closes the value jump)
+--- and shows the error ladder for this preset, max $|\mathrm{err}|$ in
+bps over the smile band: BBF0 66.6 (off-scale in the middle panel);
+PHL1 3.2, capped by a sharp V-shaped slope kink at $k=0$ --- the
+signature of $\sigma_1$'s missing $C^3$ assumption; PHL1c 2.0 ---
+universal kernel repairs the kink, leaving a broad smooth residual that
+is the smooth-cubic $\sigma_2$ piece PHL1c does not move; GHLOW2 3.1
+--- still carrying the PHL1 slope kink, now on top of the
+$\sigma_2(0)$ value jump; GHLOW2c $0.16$ --- universal kernel closes
+the kink, the $\sigma_2$ value jump remains and is visible as a step
+from $\sim\!0$ to $-0.15$~bps across $k=0$; GHLOW2cc $0.15$ ---
+extended kernel additionally closes that step (continuous at the knot
+to numerical precision), strictly improving on GHLOW2c with no
+trade-off. The bottom panel, with BBF0 removed, is what makes the PHL1
+kink, the PHL1c--GHLOW2 residual swap, the GHLOW2c step, and the
+GHLOW2cc collapse legible at all.
+
+Figure~\ref{fig:kernel} plots the two correction pieces separately on
+the same knot example. The \emph{universal} piece $R^{(3,1)}_1 =
+\delta\,\sigma^{3}\,K_1^{\mathrm{dir}}$ is exactly the gap PHL1c adds
+to PHL1 \emph{and} the gap GHLOW2c adds to GHLOW2 (both identical,
+sharing the $K_1(0,0)=3\sqrt{2\pi}/128$ peak and decaying on both
+sides). The \emph{extension piece} $R^{(3,1)}_2 - R^{(3,1)}_1$ is what
+GHLOW2cc adds on top of GHLOW2c: it lives only on $k>0$ (one-sided
+perturbation), starts at the closed-form ATM scalar
+$|\Delta\sigma_2(0)| = 0.171$~bps that closes the $\sigma_2(0)$ value
+jump, and decays to zero on the wings as the clip engages.
+
+\begin{figure}[!htbp]
+\centering\includegraphics[width=0.78\textwidth]{F3_knot}
+\caption{Unhappy case: fake ATM knot at $k=0$. Smile (top); error vs
+PDE in bps with BBF0 (middle); same error with BBF0 excluded (bottom)
+so the PHL1/PHL1c and GHLOW2/GHLOW2c/GHLOW2cc comparison is legible.
+Curves and the error ladder are described in the surrounding text.}
 \label{fig:knot}
 \end{figure}
 
 \begin{figure}[!htbp]
 \centering\includegraphics[width=0.72\textwidth]{F4_kernel}
-\caption{The two pieces of the ATM-knot correction in annualised \% for
-the knot case. Solid green: the universal correction $R^{(3, 1)}_{1}(k/\sigma, 0)
-= \delta\,\sigma^{3}\,K_1^{\mathrm{dir}}(k/\sigma, 0)$, exactly the
-gap PHL1c adds to PHL1 \emph{and} the gap GHLOW2c adds to GHLOW2 (both
-identical, sharing the $K_1(0,0)=3\sqrt{2\pi}/128$ peak and
-decaying on both sides). Dashed purple: the \emph{extension piece}
-GHLOW2cc adds on top of GHLOW2c --- the $(\beta,\alpha,\gamma)$-parametric
-$\sigma_2$ subtraction that distinguishes the extended kernel
-\eqref{eq:ghlow2-dir} from the universal one. It lives only on $k>0$
-(the perturbation is one-sided), starts at the closed-form ATM scalar
-$|\Delta\sigma_2(0)| = 0.171$~bps which is exactly what closes the
-$\sigma_2(0)$ value jump, and decays to zero on the wings as the clip
-engages.}
+\caption{The two pieces of the ATM-knot correction in annualised \%
+for the knot case: universal correction $R^{(3,1)}_1$ (solid green) and
+$\sigma_2$ extension piece $R^{(3,1)}_2 - R^{(3,1)}_1$ (dashed purple).
+Roles are described in the surrounding text.}
 \label{fig:kernel}
 \end{figure}
 
