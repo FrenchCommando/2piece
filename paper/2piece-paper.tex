@@ -41,15 +41,17 @@ empirically against Dupire's forward PDE.
 
 When calibrating a volatility surface, practitioners fit a parametric
 \emph{local} volatility (for the monotonicity and regularity an optimiser
-needs) and map it to implied volatility with the leading-order BBF
+needs) and map it to implied volatility with the leading-order
+Berestycki--Busca--Florent (BBF) \citep{berestycki2002}
 inverse-harmonic-mean formula. BBF is flexible enough to calibrate
 essentially any smile, so the motivation for going further is not fit.
 It is \emph{arbitrage reassurance}: BBF is only leading order, so the
 implied vol it returns is not the local-vol model's true Dupire implied
 vol, and a quote-matching surface can still violate static no-arbitrage
 (butterfly, calendar) at the sub-basis-point level that an
-arbitrage-sensitive consumer cannot tolerate. The next-order PHL1 map is
-much closer to the true Dupire implied vol and removes most of that
+arbitrage-sensitive consumer cannot tolerate. The next-order
+Henry-Labord\`ere (PHL1) \citep{henrylabordere2008} map is much
+closer to the true Dupire implied vol and removes most of that
 inconsistency.
 
 The price of PHL1 is rigidity: a single smooth cubic mapped through PHL1
@@ -109,14 +111,14 @@ perturbation; in its bridge form it is a one-dimensional integral over
 $\lambda\in[0,1]$ whose integrand is the conditional expectation of the
 source along a standard Brownian bridge.
 
-\paragraph{Higher-order LV-to-IV asymptotics.} The PHL1/GHLOW2 line
-derives from the heat-kernel expansion of the local-vol transition
+\paragraph{Higher-order LV-to-IV asymptotics.} The next-order maps
+derive from the heat-kernel expansion of the local-vol transition
 density: BBF
 \citep{berestycki2002} is leading order (the same authors extended the
 heat-kernel approach to stochastic volatility in
-\citep{berestycki2004sv}), Henry-Labord\`ere \citep{henrylabordere2008}
-adds $\sigma_1$, and Gatheral, Hsu, Laurence, Ouyang and Wang
-\citep{gatheral2012} add $\sigma_2$ (Paulot
+\citep{berestycki2004sv}), PHL1 adds $\sigma_1$, and Gatheral, Hsu,
+Laurence, Ouyang and Wang (GHLOW2) \citep{gatheral2012} add $\sigma_2$
+(Paulot
 \citep{paulot2009} derives the second-order expansion
 on the stochastic-volatility side, with SABR as the worked example). A parallel
 methodology, due to Pagliarani--Pascucci \citep{pagliarani2012} and
@@ -140,7 +142,8 @@ correction term --- at the cost of a 2D quadrature per strike and
 no closed-form $\siv(k;\theta)$ for an optimiser to differentiate.
 De~Marco's harmonic-mean characterisation \citep{demarco2021} pins
 what the leading-order map is approximating, and hence what the
-next-order gap (the object PHL1c closes) actually is.
+next-order gap (the object this paper's correction closes) actually
+is.
 
 \paragraph{Direct implied-vol parametrisations.} The other side of the
 design choice is to parametrise the implied-vol surface directly. SABR
@@ -209,8 +212,8 @@ enters an asymptotic-map formula and multiplied back at the output.
 \paragraph{Units.} Two regimes throughout the paper. Anything displayed
 --- the cubic definition above, figures, error tables --- is in
 annualised \%. Anything inside an asymptotic-map formula --- BBF0,
-$\sigma_1$, $\sigma_2$, the kernels $K_1$ / $K_1^{\mathrm{dir}}$ /
-$K_1^{\mathrm{ext}}$, the knot correction --- is in total-vol units.
+$\sigma_1$, $\sigma_2$, the kernels $K_1$ / $K_1^{\mathrm{dir}}$, the
+extension piece, the knot correction --- is in total-vol units.
 The scale factor above converts at the boundary; within either regime
 the symbols $\sigma,\beta,\alpha,\gamma,\delta$ denote that regime's
 numerical values. This matches practitioner convention: plotting is in
@@ -304,7 +307,7 @@ $\lambda=\tau/T$ rescaling exposes the conditional law of the
 intermediate position as a standard Brownian bridge; the bridge framing
 is bookkeeping for the small-$T$ scaling, not separate machinery. The
 universal directed kernel and the PHL1c method that uses it are
-developed in \S\ref{sec:universal}; the extended kernel and the
+developed in \S\ref{sec:universal}; the extension piece and the
 GHLOW2cc method are in \S\ref{sec:extension}.
 
 \subsection{The universal kernel and PHL1c}\label{sec:universal}
@@ -361,26 +364,25 @@ K_1(x,0), & x\le 0.
 \end{equation}
 We will refer to \eqref{eq:K1-dir} as the \emph{universal} directed
 kernel: it is a pure function of $x=k/\sigma$, identical for every
-cubic. Section~\ref{sec:results} introduces a second, \emph{extended}
-directed kernel that adds one $(\beta,\alpha,\gamma)$-parametric subtraction --- the
+cubic. Section~\ref{sec:results} introduces a second,
+$(\beta,\alpha,\gamma)$-parametric closed-form piece --- the
 \emph{extension piece}, or just the \emph{extension} --- to absorb a
 $\sigma_2$-only discontinuity that the universal kernel cannot reach.
-The two kernels define our three closed-form knot corrections: PHL1c
-(PHL1 baseline + universal kernel), GHLOW2c (GHLOW2 baseline +
-universal kernel), and GHLOW2cc (GHLOW2 baseline + extended kernel
-$=$ universal kernel $+$ extension).
+These define our three closed-form knot corrections: PHL1c (PHL1
+baseline + universal kernel), GHLOW2c (GHLOW2 baseline + universal
+kernel), and GHLOW2cc (GHLOW2c + extension).
 \paragraph{The correction symbol.} Following the $\sigma_1, \sigma_2$
 convention where each closed-form contribution to $\siv$ is a named
 quantity, write
 \begin{equation}
 R^{(3, 1)}_{1}(x, w) \;\equiv\; \delta\cdot\sigma^{3}\cdot K_1^{\mathrm{dir}}(x, w),
 \qquad
-R^{(3, 1)}_{2}(x, w) \;\equiv\; \delta\cdot\sigma^{3}\cdot K_1^{\mathrm{ext}}(x, w),
+R^{(3, 1)}_{2} \;\equiv\; R^{(3, 1)}_{1} + (\text{extension piece, }\eqref{eq:extension}),
 \label{eq:R-def}
 \end{equation}
 with $(x, w) = (k/\sigma, k_{\mathrm{knot}}/\sigma)$ inherited from
-$K_1$'s arguments, and $K_1^{\mathrm{ext}}$ the extended kernel
-\eqref{eq:ghlow2-dir} of Section~\ref{sec:results}. The two
+$K_1$'s arguments, and the extension piece defined in
+Section~\ref{sec:results}. The two
 superscripts are the constants of this paper: $3$ is the
 $\sigma_{\mathrm{loc}}'''$ jump level, and $1$ is the Duhamel-expansion
 order (first order in $\delta$). The lone subscript $n$ is what varies
@@ -399,7 +401,7 @@ so the cancellation is exact to first order, is
 We use the suffix ``c'' (lower-case) throughout for ``one closed-form
 knot-correction layer applied to this baseline'': PHL1c and GHLOW2c
 each carry one such layer (the universal kernel), while GHLOW2cc
-carries two (universal kernel + the extended subtraction), one $c$
+carries two (universal kernel + the extension piece), one $c$
 per layer.
 The bridge integral \eqref{eq:K1} is evaluated with a 32-point
 Gauss--Legendre rule.
@@ -446,8 +448,9 @@ in total-vol form. Off the knot GHLOW2c is closer to the true Dupire
 IV than PHL1c by the smooth $\sigma_2$ term PHL1 omits. At the knot
 itself, however, the GHLOW2 baseline carries one more $\delta$-variation
 than PHL1 does --- $\sigma_2$'s --- which the universal kernel does not
-subtract, leaving an analytic value jump at $k=0$. The \emph{extended}
-directed kernel introduced next closes that jump, yielding GHLOW2cc.
+subtract, leaving an analytic value jump at $k=0$. The
+\emph{extension piece} introduced next closes that jump, yielding
+GHLOW2cc.
 
 \paragraph{The $\sigma_2$ value jump and its repair.}
 The universal directed kernel \eqref{eq:K1-dir} subtracts only BBF0's
@@ -468,40 +471,22 @@ GHLOW2c) value discontinuity
 = \frac{\sigma^{3}\beta\,\delta}{20},
 \label{eq:ghlow2-gap}
 \end{equation}
-which for the SPXW DTE~1 preset is $-0.171$~bps. Subtracting $\sigma_2$'s
-$\delta$-variation in addition to BBF0's $x^3/4$ and $\sigma_1$'s $x/4$
-gives the \emph{extended} directed kernel:
-\begin{equation}
-K_1^{\mathrm{ext}}(x,0)
-= K_1(x,0)
-  - \tfrac{x^3}{4}\Hev(x)
-  - \tfrac{x}{4}\Hev(x)
-  - \mathrm{clamp}\!\left(
-       \frac{\sigma_2(x\sigma;\gamma+\delta)-\sigma_2(x\sigma;\gamma)}{\delta\,\sigma^3};
-       \;0,\,\tfrac{\beta}{20}
-     \right)\Hev(x).
-\label{eq:ghlow2-dir}
-\end{equation}
-Here $\mathrm{clamp}(z;\,a,b)$ denotes $z$ clipped to the closed
-interval between $a$ and $b$ (orientation chosen by their signs;
-$\tfrac{\beta}{20}=\Delta\sigma_2(0)/(\delta\sigma^3)$ via
-\eqref{eq:ghlow2-gap}).
-The first three terms reproduce the universal kernel
-\eqref{eq:K1-dir} for $x>0$; the fourth, $(\beta,\alpha,\gamma)$-parametric piece
-is the \emph{extension} foreshadowed earlier --- what makes the kernel
-\emph{extended}, and what closes the value jump. The extension
-lives only on $x>0$ (one-sided perturbation) and the clamp in
-\eqref{eq:ghlow2-dir} forces it to zero on the wings. Subtracting
-\eqref{eq:K1-dir} from \eqref{eq:ghlow2-dir} and rescaling by
-$\delta\,\sigma^{3}$ isolates the extension piece in IV units:
+which for the SPXW DTE~1 preset is $-0.171$~bps. Subtracting that
+$\sigma_2$ $\delta$-variation, clamped between $0$ and $\Delta\sigma_2(0)$,
+defines the \emph{extension piece} in IV units:
 \begin{equation}
 R^{(3, 1)}_{2}(k/\sigma, 0) - R^{(3, 1)}_{1}(k/\sigma, 0)
 = -\,\mathrm{clamp}\!\left(
    \sigma_2(k;\gamma+\delta) - \sigma_2(k;\gamma);\;
    0,\,\Delta\sigma_2(0)
- \right)\Hev(k).
+ \right)\Hev(k),
 \label{eq:extension}
 \end{equation}
+where $\mathrm{clamp}(z;\,a,b)$ denotes $z$ clipped to the closed
+interval between $a$ and $b$ (orientation chosen by their signs).
+The extension piece is $(\beta,\alpha,\gamma)$-parametric and lives
+only on $k>0$ (one-sided perturbation); the clamp forces it to zero
+on the wings.
 This makes the order content of the extension explicit: it is the
 clamped negative of $\sigma_2$'s $\delta$-variation, hence a $T^{2}$
 object in the heat-kernel ladder. At $k=0^{+}$ the clamp is inactive
@@ -525,15 +510,15 @@ $x=0$ value matching \eqref{eq:ghlow2-gap} exactly. The $w=0$ collapse
 that made the bridge integral bounded does \emph{not} extend to the
 $\sigma_2$ piece: $\sigma_2$ has a $\xi^{3}/(8 d^{5})$ term with
 $d=O(1)$ on the wings, so the raw $\sigma_2$ $\delta$-variation grows
-like $k^{3}$. The clamp in \eqref{eq:ghlow2-dir} is what bounds the
+like $k^{3}$. The clamp in \eqref{eq:extension} is what bounds the
 construction. At $k=0^{+}$ the raw value equals exactly the cap
-$\beta/20$ so the clamp is inactive and the value jump is closed;
-past the engagement point ($x\approx 1$ for the SPXW preset) the bare
-piece reverses sign and the clamp pins it at $0$, so the extended
-kernel collapses back to the universal $K_1^{\mathrm{dir}}$ on the
-wings. The clamp is $C^{0}$ but not $C^{1}$ at engagement, outside
-the option-meaningful band. The zero-side bound (rather than the
-symmetric $\pm|\Delta\sigma_2(0)|$) is what guarantees the wing
+$\Delta\sigma_2(0)$ so the clamp is inactive and the value jump is
+closed; past the engagement point ($x\approx 1$ for the SPXW preset)
+the bare piece reverses sign and the clamp pins it at $0$, so the
+extension piece vanishes on the wings and GHLOW2cc collapses to
+GHLOW2c there. The clamp is $C^{0}$ but not $C^{1}$ at engagement,
+outside the option-meaningful band. The zero-side bound (rather than
+the symmetric $\pm|\Delta\sigma_2(0)|$) is what guarantees the wing
 collapse.
 
 Figure~\ref{fig:kernel} plots the two correction pieces separately on
@@ -643,7 +628,7 @@ slope kink and additionally jumps $-0.171$~bps in $\sigma_2(0)$.
 but inherits the $\sigma_2$ value jump.
 \item \textbf{GHLOW2cc} $= \sigma_0 + \sigma_1 + R^{(3,1)}_{1} +
 \sigma_2 + (R^{(3,1)}_{2} - R^{(3,1)}_{1})$ (purple,
-$T^{2}+T^{3/2}+T^{2}$): extended kernel adds the
+$T^{2}+T^{3/2}+T^{2}$): extension piece adds the
 $\sigma_2$-$\delta$-variation subtraction \eqref{eq:extension} on top
 of GHLOW2c, closing the value jump.
 \end{itemize}
@@ -662,7 +647,7 @@ top of the $\sigma_2(0)$ value jump.
 \item \textbf{GHLOW2c}: $0.16$; universal kernel closes the kink, the
 $\sigma_2$ value jump remains and is visible as a step from
 $\sim\!0$ to $-0.15$~bps across $k=0$.
-\item \textbf{GHLOW2cc}: $0.15$; extended kernel additionally closes
+\item \textbf{GHLOW2cc}: $0.15$; extension piece additionally closes
 that step (continuous at the knot to numerical precision), strictly
 improving on GHLOW2c with no trade-off.
 \end{itemize}
@@ -707,7 +692,7 @@ universal kernel on GHLOW2 gives GHLOW2c, which inherits the
 smooth-cubic $\sigma_2$ accuracy off the knot but still carries a
 $\gamma$-linear value jump in $\sigma_2$ given in closed form by
 \eqref{eq:ghlow2-gap}; subtracting $\sigma_2$'s $\delta$-variation in
-\eqref{eq:ghlow2-dir} closes that jump as well, yielding the
+\eqref{eq:extension} closes that jump as well, yielding the
 value-continuous GHLOW2cc. The remaining natural extension is the
 $w\neq0$ case --- moving the knot off the forward --- which is more
 involved because the bounded-polynomial collapse used here disappears.
