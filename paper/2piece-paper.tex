@@ -28,7 +28,7 @@ models is well-documented for smooth local volatility functions:
 \citet{berestycki2002} for order zero, \citet{henrylabordere2008}
 for $O(T)$, and \citet{gatheral2012} for $O(T^{2})$. The non-smooth
 case has been investigated by \citet{costeanuPirjol2011}, who derive
-the non-analytic $O(T^{1/2})$ term for a $C^{0}$ knot at the forward
+the non-analytic $\sqrt{T}$ term for a $C^{0}$ knot at the forward
 and tabulate the higher powers their framework admits 
 depending on the degree of the discontinuity. 
 This paper gives the leading non-analytic correction in closed form
@@ -47,15 +47,15 @@ implied volatilities.
 For a single maturity, it is common to fit a curve to capture the
 implied volatilities across strikes. Methods vary by use case.
 
-The method we are interested in is based on Berestycki--Busca--Florent
+The method I am interested in is based on Berestycki--Busca--Florent
 (BBF) \citep{berestycki2002}; its use as an implied-volatility
 parametrisation has practitioner precedent in Hagan and Woodward's
 equivalent Black volatilities \citep{haganWoodward1999}. The main
 idea is to assume that the local volatility is a parametric function
 and use an analytic formula to map it to an implied-volatility curve.
-It is important to note that this is just a tool: we do not imply
+It is important to note that this is just a tool: I do not imply
 that the dynamics of the volatility surface follow that
-local-volatility function, the same way we do not assume that
+local-volatility function, the same way I do not assume that
 volatility is constant when using the Black--Scholes formula. BBF
 show that the leading-order mapping is just a harmonic mean of
 $\sigma_{\mathrm{loc}}$. The simplicity of the formula made it
@@ -95,27 +95,26 @@ perturbation in the Duhamel/Dyson expansion of the Dupire
 call-price evolution against constant-$\sigma$ Black. They prove
 that the ATM normal IV picks up a non-analytic $\sqrt{T}$ correction
 with universal coefficient $\tfrac{1}{16}\sqrt{\pi/2}\approx 0.0784$
-proportional to the jump, and their Table~5.1 lists the higher
-powers of $T$ the same framework admits. This paper uses the same
+proportional to the jump, and their Table~5.1 tabulates the higher
+powers of $T$ the framework admits, depending on the degree of the
+discontinuity. This paper uses the same
 technique to derive the analogous correction for a $C^2$
 piecewise-cubic local vol with the knot at the forward (only
 $\sigma'''_{\mathrm{loc}}$ jumps), in log-normal Black IV: a
 non-analytic $T^{3/2}$ term in closed form, fitting the $T^{3/2}$
-slot of their Table~5.1 row $n=1$. We compare the corrected mappings
+slot of their Table~5.1 row $n=1$. I compare the corrected mappings
 against the Dupire forward PDE \citep{dupire1994} on parameters
 calibrated from real SPXW surfaces.
 
-\paragraph{Compute cost.} The perfect mapping would use the Dupire
-forward PDE directly, but the PDE has no closed form and is too
-expensive for an inner-loop calibration. The asymptotic-map
-candidates considered here are all chosen to stay closed-form and
-substantially cheaper than a PDE solve.
+\paragraph{Compute cost.} The Dupire forward PDE is the ground
+truth, but it has no closed form; the asymptotic-map candidates
+considered here trade some accuracy for closed-form evaluation.
 
-\paragraph{Extrapolation.} BBF has the additional advantage that the
-wings can be chosen to follow Lee's moment formula \citep{lee2004},
-the universal asymptotic bound on the deep-wing slope of any
-arbitrage-free smile. Wings are outside the scope of this paper; the
-focus is the ATM correction.
+\paragraph{Extrapolation.} BBF can in principle be tuned so the
+wings respect Lee's moment formula \citep{lee2004}, the universal
+asymptotic bound on the deep-wing slope of any arbitrage-free smile.
+Wings are outside the scope of this paper; the focus is the ATM
+correction.
 
 
 \section{Related work}
@@ -179,7 +178,7 @@ enforce static no-arbitrage. Andreasen--Huge \citep{andreasenHuge2011}
 fits a piecewise-constant local vol in one implicit-Euler step of the
 Dupire PDE; the resulting prices are arbitrage-free in the sense of the
 discretised scheme, with as many vol pieces as quotes. This is a
-different design point from ours: the local vol is piecewise-constant
+different design point from this paper's: the local vol is piecewise-constant
 so it carries no smooth parametric derivatives for an optimiser to
 follow, the calibration carries a numerical scheme inside it (there
 is no closed-form $\siv(k;\theta)$), and ``arbitrage-free'' is the
@@ -216,7 +215,7 @@ vanish at $k=0$, \eqref{eq:perturb} is $C^2$ at the knot; only $\sloc'''$
 jumps by $\delta$. This is precisely the structure a piecewise-cubic
 calibrator produces, with the knot moved to ATM.
 
-We use the Black $T=1$ convention; $\mathrm{scale}=\sqrt{252/n}\cdot 100$
+I use the Black $T=1$ convention; $\mathrm{scale}=\sqrt{252/n}\cdot 100$
 maps total vol to annualised \% for $n=\max(1,\mathrm{DTE})$ business
 days. Each cubic coefficient is divided by $\mathrm{scale}$ when it
 enters an asymptotic-map formula and multiplied back at the output.
@@ -244,8 +243,8 @@ expansion of the local-vol transition density
 Henry-Labord\`ere \citep{henrylabordere2008}, Gatheral et al.\
 \citep{gatheral2012}) yields a closed-form expansion $\siv \approx
 \sigma_0 + \sigma_1\,T + \sigma_2\,T^{2} + \cdots$, with each
-$\sigma_n$ a closed-form functional of $\sloc$. Under our $T=1$
-convention (§\ref{sec:setup-lv}), the $T^{n}$ factors are absorbed
+$\sigma_n$ a closed-form functional of $\sloc$. Under the $T=1$
+convention (\S\ref{sec:setup-lv}), the $T^{n}$ factors are absorbed
 into the $\sigma_n$ symbols and the expansion reads $\siv \approx
 \sigma_0 + \sigma_1 + \sigma_2 + \cdots$. The three baselines of this
 paper are the successive truncations:
@@ -267,7 +266,7 @@ harmonic-mean representation itself are characterised in detail by
 De~Marco \citep{demarco2021}.
 The next-to-leading heat-kernel expansion of Henry-Labord\`ere
 \citep{henrylabordere2008} adds a $\sigma_1$ term, giving
-$\siv\approx\sigma_0+\sigma_1$. We use the explicit per-strike closed form of
+$\siv\approx\sigma_0+\sigma_1$. I use the explicit per-strike closed form of
 that correction as stated by Gatheral, Hsu, Laurence, Ouyang and Wang
 \citep[Thm.~2.4]{gatheral2012}, and keep the conventional label
 \textbf{PHL1} for it:
@@ -297,21 +296,22 @@ jumps $\sloc'''$, so the integrand $1/\sloc$ stays $C^2$ and $\sigma_0$ is
 smooth across the knot --- BBF0 has no knot-specific error, only the generic
 leading-order gap present everywhere. The $\sigma_1$ expansion underlying
 PHL1 (and hence GHLOW2) is, by contrast, derived assuming $\sloc\in C^3$; at
-a $C^2$-only knot it leaves a localised residual --- exactly the term this
-note supplies.
+a $C^2$-only knot it leaves a localised residual --- exactly the term
+this paper supplies.
 
 \section{The at-the-money knot correction}
 
-The implied-vol response to \eqref{eq:perturb} expands in the jump $\delta$
-about the knotless case. At first order, in dimensionless strike
-$x=k/\sigma$,
+Write $\Delta\siv(k) \equiv \siv(k;\delta) - \siv(k;\delta{=}0)$ for the
+implied-vol response to the cubic-coefficient jump $\delta$ in
+\eqref{eq:perturb}, relative to the knotless case. Expanding in
+$\delta$, at first order, in dimensionless strike $x=k/\sigma$,
 \begin{equation}
-\delta\siv(k) \;=\; \delta\cdot\sigma^{3}\cdot K_1(x,0)
+\Delta\siv(k) \;=\; \delta\cdot\sigma^{3}\cdot K_1(x,0)
 \;+\;O(\delta^2).
 \label{eq:expansion}
 \end{equation}
 
-We call $K_1$ the \emph{first-order Duhamel kernel} for the
+I call $K_1$ the \emph{first-order Duhamel kernel} for the
 local-volatility perturbation: the first-order term of the Dyson series
 for the perturbed call-price evolution against constant-$\sigma$ Black.
 The bridge form derived below is that Duhamel integral after a
@@ -346,19 +346,21 @@ the Black vega gives \eqref{eq:expansion} with
    \eta(\lambda;x)=x\sqrt{\tfrac{\lambda}{1-\lambda}}.\;}
 \label{eq:K1}
 \end{equation}
+(Full derivation in Appendix~\ref{app:K1}.)
 At the knot centre $\eta\equiv0$, $f(0)=2/\sqrt{2\pi}$, and the integral is
 a Beta function:
 \begin{equation}
 K_1(0,0)=\frac{2}{\sqrt{2\pi}}\,B\!\left(\tfrac52,\tfrac52\right)
-=\frac{3\sqrt{2\pi}}{128}\approx 0.05875 .
+=\frac{3\sqrt{2\pi}}{128}\approx 0.05875
 \end{equation}
+(Beta-function reduction in Appendix~\ref{app:K1-ATM}).
 
 \paragraph{Why at-the-money.} The general knot at offset
 $w=k_{\mathrm{knot}}/\sigma$ keeps a factor $\eta=[\lambda x-(1-\lambda)w]/
 \sqrt{\lambda(1-\lambda)}$; the subtraction below then leaves a polynomial
 that grows without bound and needs an ad-hoc truncation to stay finite.
 Setting $w=0$ removes the $(1-\lambda)w$ term entirely and the correction is
-bounded with no hack --- the reason this note restricts to the ATM knot.
+bounded with no hack --- the reason this paper restricts to the ATM knot.
 
 \paragraph{Avoiding double counting.} PHL1 already moves under
 \eqref{eq:perturb} through its own $\sigma_0$ and $\sigma_1$. Taylor-expanding
@@ -374,13 +376,13 @@ K_1(x,0), & x\le 0.
 \end{cases}
 \label{eq:K1-dir}
 \end{equation}
-We will refer to \eqref{eq:K1-dir} as the \emph{universal} directed
+I will refer to \eqref{eq:K1-dir} as the \emph{universal} directed
 kernel: it is a pure function of $x=k/\sigma$, identical for every
-cubic. Section~\ref{sec:results} introduces a second,
-$(\beta,\alpha,\gamma)$-parametric closed-form piece --- the
+cubic. \S\ref{sec:extension} introduces a second,
+$(\sigma,\beta,\alpha,\gamma)$-parametric closed-form piece --- the
 \emph{extension piece}, or just the \emph{extension} --- to absorb a
 $\sigma_2$-only discontinuity that the universal kernel cannot reach.
-These define our three closed-form knot corrections: PHL1c (PHL1
+These define the three closed-form knot corrections: PHL1c (PHL1
 baseline + universal kernel), GHLOW2c (GHLOW2 baseline + universal
 kernel), and GHLOW2cc (GHLOW2c + extension).
 \paragraph{The correction symbol.} Following the $\sigma_1, \sigma_2$
@@ -394,23 +396,25 @@ R^{(3, 1)}_{2} \;\equiv\; R^{(3, 1)}_{1} + (\text{extension piece, }\eqref{eq:ex
 \end{equation}
 with $(x, w) = (k/\sigma, k_{\mathrm{knot}}/\sigma)$ inherited from
 $K_1$'s arguments, and the extension piece defined in
-Section~\ref{sec:results}. The two
+\S\ref{sec:extension}. The two
 superscripts are the constants of this paper: $3$ is the
 $\sigma_{\mathrm{loc}}'''$ jump level, and $1$ is the Duhamel-expansion
-order (first order in $\delta$). The lone subscript $n$ is what varies
-between the two corrections --- the baseline T-order whose
-$\delta$-variations are subtracted from the bridge integral $K_1$ to
-give the kernel. The ATM restriction $w=0$ is visible at every
-callsite. Costeanu and Pirjol's universal coefficient
-\citep{costeanuPirjol2011} sits in the same family at
-$R^{(1, 1)}_{0}(0, 0)$.
+order (first order in $\delta$); both are fixed throughout, so I
+abbreviate $R^{(3, 1)}_{n}$ to $R_{n}$ in the rest of the paper. The
+lone subscript $n$ is what varies between the two corrections --- the
+baseline T-order whose $\delta$-variations are subtracted from the
+bridge integral $K_1$ to give the kernel. The ATM restriction $w=0$
+is visible at every callsite. Costeanu and Pirjol's universal
+coefficient \citep{costeanuPirjol2011} sits in the same family at
+$R^{(1, 1)}_{0}(0, 0)$ (full-family notation needed for the
+cross-paper comparison).
 
 The corrected PHL1 method, with PHL1 evaluated on the perturbed surface
 so the cancellation is exact to first order, is
 \begin{equation}
-\siv^{\mathrm{PHL1c}}(k)=\siv^{\mathrm{PHL1}}(k)+R^{(3, 1)}_{1}(k/\sigma, 0).
+\siv^{\mathrm{PHL1c}}(k)=\siv^{\mathrm{PHL1}}(k)+R_{1}(k/\sigma, 0).
 \end{equation}
-We use the suffix ``c'' (lower-case) throughout for ``one closed-form
+I use the suffix ``c'' (lower-case) throughout for ``one closed-form
 knot-correction layer applied to this baseline'': PHL1c and GHLOW2c
 each carry one such layer (the universal kernel), while GHLOW2cc
 carries two (universal kernel + the extension piece), one $c$
@@ -429,10 +433,10 @@ Name      & Definition                                              & Smooth ord
 \midrule
 BBF0      & $\sigma_0$                                              & $T^{0}$ & --- \\
 PHL1      & $\sigma_0 + \sigma_1$                                   & $T^{1}$ & --- \\
-PHL1c     & $\sigma_0 + \sigma_1 + R^{(3, 1)}_{1}$                  & $T^{1}$ & $T^{3/2}$ \\
+PHL1c     & $\sigma_0 + \sigma_1 + R_{1}$                           & $T^{1}$ & $T^{3/2}$ \\
 GHLOW2    & $\sigma_0 + \sigma_1 + \sigma_2$                        & $T^{2}$ & --- \\
-GHLOW2c   & $\sigma_0 + \sigma_1 + R^{(3, 1)}_{1} + \sigma_2$       & $T^{2}$ & $T^{3/2}$ \\
-GHLOW2cc  & $\sigma_0 + \sigma_1 + R^{(3, 1)}_{1} + \sigma_2 + (R^{(3, 1)}_{2} - R^{(3, 1)}_{1})$ & $T^{2}$ & $T^{3/2},\,T^{2}$ \\
+GHLOW2c   & $\sigma_0 + \sigma_1 + R_{1} + \sigma_2$                & $T^{2}$ & $T^{3/2}$ \\
+GHLOW2cc  & $\sigma_0 + \sigma_1 + R_{1} + \sigma_2 + (R_{2} - R_{1})$ & $T^{2}$ & $T^{3/2},\,T^{2}$ \\
 \bottomrule
 \end{tabular}
 \caption{The six closed-form approximations to the Dupire IV. The ``c''
@@ -440,8 +444,8 @@ suffix counts correction layers stacked on a baseline: one $c$ per
 layer. ``Smooth order'' is the heat-kernel-ladder accuracy in the
 no-knot case; ``knot correction'' lists the orders at the knot the
 corrections restore on top of the smooth baseline --- $T^{3/2}$ from
-the universal kernel \eqref{eq:K1-dir} (the slope-kink term
-$\sigma_1/\sigma_2$ miss at $C^{2}$), and additionally $T^{2}$ from the
+the universal kernel \eqref{eq:K1-dir} (the slope-kink term that
+both $\sigma_1$ and $\sigma_2$ miss at $C^{2}$), and additionally $T^{2}$ from the
 extension piece \eqref{eq:extension} (the $\sigma_2(0)$ value jump
 closed only by GHLOW2cc, on $k>0$).}
 \label{tab:summary}
@@ -452,7 +456,7 @@ closed only by GHLOW2cc, on $k>0$).}
 The same universal directed kernel \eqref{eq:K1-dir} stacks on the
 GHLOW2 baseline to define
 \begin{equation}
-\siv^{\mathrm{GHLOW2c}}(k)=\siv^{\mathrm{GHLOW2}}(k)+R^{(3, 1)}_{1}(k/\sigma, 0),
+\siv^{\mathrm{GHLOW2c}}(k)=\siv^{\mathrm{GHLOW2}}(k)+R_{1}(k/\sigma, 0),
 \label{eq:ghlow2c}
 \end{equation}
 equivalently $\siv^{\mathrm{GHLOW2c}}=\siv^{\mathrm{PHL1c}}+\sigma_2$
@@ -485,9 +489,9 @@ GHLOW2c) value discontinuity
 \end{equation}
 which for the SPXW DTE~1 preset is $-0.171$~bps. Subtracting that
 $\sigma_2$ $\delta$-variation, clamped between $0$ and $\Delta\sigma_2(0)$,
-defines the \emph{extension piece} in IV units:
+defines the \emph{extension piece} in total-vol units:
 \begin{equation}
-R^{(3, 1)}_{2}(k/\sigma, 0) - R^{(3, 1)}_{1}(k/\sigma, 0)
+R_{2}(k/\sigma, 0) - R_{1}(k/\sigma, 0)
 = -\,\mathrm{clamp}\!\left(
    \sigma_2(k;\gamma+\delta) - \sigma_2(k;\gamma);\;
    0,\,\Delta\sigma_2(0)
@@ -496,22 +500,22 @@ R^{(3, 1)}_{2}(k/\sigma, 0) - R^{(3, 1)}_{1}(k/\sigma, 0)
 \end{equation}
 where $\mathrm{clamp}(z;\,a,b)$ denotes $z$ clipped to the closed
 interval between $a$ and $b$ (orientation chosen by their signs).
-The extension piece is $(\beta,\alpha,\gamma)$-parametric and lives
-only on $k>0$ (one-sided perturbation); the clamp forces it to zero
-on the wings.
+The extension piece is $(\sigma,\beta,\alpha,\gamma)$-parametric and
+lives only on $k>0$ (one-sided perturbation); the clamp forces it to
+zero on the wings.
 This makes the order content of the extension explicit: it is the
 clamped negative of $\sigma_2$'s $\delta$-variation, hence a $T^{2}$
 object in the heat-kernel ladder. At $k=0^{+}$ the clamp is inactive
 and it takes the value $-\Delta\sigma_2(0)$, exactly cancelling the
 GHLOW2c value jump; past the clamp engagement it pins to zero, so on
-the wings GHLOW2cc coincides with GHLOW2c. The universal kernel $R_1$
-itself remains $T^{3/2}$, so $R_2 = R_1 + (R_2 - R_1)$ is the sum of a
-$T^{3/2}$ slope-kink term and a $T^{2}$ value-jump term --- the two
-``knot correction'' orders listed for GHLOW2cc in
+the wings GHLOW2cc coincides with GHLOW2c. Decomposing $R_{2}$ into
+the kernel piece $R_{1}$ ($T^{3/2}$ slope-kink) and the extension
+piece $R_{2} - R_{1}$ ($T^{2}$ value-jump) gives the two ``knot
+correction'' orders listed for GHLOW2cc in
 Table~\ref{tab:summary}.
 The fully-corrected GHLOW2 method is then
 \begin{equation}
-\siv^{\mathrm{GHLOW2cc}}(k)=\siv^{\mathrm{GHLOW2}}(k)+R^{(3, 1)}_{2}(k/\sigma, 0),
+\siv^{\mathrm{GHLOW2cc}}(k)=\siv^{\mathrm{GHLOW2}}(k)+R_{2}(k/\sigma, 0),
 \label{eq:ghlow2cc}
 \end{equation}
 with GHLOW2 again evaluated on the perturbed surface so the cancellation
@@ -535,11 +539,11 @@ collapse.
 
 Figure~\ref{fig:kernel} plots the two correction pieces separately on
 the knot example used later in \S\ref{sec:results-knot}. The
-\emph{universal} piece $R^{(3,1)}_1 =
+\emph{universal} piece $R_{1} =
 \delta\,\sigma^{3}\,K_1^{\mathrm{dir}}$ is exactly the gap PHL1c adds
 to PHL1 \emph{and} the gap GHLOW2c adds to GHLOW2 (both identical,
 sharing the $K_1(0,0)=3\sqrt{2\pi}/128$ peak and decaying on both
-sides). The \emph{extension piece} $R^{(3,1)}_2 - R^{(3,1)}_1$ is what
+sides). The \emph{extension piece} $R_{2} - R_{1}$ is what
 GHLOW2cc adds on top of GHLOW2c: it lives only on $k>0$ (one-sided
 perturbation), starts at the closed-form ATM scalar
 $|\Delta\sigma_2(0)| = 0.171$~bps that closes the $\sigma_2(0)$ value
@@ -549,8 +553,8 @@ jump, and decays to zero on the wings as the clip engages.
 \centering\includegraphics[width=0.72\textwidth]{F1_kernel}
 \caption{The two pieces of the ATM-knot correction in annualised \%
 for the knot example of \S\ref{sec:results-knot}: universal correction
-$R^{(3,1)}_1$ (solid green) and $\sigma_2$ extension piece
-$R^{(3,1)}_2 - R^{(3,1)}_1$ (dashed purple). Roles are described in
+$R_{1}$ (solid green) and $\sigma_2$ extension piece
+$R_{2} - R_{1}$ (dashed purple). Roles are described in
 the surrounding text.}
 \label{fig:kernel}
 \end{figure}
@@ -559,7 +563,7 @@ the surrounding text.}
 At every order in the small-$T$ polynomial expansion (BBF0, PHL1,
 GHLOW2, $K_1$), the correction for a strike $k$ depends on the
 local-vol surface only along the Varadhan-style geodesic between the
-forward and the strike, i.e.\ inside $[\min(0,k),\max(0,k)]$. Our
+forward and the strike, i.e.\ inside $[\min(0,k),\max(0,k)]$. The
 perturbation $\delta k^{3}H(k)$ lives only in $k>0$, so for a strike
 $k<0$ the geodesic sits entirely in the untouched region and the
 correction is rigorously zero. A Brownian bridge from $0$ to $k<0$
@@ -571,7 +575,7 @@ cross-side leakage; the closed-form maps do not, by design.
 \section{Results}\label{sec:results}
 
 Parameters come from real SPXW surfaces calibrated with a 20-parameter
-piecewise-cubic local-vol model; we keep the centre cubic and (for the knot
+piecewise-cubic local-vol model; I keep the centre cubic and (for the knot
 case) the first-knot coefficient jump moved to ATM. The Dupire forward PDE
 (Rannacher start then Crank--Nicolson) is the ground truth.
 
@@ -629,17 +633,17 @@ harmonic mean, smooth across the knot since $1/\sloc$ stays $C^{2}$.
 \item \textbf{PHL1} $= \sigma_0 + \sigma_1$ (blue, $T^{1}$):
 smooth-cubic-accurate but develops a localised slope kink at $k=0$
 because $\sigma_1$'s derivation assumes $\sloc\in C^{3}$.
-\item \textbf{PHL1c} $= \sigma_0 + \sigma_1 + R^{(3,1)}_{1}$ (red,
+\item \textbf{PHL1c} $= \sigma_0 + \sigma_1 + R_{1}$ (red,
 $T^{1}+T^{3/2}$): universal kernel repairs the slope kink to first
 order in $\delta$.
 \item \textbf{GHLOW2} $= \sigma_0 + \sigma_1 + \sigma_2$ (teal,
 $T^{2}$): raises smooth-cubic accuracy one order but inherits the PHL1
 slope kink and additionally jumps $-0.171$~bps in $\sigma_2(0)$.
-\item \textbf{GHLOW2c} $= \sigma_0 + \sigma_1 + R^{(3,1)}_{1} +
+\item \textbf{GHLOW2c} $= \sigma_0 + \sigma_1 + R_{1} +
 \sigma_2$ (amber, $T^{2}+T^{3/2}$): universal kernel closes the kink
 but inherits the $\sigma_2$ value jump.
-\item \textbf{GHLOW2cc} $= \sigma_0 + \sigma_1 + R^{(3,1)}_{1} +
-\sigma_2 + (R^{(3,1)}_{2} - R^{(3,1)}_{1})$ (purple,
+\item \textbf{GHLOW2cc} $= \sigma_0 + \sigma_1 + R_{1} +
+\sigma_2 + (R_{2} - R_{1})$ (purple,
 $T^{2}+T^{3/2}+T^{2}$): extension piece adds the
 $\sigma_2$-$\delta$-variation subtraction \eqref{eq:extension} on top
 of GHLOW2c, closing the value jump.
@@ -657,8 +661,8 @@ PHL1c does not move.
 \item \textbf{GHLOW2}: 3.1; still carrying the PHL1 slope kink, now on
 top of the $\sigma_2(0)$ value jump.
 \item \textbf{GHLOW2c}: $0.16$; universal kernel closes the kink, the
-$\sigma_2$ value jump remains and is visible as a step from
-$\sim\!0$ to $-0.15$~bps across $k=0$.
+$\sigma_2$ value jump remains and is visible as a step of
+$|\Delta\sigma_2(0)| = 0.171$~bps across $k=0$.
 \item \textbf{GHLOW2cc}: $0.15$; extension piece additionally closes
 that step (continuous at the knot to numerical precision), strictly
 improving on GHLOW2c with no trade-off.
@@ -667,8 +671,8 @@ improving on GHLOW2c with no trade-off.
 The bottom panel, with BBF0 removed, is what makes the PHL1 kink, the
 PHL1c--GHLOW2 residual swap, the GHLOW2c step, and the GHLOW2cc
 collapse legible at all. Figure~\ref{fig:kernel} (in
-\S\ref{sec:extension}) plots the two correction pieces $R^{(3,1)}_1$
-and $R^{(3,1)}_2 - R^{(3,1)}_1$ separately on this same knot example.
+\S\ref{sec:extension}) plots the two correction pieces $R_{1}$
+and $R_{2} - R_{1}$ separately on this same knot example.
 
 \section{Conclusion}
 
@@ -790,7 +794,7 @@ converts the price perturbation to an implied-vol perturbation. With
 the $T=1$ convention and $x=k/\sigma$,
 $\eta(\lambda;x) = x\sqrt{\lambda/(1-\lambda)}$, and
 \begin{equation}
-\delta\siv(k) = \delta\,\sigma^3\,K_1(x,0) + O(\delta^2),
+\Delta\siv(k) = \delta\,\sigma^3\,K_1(x,0) + O(\delta^2),
 \qquad
 K_1(x,0) = \int_0^1\!\bigl(\lambda(1-\lambda)\bigr)^{3/2}\,
             f\bigl(\eta(\lambda;x)\bigr)\,d\lambda.
@@ -864,7 +868,7 @@ subtraction is $x/4\cdot\Hev(x)$.
 
 The two pieces together are the BBF0 and $\sigma_1$
 $\delta$-variations that the universal directed kernel
-\eqref{eq:K1-dir} subtracts from $K_1$ so that adding $R^{(3,1)}_1$
+\eqref{eq:K1-dir} subtracts from $K_1$ so that adding $R_{1}$
 to PHL1 does not double-count the variation PHL1 already captures.
 
 \section{The \texorpdfstring{$\sigma_2(0)$}{sigma\_2(0)} value jump scalar}\label{app:sig2-jump}
