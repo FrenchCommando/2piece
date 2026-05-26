@@ -39,41 +39,84 @@ empirically against Dupire's forward PDE.
 
 \section{Introduction}
 
-When calibrating a volatility surface, practitioners fit a parametric
-\emph{local} volatility (for the monotonicity and regularity an optimiser
-needs) and map it to implied volatility with the leading-order
-Berestycki--Busca--Florent (BBF) \citep{berestycki2002}
-inverse-harmonic-mean formula. BBF is flexible enough to calibrate
-essentially any smile, so the motivation for going further is not fit.
-It is \emph{arbitrage reassurance}: BBF is only leading order, so the
-implied vol it returns is not the local-vol model's true Dupire implied
-vol, and a quote-matching surface can still violate static no-arbitrage
-(butterfly, calendar) at the sub-basis-point level that an
-arbitrage-sensitive consumer cannot tolerate. The next-order
-Henry-Labord\`ere (PHL1) \citep{henrylabordere2008} map is much
-closer to the true Dupire implied vol and removes most of that
-inconsistency.
+Vanilla options on US indexes like SPX are liquid for a wide range
+of strikes and maturities. These options are European, and
+practitioners routinely use Black--Scholes to convert prices to
+implied volatilities.
 
-The price of PHL1 is rigidity: a single smooth cubic mapped through PHL1
-spans far fewer smile shapes than the loose BBF fit. The natural fix ---
-a piecewise-cubic $\sloc$ with a knot --- fails, because PHL1's $\sigma_1$
-heat-kernel term is derived for $C^3$ surfaces whereas a piecewise cubic
-is only $C^2$ at a knot; the result is a localised implied-vol residual
-at the knot strike (BBF, a harmonic-mean integral, is insensitive to it).
-This paper removes that residual in closed form for a knot pinned
-at-the-money, so the combination ``piecewise-cubic-with-ATM-knot $+$
-PHL1'' becomes usable: it keeps PHL1's arbitrage reassurance while
-recovering the calibration flexibility a smooth cubic lacks. The
-correction is a parameter-free first-order Duhamel kernel; the
-at-the-money restriction is what keeps it bounded. The same
-derivation settles the open question Costeanu and Pirjol
-\citep{costeanuPirjol2011} raise after their eq.~(5.25): whether the
-absence of $T^{3/2}, T^{5/2}, \ldots$ non-analytic terms in their
-$C^{0}$ symmetric model is general or model-specific --- it is the
-latter, with a $T^{3/2}$ term and a clean universal coefficient
-appearing as soon as the knot regularity is raised to $C^{2}$. The
-remainder derives the correction and validates it against the Dupire
-forward PDE \citep{dupire1994}.
+For a single maturity, it is common to fit a curve to capture the
+implied volatilities across strikes. Methods vary by use case.
+
+The method we are interested in is based on Berestycki--Busca--Florent
+(BBF) \citep{berestycki2002}; its use as an implied-volatility
+parametrisation has practitioner precedent in Hagan and Woodward's
+equivalent Black volatilities \citep{haganWoodward1999}. The main
+idea is to assume that the local volatility is a parametric function
+and use an analytic formula to map it to an implied-volatility curve.
+It is important to note that this is just a tool: we do not imply
+that the dynamics of the volatility surface follow that
+local-volatility function, the same way we do not assume that
+volatility is constant when using the Black--Scholes formula. BBF
+show that the leading-order mapping is just a harmonic mean of
+$\sigma_{\mathrm{loc}}$. The simplicity of the formula made it
+attractive for practitioners, and De~Marco \citep{demarco2021} gives
+the structural characterisation of when (and why) an
+implied-volatility smile admits such a harmonic-mean representation.
+
+Since BBF is a zeroth-order expansion, it is natural to look at the
+next orders to make the mapping more accurate: Henry-Labord\`ere
+(PHL1) \citep{henrylabordere2008} adds the $\sigma_1$ heat-kernel
+term, and Gatheral, Hsu, Laurence, Ouyang and Wang (GHLOW2)
+\citep{gatheral2012} add the $\sigma_2$ term on top. Higher-order
+accuracy does not make BBF worse for its main use case --- fitting a
+single smile --- but it matters when fine-tuning an initial guess
+inside a local-volatility calibration loop, where the map's accuracy
+propagates into optimiser quality, and for \emph{arbitrage
+reassurance}: since BBF is only leading order, a BBF-fitted smile
+can carry sub-basis-point static no-arbitrage violations (butterfly,
+calendar) that PHL1 closes by sitting much closer to the true Dupire
+IV.
+
+However, the higher-order maps degrade the regularity that the
+implied volatility inherits from the local-volatility input. The
+$\sigma_1$ expansion underlying PHL1 (and hence GHLOW2) is derived
+assuming $\sigma_{\mathrm{loc}}\in C^3$. A piecewise-cubic local
+volatility --- the natural parametric choice for shape flexibility
+--- is only $C^2$ at its knots (only $\sigma_{\mathrm{loc}}'''$ jumps
+there), so PHL1 develops a localised residual at the knot strike.
+BBF, a harmonic-mean integral, is insensitive to the same regularity
+gap and stays smooth across the knot.
+
+The analogous problem one regularity class harsher was studied by
+Costeanu and Pirjol \citep{costeanuPirjol2011} in normal (Bachelier)
+implied vol: a $C^0$ local vol with a jump in
+$\sigma'_{\mathrm{loc}}$ at the forward, treated as a first-order
+perturbation in the Duhamel/Dyson expansion of the Dupire
+call-price evolution against constant-$\sigma$ Black. They prove
+that the ATM normal IV picks up a non-analytic $\sqrt{T}$ correction
+with universal coefficient $\tfrac{1}{16}\sqrt{\pi/2}\approx 0.0784$
+proportional to the jump, and their Table~5.1 lists the higher
+powers of $T$ the same framework admits. This paper uses the same
+technique to derive the analogous correction for a $C^2$
+piecewise-cubic local vol with the knot at the forward (only
+$\sigma'''_{\mathrm{loc}}$ jumps), in log-normal Black IV: a
+non-analytic $T^{3/2}$ term in closed form, fitting the $T^{3/2}$
+slot of their Table~5.1 row $n=1$. We compare the corrected mappings
+against the Dupire forward PDE \citep{dupire1994} on parameters
+calibrated from real SPXW surfaces.
+
+\paragraph{Compute cost.} The perfect mapping would use the Dupire
+forward PDE directly, but the PDE has no closed form and is too
+expensive for an inner-loop calibration. The asymptotic-map
+candidates considered here are all chosen to stay closed-form and
+substantially cheaper than a PDE solve.
+
+\paragraph{Extrapolation.} BBF has the additional advantage that the
+wings can be chosen to follow Lee's moment formula \citep{lee2004},
+the universal asymptotic bound on the deep-wing slope of any
+arbitrage-free smile. Wings are outside the scope of this paper; the
+focus is the ATM correction.
+
 
 \section{Related work}
 
@@ -81,46 +124,27 @@ The map from a parametric local-vol surface to implied vol through a
 small-time asymptotic is one strand of a wider literature on parametric
 volatility surfaces. The direct predecessor for the knot-residual
 question, the broader asymptotic-map literature, and the orthogonal
-parametric and arbitrage-framing literatures are taken in turn.
+direct-IV parametrisation literature are taken in turn.
 
-\paragraph{Direct prior art and open question.} The closest
-predecessor is Costeanu--Pirjol \citep{costeanuPirjol2011}, who set up
-the same Duhamel-perturbation framework for the analogous problem one
-regularity class harsher: a $C^{0}$ local vol with a jump in
-$\sigma'_{\mathrm{loc}}$ at the forward, in \emph{normal} (Bachelier)
-implied vol. They prove that the ATM normal IV picks up a
-non-analytic $\sqrt{T}$ term with universal coefficient
-$\tfrac{1}{16}\sqrt{\pi/2}\approx 0.0784$ proportional to the jump,
-and their Table~5.1 lists the powers of $T$ that can arise from each
-order of perturbation in the same framework. After eq.~(5.25) they
-note that their explicit symmetric-model solution contains only the
-$\sqrt{T}$ non-analytic term, with no $T^{3/2}$, $T^{5/2}$, \ldots,
-and leave open whether that absence is a general feature or specific
-to their piecewise-linear model. The contribution here settles the
-question: it is model-specific. A $C^{2}$ piecewise-cubic local vol
-with the knot at the forward (the natural smoothness of a
-piecewise-cubic calibrator, where only $\sigma'''_{\mathrm{loc}}
-=\gamma$ jumps) produces a $T^{3/2}$ non-analytic term in
-\emph{log-normal} Black IV --- the $T^{3/2}$ slot of their Table~5.1
-row $n=1$, one column past the $\sqrt{T}$ slot they filled --- with
-universal coefficient $3\sqrt{2\pi}/128\approx 0.0588$, the $C^{2}$
-companion to their $C^{0}$ constant within the same Duhamel
-lineage. The kernel $K_1(x,0)$ derived in Section~3 is the
+\paragraph{Direct prior art.} Costeanu and Pirjol
+\citep{costeanuPirjol2011} (introduced above) and this paper share
+the same Duhamel-perturbation framework; the two universal
+coefficients sit in adjacent slots of the same Table~5.1 ---
+$\tfrac{1}{16}\sqrt{\pi/2}\approx 0.0784$ for their $C^{0}$
+$\sqrt{T}$ correction and $3\sqrt{2\pi}/128\approx 0.0588$ derived
+in \S\ref{sec:universal} for this paper's $C^{2}$ $T^{3/2}$
+correction. The kernel $K_1(x,0)$ of \S\ref{sec:universal} is the
 corresponding first-order Duhamel kernel for the local-volatility
-perturbation; in its bridge form it is a one-dimensional integral over
-$\lambda\in[0,1]$ whose integrand is the conditional expectation of the
-source along a standard Brownian bridge.
+perturbation; in its bridge form it is a one-dimensional integral
+over $\lambda\in[0,1]$ whose integrand is the conditional expectation
+of the source along a standard Brownian bridge.
 
-\paragraph{Higher-order LV-to-IV asymptotics.} The next-order maps
-derive from the heat-kernel expansion of the local-vol transition
-density: BBF
-\citep{berestycki2002} is leading order (the same authors extended the
-heat-kernel approach to stochastic volatility in
-\citep{berestycki2004sv}), PHL1 adds $\sigma_1$, and Gatheral, Hsu,
-Laurence, Ouyang and Wang (GHLOW2) \citep{gatheral2012} add $\sigma_2$
-(Paulot
-\citep{paulot2009} derives the second-order expansion
-on the stochastic-volatility side, with SABR as the worked example). A parallel
+\paragraph{Higher-order LV-to-IV asymptotics.} The BBF/PHL1/GHLOW2
+ladder above derives from the heat-kernel expansion of the local-vol
+transition density; Berestycki et al.\ extended the same heat-kernel
+approach to stochastic volatility in \citep{berestycki2004sv}, and
+Paulot \citep{paulot2009} derives the second-order expansion on the
+stochastic-volatility side, with SABR as the worked example. A parallel
 methodology, due to Pagliarani--Pascucci \citep{pagliarani2012} and
 extended to local--stochastic models by Lorig--Pagliarani--Pascucci
 \citep{lorig2017}, derives implied-vol
@@ -169,18 +193,6 @@ closed-form $\siv(k;\theta)$. The
 parametric-LV-through-PHL1 route trades that for a closed-form
 asymptotic on the local-vol side, with arbitrage reassurance carried
 by PHL1's tightness against the true Dupire implied vol.
-
-\paragraph{Static arbitrage and asymptotic constraints.}
-``Arbitrage reassurance'' above is what Roper \citep{roper2010}
-catalogues as static no-arbitrage on the IV surface (butterfly,
-calendar). At the opposite end of the strike axis, Lee's moment formula
-\citep{lee2004} gives the universal asymptotic bound on the deep-wing
-slope of any arbitrage-free IV smile, and thereby on every map in the
-family this paper works in. The contribution sits between the two: at
-ATM, where Lee's tail bound is silent and the static-arbitrage
-conditions reduce to a single local statement at $k=0$ --- and where the
-$C^3$-regularity failure of a piecewise-cubic local vol is what PHL1
-sees.
 
 \section{Setup}
 
@@ -660,9 +672,9 @@ and $R^{(3,1)}_2 - R^{(3,1)}_1$ separately on this same knot example.
 
 \section{Conclusion}
 
-BBF calibrates any smile but gives no arbitrage guarantee; PHL1 supplies
-that guarantee but a single smooth cubic through it is too rigid to span
-the smiles BBF can reach. The obvious way to regain flexibility --- a knot
+BBF calibrates any smile but is only leading order; PHL1 supplies the
+next-order correction but a single smooth cubic through it is too rigid
+to span the smiles BBF can reach. The obvious way to regain flexibility --- a knot
 --- was blocked by one defect: a piecewise cubic is only $C^2$ at a knot
 while PHL1's $\sigma_1$ expansion assumes $C^3$, so PHL1 develops a
 localised residual at the knot strike (BBF, a harmonic-mean integral, is
@@ -677,7 +689,7 @@ the correction is inert on smooth smiles.
 
 The consequence is practical, not just numerical: ``piecewise-cubic with
 an at-the-money knot, mapped through PHL1'' is now a usable surface
-parametrisation --- it keeps PHL1's arbitrage reassurance while recovering
+parametrisation --- it keeps PHL1's accuracy while recovering
 the calibration flexibility a single smooth cubic lacks, the knot adding
 shape freedom exactly where the smile is most curved. The at-the-money
 restriction is essential, not cosmetic: off-the-money the same
