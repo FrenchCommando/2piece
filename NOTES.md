@@ -156,6 +156,64 @@ positioning.
   `R^(3,1)_2 − R^(3,1)_1 (σ_2 extension)`, which actually name what's
   on screen. SVG regenerated.
 
+- **Paper polish pass** (2026-05-26). Three framing/notation decisions
+  worth recording explicitly (rest of the pass is cosmetic and visible
+  in the paper itself):
+
+  1. **Arbitrage-reassurance framing softened.** Was: "PHL1 closes
+     sub-basis-point static no-arbitrage violations that BBF carries"
+     (strong causal claim). Now: "accuracy brings the result closer to
+     the corresponding PDE result, but doesn't necessarily mean that
+     the less accurate formula is worse in that regard" (loose claim).
+     "Arbitrage reassurance" survives only once in the paper (intro),
+     with this qualifier. **Do not re-strengthen.** The earlier
+     framing is a natural-sounding reading and might creep back in
+     during a future polish; in particular the §2 SVI paragraph's
+     prior wording ("...with arbitrage reassurance carried by PHL1's
+     tightness against the true Dupire implied vol") has been
+     neutralised to "...with PHL1's tighter fit to the true Dupire
+     implied vol" and should stay neutral.
+
+  2. **`K_1^ext` retired.** The "extended kernel" notation is gone.
+     The extension piece is defined directly in IV units at
+     `eq:extension` as a clamped σ_2 δ-variation:
+     `R^(3,1)_2 ≡ R^(3,1)_1 + (extension piece)`, with no separate
+     `K_1^ext` object. The 2026-05-23 "Clip baked into eq:ghlow2-dir"
+     entry above is stale on notation only — the clip behaviour is
+     unchanged, but the formula now lives in `eq:extension`, not
+     `eq:ghlow2-dir`, and the kernel-form variable name `K_1^ext` is
+     no longer used.
+
+  3. **GHLOW2 demoted to anecdote; three future-work items now
+     load-bearing.** The conclusion leads with PHL1c as the headline
+     contribution. GHLOW2c/GHLOW2cc are a parenthetical: "the same
+     construction lifts to the T² baseline as GHLOW2c/GHLOW2cc...
+     recorded for completeness". Three named future-work extensions
+     replace the earlier "only w≠0 is open" framing:
+     (a) **off-the-forward knots** (`w ≡ k_knot/σ ≠ 0`) — the
+     bounded-polynomial collapse disappears off the forward;
+     (b) **knot additivity** — multi-knot piecewise-cubic adds
+     linearly at first order; second-order interactions and validity
+     of per-knot summation are not worked out;
+     (c) **wing extrapolation** — production models stitch the cubic
+     to a function with proper wing behaviour at the wing strikes;
+     those stitching points are knots in this paper's sense, not
+     analysed.
+
+  Other conventions applied this pass, visible in the paper and
+  listed for reference only: voice is "I" (single-author); spelling
+  is American throughout (parametrization, behavior, etc.); BBF =
+  method or authors, BBF0 = curve (`σ_0`); `R^(3,1)_n` abbreviated to
+  `R_n` after `eq:R-def`; `Δσ_IV ≡ σ_IV(δ) − σ_IV(0)` defined at
+  `eq:expansion` (replaces the previously overloaded `δσ_IV`);
+  `\equiv` for definitions (e.g. `w ≡ k_knot/σ`), bare `=` for value
+  restrictions; DTE format is `NDTE` (1DTE, 3DTE); §1 Compute cost
+  and Extrapolation paragraphs and §2 Static arbitrage paragraph
+  removed. **Lee citation is now orphaned** (no `\cite` calls; entry
+  remains in `refs.bib`, harmless under plainnat — uncited entries
+  just don't appear in the bibliography). Decide whether to prune
+  the bib entry on next pass.
+
 ## Example parameters
 
 Provenance, the table of σ/β/α/γ values, the knot-case δ = 68619
@@ -888,6 +946,11 @@ The compiled PDF is **not** tracked in the repo. Source of truth is
 CI artifact and uploads it to a **GitHub Release** via
 `softprops/action-gh-release` on every paper-affecting push to master.
 Readers get the PDF from the release page, not the repo tree.
+
+**SSRN canonical page**: https://ssrn.com/abstract=6834038 (Abstract
+ID 6834038). Submitted 2026-05-26. Linked from README; not from the
+paper itself (the paper's Reproducibility section currently points to
+GitHub + interactive page only — leave as is unless asked).
 
 **Tag naming** (settled 2026-05-22): tags are
 `paper-YYYYMMDD-HHMMSS-<short_sha>` (commit timestamp in UTC + 7-char

@@ -18,6 +18,8 @@ the knot and has no knot-specific error.
 
 - **Interactive page** (all computation in your browser):
   https://frenchcommando.github.io/2piece/
+- **Research note** on SSRN:
+  https://ssrn.com/abstract=6834038
 - **Research note** (PDF): built by GitHub Actions from
   `paper/2piece-paper.tex` (download the `2piece-paper` artifact from the
   latest *Build paper* run).
