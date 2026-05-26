@@ -487,7 +487,7 @@ GHLOW2c) value discontinuity
 = \frac{\sigma^{3}\beta\,\delta}{20},
 \label{eq:ghlow2-gap}
 \end{equation}
-which for the SPXW DTE~1 preset is $-0.171$~bps. Subtracting that
+which for the SPXW 1DTE preset is $-0.171$~bps. Subtracting that
 $\sigma_2$ $\delta$-variation, clamped between $0$ and $\Delta\sigma_2(0)$,
 defines the \emph{extension piece} in total-vol units:
 \begin{equation}
@@ -574,16 +574,38 @@ cross-side leakage; the closed-form maps do not, by design.
 
 \section{Results}\label{sec:results}
 
-Parameters come from real SPXW surfaces calibrated with a 20-parameter
-piecewise-cubic local-vol model; I keep the centre cubic and (for the knot
-case) the first-knot coefficient jump moved to ATM. The Dupire forward PDE
-(Rannacher start then Crank--Nicolson) is the ground truth.
+Parameters come from real SPXW surfaces calibrated with a custom
+model, then reduced to the form this paper studies: a cubic, or a
+cubic with a knot. The Dupire forward PDE (Rannacher start then
+Crank--Nicolson) is the ground truth.
 
 \subsection{Smooth cases (no knot)}\label{sec:results-smooth}
 
-Figure~\ref{fig:happy}: a smooth monotone-skew smile (SPXW 2025-03-10
-DTE~1, no knot). BBF0's error vs the Dupire PDE peaks at $\sim$67~bps;
-PHL1 and GHLOW2 close to a few bps.
+The smooth case is the baseline: the cubic local vol with no knot
+($\delta=0$), mapped through BBF0, PHL1, and GHLOW2. The corrected
+methods PHL1c, GHLOW2c, GHLOW2cc are inert at $\delta=0$ and
+reduce to their baselines, so only the three baselines are plotted.
+The only error each map carries here is the generic leading-order
+gap of its truncation in the heat-kernel ladder --- no slope kink
+and no $\sigma_2$ value jump for the knot corrections to repair.
+The contrast across the three baselines is purely the order in $T$.
+
+\paragraph{Happy case (Figure~\ref{fig:happy}).} SPXW 2025-03-10,
+1DTE. Error ladder (max $|\mathrm{err}|$ in bps over the smile band):
+\begin{itemize}
+\item \textbf{BBF0}: $\sim$67~bps. The leading-order gap that
+motivates going beyond BBF in the first place.
+The gap is small enough to be barely visible on the smile panel,
+but dominates the middle error panel.
+The acceptability depends on the use case:
+it captures the shape of the smile, but the error is much more than
+PHL1's few bps.
+\item \textbf{PHL1}: a few bps. The $\sigma_1$ correction closes
+the bulk of the gap; BBF0$\to$PHL1 is the order-of-magnitude step.
+\item \textbf{GHLOW2}: a few bps, slightly tighter than PHL1.
+The $\sigma_2$ correction sharpens further but the marginal gain
+over PHL1 is small compared to the BBF0$\to$PHL1 step.
+\end{itemize}
 
 \begin{figure}[!htbp]
 \centering\includegraphics[width=0.78\textwidth]{F2_happy}
@@ -593,10 +615,24 @@ comparison is legible.}
 \label{fig:happy}
 \end{figure}
 
-Figure~\ref{fig:concave}: a concave smile (DTE~3). BBF0's error peaks
-at $\sim$43~bps; PHL1 and GHLOW2 again close to a few bps. The deep
-wings, where the option's time value underflows and implied vol is not
-numerically recoverable, are trimmed rather than faked.
+\paragraph{Concave case (Figure~\ref{fig:concave}).} 3DTE,
+calibrated parameters producing a concave implied-vol smile ---
+unusual but legitimate, a stress test of the maps where the typical
+convex-smile intuition does not apply. Error ladder:
+\begin{itemize}
+\item \textbf{BBF0}: $\sim$43~bps. Smaller than the happy case
+because the smile is shallower, but the same order-of-magnitude
+gap below the next-order maps.
+\item \textbf{PHL1, GHLOW2}: sub-bp each, same close-to-PDE
+behaviour as the happy case --- the maps do not break on concavity.
+\end{itemize}
+As mentioned in the introduction, I do not focus on wing behaviour;
+in this example, the local volatility genuinely goes negative, and
+a production model would push the extrapolation higher by stitching
+the cubic function to a square-root function on each side. The
+result of this paper is coincidentally about understanding the
+impact of those knots, but I am applying it here to a much simpler
+case --- a single knot at the forward.
 
 \begin{figure}[!htbp]
 \centering\includegraphics[width=0.78\textwidth]{F3_concave}
@@ -609,16 +645,16 @@ Figure~\ref{fig:happy} (smile; error with BBF0; error without BBF0).}
 
 \begin{figure}[!htbp]
 \centering\includegraphics[width=0.78\textwidth]{F4_knot}
-\caption{Unhappy case: fake ATM knot at $k=0$. Smile (top); error vs
+\caption{Unhappy case: ATM knot at $k=0$. Smile (top); error vs
 PDE in bps with BBF0 (middle); same error with BBF0 excluded (bottom)
 so the PHL1/PHL1c and GHLOW2/GHLOW2c/GHLOW2cc comparison is legible.
 Curves and the error ladder are described in the surrounding text.}
 \label{fig:knot}
 \end{figure}
 
-Figure~\ref{fig:knot}: the same DTE~1 cubic with a fake ATM knot
+Figure~\ref{fig:knot}: the same 1DTE cubic with an ATM knot
 ($\delta$ the real first-knot jump, moved to $k=0$). PHL1 is visibly
-biased near the knot; PHL1c tracks the PDE. GHLOW2c and GHLOW2cc, both
+biased near the knot; PHL1c tracks the PDE better. GHLOW2c and GHLOW2cc, both
 introduced in \S\ref{sec:extension}, lift the comparison onto the
 $T^{2}$ baseline and additionally close (for GHLOW2cc) the $\sigma_2$
 value jump at the knot.
