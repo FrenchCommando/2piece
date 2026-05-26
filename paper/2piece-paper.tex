@@ -23,31 +23,18 @@ $C^{2}$ ATM local-volatility knot}
 \maketitle
 
 \begin{abstract}
-The standard practice is to parametrise the \emph{local} volatility
-$\sloc$ and push it to implied volatility through the leading-order
-Berestycki--Busca--Florent (BBF) inverse-harmonic-mean map. BBF can
-calibrate essentially any market smile; its weakness is not fit but
-consistency --- being only leading order, the implied vol it returns is
-not the model's true Dupire implied vol, so a surface that matches quotes
-can still carry small static-arbitrage inconsistencies. The
-Henry-Labord\`ere $\sigma_1 T$ correction (PHL1) is the next order and
-much closer to the true Dupire implied vol; moving from BBF to PHL1 buys
-\emph{arbitrage reassurance}, not extra calibration reach. But PHL1 on a
-single smooth cubic is rigid, and admitting a knot --- the natural way to
-recover flexibility --- breaks it: a piecewise-cubic $\sloc$ is only $C^2$
-at its knots (the cubic coefficient $\gamma=\sloc'''$ jumps), while the
-$\sigma_1$ expansion is derived assuming $C^3$, leaving a localised
-residual at the knot. We close that residual in the practically relevant
-case --- a knot pinned exactly at-the-money --- in closed form: at first
-order in the coefficient jump it is the first-order Duhamel kernel
-$K_1(x,0)$ --- a one-dimensional bridge integral with peak
-$3\sqrt{2\pi}/128$ and no fitted constants. This makes ``piecewise-cubic with an at-the-money knot, mapped
-through PHL1'' a usable parametrisation that keeps PHL1's arbitrage
-reassurance while regaining calibration flexibility. The at-the-money
-restriction is essential, not cosmetic: off-the-money the same
-construction needs an unbounded-polynomial truncation, which the $w=0$
-case removes. We validate against the Dupire PDE on parameters calibrated
-from real SPXW surfaces.
+Short-maturity expansion of implied volatility in local volatility
+models is well-documented for smooth local volatility functions:
+\citet{berestycki2002} for order zero, \citet{henrylabordere2008}
+for $O(T)$, and \citet{gatheral2012} for $O(T^{2})$. The non-smooth
+case has been investigated by \citet{costeanuPirjol2011}, who derive
+the non-analytic $O(T^{1/2})$ term for a $C^{0}$ knot at the forward
+and tabulate the higher powers their framework admits 
+depending on the degree of the discontinuity. 
+This paper gives the leading non-analytic correction in closed form
+for a specific case --- time-homogeneous cubic local volatility with
+one $C^{2}$ knot at the forward: a $T^{3/2}$ term, validated
+empirically against Dupire's forward PDE.
 \end{abstract}
 
 \section{Introduction}
