@@ -356,7 +356,7 @@ K_1(0,0)=\frac{2}{\sqrt{2\pi}}\,B\!\left(\tfrac52,\tfrac52\right)
 (Beta-function reduction in Appendix~\ref{app:K1-ATM}).
 
 \paragraph{Why at-the-money.} The general knot at offset
-$w=k_{\mathrm{knot}}/\sigma$ keeps a factor $\eta=[\lambda x-(1-\lambda)w]/
+$w \equiv k_{\mathrm{knot}}/\sigma$ keeps a factor $\eta=[\lambda x-(1-\lambda)w]/
 \sqrt{\lambda(1-\lambda)}$; the subtraction below then leaves a polynomial
 that grows without bound and needs an ad-hoc truncation to stay finite.
 Setting $w=0$ removes the $(1-\lambda)w$ term entirely and the correction is
@@ -594,7 +594,7 @@ The contrast across the three baselines is purely the order in $T$.
 1DTE. Error ladder (max $|\mathrm{err}|$ in bps over the smile band):
 \begin{itemize}
 \item \textbf{BBF0}: $\sim$67~bps. The leading-order gap that
-motivates going beyond BBF in the first place.
+motivates going beyond BBF0 in the first place.
 The gap is small enough to be barely visible on the smile panel,
 but dominates the middle error panel.
 The acceptability depends on the use case:
@@ -712,42 +712,56 @@ and $R_{2} - R_{1}$ separately on this same knot example.
 
 \section{Conclusion}
 
-BBF calibrates any smile but is only leading order; PHL1 supplies the
-next-order correction but a single smooth cubic through it is too rigid
-to span the smiles BBF can reach. The obvious way to regain flexibility --- a knot
---- was blocked by one defect: a piecewise cubic is only $C^2$ at a knot
-while PHL1's $\sigma_1$ expansion assumes $C^3$, so PHL1 develops a
-localised residual at the knot strike (BBF, a harmonic-mean integral, is
-insensitive to it and has no knot-specific error). This paper removed that
-single defect for a knot pinned at-the-money, in closed form: the
+A piecewise-cubic local vol, mapped through PHL1, develops a
+localised implied-vol residual at every knot. The cause is a
+regularity mismatch: PHL1's $\sigma_1$ expansion assumes $\sloc \in
+C^3$, while a piecewise-cubic is only $C^2$ at its knots (the cubic
+coefficient $\sloc'''$ jumps there). BBF0, a harmonic-mean integral,
+sidesteps the defect by construction. For a knot pinned at the
+forward, this paper closes the residual in closed form: the
 first-order Duhamel kernel $K_1(x,0)$, a one-dimensional bridge
-integral with peak $3\sqrt{2\pi}/128$ and no fitted constants. After subtracting the
-variation PHL1 already captures, the residual decays on both sides
-and adds directly to PHL1. On parameters calibrated from real SPXW
-surfaces PHL1c tracks the Dupire PDE where PHL1 alone is biased, and
-the correction is inert on smooth smiles.
+integral with parameter-free peak $K_1(0,0) = 3\sqrt{2\pi}/128$. The
+ATM restriction is essential --- off the forward the same construction
+diverges, and the $w=0$ collapse is what fixes the kernel by a single
+Beta-function moment. On parameters calibrated from real SPXW
+surfaces, the corrected PHL1c tracks the Dupire PDE where PHL1 alone
+is biased, and the correction is inert on smooth smiles. The peak
+$K_1(0,0)$ is the $C^{2}$ companion in log-normal Black IV to the
+$C^{0}$ normal-IV constant $\tfrac{1}{16}\sqrt{\pi/2}$ of Costeanu
+and Pirjol --- adjacent slots of the same Duhamel-perturbation
+framework they used.
 
-The consequence is practical, not just numerical: ``piecewise-cubic with
-an at-the-money knot, mapped through PHL1'' is now a usable surface
-parametrisation --- it keeps PHL1's accuracy while recovering
-the calibration flexibility a single smooth cubic lacks, the knot adding
-shape freedom exactly where the smile is most curved. The at-the-money
-restriction is essential, not cosmetic: off-the-money the same
-construction leaves an unbounded polynomial requiring an ad-hoc
-truncation; $w=0$ removes that term and fixes the peak by a
-Beta-function moment. The peak $3\sqrt{2\pi}/128$ is the $C^{2}$
-companion, in log-normal Black IV, to the $C^{0}$ normal-IV constant
-$\tfrac{1}{16}\sqrt{\pi/2}$ of Costeanu and Pirjol --- adjacent slots
-of the same Duhamel-perturbation table they began. The same $w=0$
-collapse extends naturally to the $T^{2}$ baseline: stacking the same
-universal kernel on GHLOW2 gives GHLOW2c, which inherits the
-smooth-cubic $\sigma_2$ accuracy off the knot but still carries a
-$\gamma$-linear value jump in $\sigma_2$ given in closed form by
-\eqref{eq:ghlow2-gap}; subtracting $\sigma_2$'s $\delta$-variation in
-\eqref{eq:extension} closes that jump as well, yielding the
-value-continuous GHLOW2cc. The remaining natural extension is the
-$w\neq0$ case --- moving the knot off the forward --- which is more
-involved because the bounded-polynomial collapse used here disappears.
+The practical takeaway is that
+``piecewise-cubic-with-ATM-knot, mapped through PHL1'' --- i.e.\
+PHL1c --- is a usable surface parametrisation: it adds the
+calibration flexibility a single smooth cubic lacks. (The same
+construction lifts to the $T^{2}$ baseline as GHLOW2c/GHLOW2cc, with
+a $(\sigma,\beta,\alpha,\gamma)$-parametric piece needed for the
+$\sigma_2$ value jump at the knot; the math is less clean and the
+marginal gain over PHL1c is small, but the construction is recorded
+for completeness.)
+
+Pushing PHL1c into a full production surface parametrisation needs
+three extensions, none addressed here:
+\begin{itemize}
+\item \textbf{Off-the-forward knots} ($w \equiv \frac{k_{\mathrm{knot}}}{\sigma}
+\neq 0$). Off the forward the polynomial in $K_1$ diverges instead of
+collapsing to a Beta-function moment, and the construction needs an
+ad-hoc truncation to stay finite.
+\item \textbf{Knot additivity}. A realistic piecewise-cubic carries
+multiple knots. At first order in the per-knot jumps the Duhamel
+kernel adds linearly --- each knot contributes independently --- but
+second-order interactions between knots, and the regime of validity
+of per-knot summation, are not worked out here.
+\item \textbf{Wing extrapolation}. Production models stitch the
+cubic to a function that has proper wing behaviour; analysing these
+additional knots is not worked out here.
+\end{itemize}
+
+Until these extensions are worked out, BBF remains the practical
+default for a full surface parametrisation: it is insensitive to
+knot regularity, multi-knot by construction, and trivially extends
+to the wings.
 
 \section{Reproducibility}
 
