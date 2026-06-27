@@ -983,6 +983,46 @@ valid region when a wing is dropped (σ_loc panel stays full band — it's the
 visual reason). DTE input is clamped to a positive integer in the UI; σ
 (ATM vol — the denominator everywhere) is clamped to a small positive floor.
 
+### Quadrature: paper documents Gauss-Jacobi, production ships GL-32 (deliberate)
+The K₁ bridge integral `∫₀¹ (λ(1-λ))^{3/2} f(η) dλ` has an endpoint-singular
+`(λ(1-λ))^{3/2}` factor = a Jacobi weight (α=β=3/2). Three rules exist in the
+repo:
+- **GL-32** (`src/math/kernel.ts`, `N_QUAD=32`) — what production/figures
+  actually use, on the *full weighted* integrand. Algebraic convergence (the
+  half-integer endpoint caps the order) but converged far below bps at 32 nodes.
+- **Gauss-Jacobi(3/2,3/2)** (`src/math/jacobi.ts`, Golub-Welsch) — exact-weight
+  rule; absorbs the weight, integrates **bare** `f(η)`. At x=0 `f≡f(0)` is
+  constant ⇒ **1-node rule reproduces `K₁(0,0)=3√(2π)/128` exactly** and stays
+  at machine precision for all n. **Off ATM it is the WORST of the three** (do
+  not claim "fastest" — earlier draft did, it's wrong): the bare `f(η)` it sees
+  blows up like (1-λ)^{-3/2} at λ→1 (η→∞, f~η³), and only the *absorbed* weight
+  cancels that in the product. GL and tanh-sinh integrate the bounded weighted
+  product, so they're unaffected. This is the real justification for shipping
+  GL-32: it's uniformly accurate in x; Jacobi is special only at the peak, where
+  the closed form already gives the answer. Verified by F5_quadrature (bottom
+  panel) + `tests/quadrature.test.ts` convergence cases.
+- **tanh-sinh** (`src/math/tanhsinh.ts`) — reference rule for the convergence
+  panel; super-algebraic on the bounded product.
+
+Shared harness `src/math/bridgeQuad.ts` (added 2026-06-27) holds the integrand
++ rule-evaluation + `bridgeConvergence`, used by BOTH the UI panel and the
+`F5_quadrature` figure (single source of truth; UI + figure + test no longer
+duplicate the integrand). Figure F5 = paper Figure (Appendix C), log-log
+convergence, two panels (ATM vs x=2).
+
+Gauss-Jacobi + tanh-sinh power **only** the interactive Quadrature diagnostic
+panel (`src/ui/quadrature.ts` + `quadConvergence.ts`), NOT the production
+kernel. They are not dead code and `kernel.ts` is not "supposed" to call them —
+the panel is their whole purpose. Paper and code agree (both GL-32); Appendix C
+says so plainly, so there's no paper-vs-code inconsistency to reconcile.
+
+Decision 2026-06-27: keep production at GL-32, document Gauss-Jacobi as the
+natural exact-weight rule in paper **Appendix C** ("Quadrature for the bridge
+integral", added after the closed-form-peak appendix B; §universal gained a
+forward `\ref{app:quad}`). If you ever *do* switch `kernel.ts` to Jacobi
+(GL-32 is already converged, so there's no accuracy reason to), update
+Appendix C's "shipped" wording and regenerate figures + `tests/reference.json`.
+
 ### Open / watch
 - DTE input semantics: treated as **business days** (n_bdays=DTE). Documented
   in README. Calendar-vs-business is a known wrinkle inherited from the

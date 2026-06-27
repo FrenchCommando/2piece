@@ -15,55 +15,19 @@
  * argument to K_1) and watch the rules adapt.
  */
 
-import { gaussLegendre } from "../math/gl";
+import {
+	bridgeBare as bareG,
+	bridgeConvergence,
+	bridgeWeighted as fullW,
+	gaussLegendre01 as glOn01,
+	type QuadRule as Rule,
+	applyRule as ruleValue,
+	tanhSinh01,
+} from "../math/bridgeQuad";
 import { gaussJacobi32 } from "../math/jacobi";
 import { volScale } from "../math/model";
-import { normCdf, normPdf } from "../math/normal";
-import { tanhSinhRule } from "../math/tanhsinh";
 import { byId, getContext2D } from "../util";
 import { type ConvergenceSeries, drawQuadConvergence } from "./quadConvergence";
-
-interface Rule {
-	nodes: number[];
-	weights: number[];
-}
-
-function fEta(eta: number): number {
-	return (eta ** 3 + 3 * eta) * normCdf(eta) + (2 + eta * eta) * normPdf(eta);
-}
-
-function eta(lambda: number, x: number): number {
-	return x * Math.sqrt(lambda / (1 - lambda));
-}
-
-/** Full weighted integrand — what GL and tanh-sinh apply to.
- *  Boundary collapse: tanh-sinh saturates λ to exactly 0 or 1, where
- *  (λ(1-λ))^{3/2}·f(η) = 0·∞ = NaN; the math says 0 there. */
-function fullW(lambda: number, x: number): number {
-	const m = lambda * (1 - lambda);
-	if (m === 0) return 0;
-	return m ** 1.5 * fEta(eta(lambda, x));
-}
-
-/** Bare integrand — what Gauss-Jacobi(3/2, 3/2) applies to (weight is in the rule). */
-function bareG(lambda: number, x: number): number {
-	return fEta(eta(lambda, x));
-}
-
-function ruleValue(r: Rule, fn: (lambda: number) => number): number {
-	let acc = 0;
-	for (let i = 0; i < r.nodes.length; i++) acc += r.weights[i] * fn(r.nodes[i]);
-	return acc;
-}
-
-/** Plain Gauss-Legendre rule from [-1,1] mapped to [0,1]. */
-function glOn01(n: number): Rule {
-	const gl = gaussLegendre(n);
-	return {
-		nodes: gl.nodes.map((u) => 0.5 * (u + 1)),
-		weights: gl.weights.map((w) => 0.5 * w),
-	};
-}
 
 const N_SAMPLES = 240;
 
@@ -78,7 +42,7 @@ interface MethodPreview {
 function makeMethods(x: number, n: number): MethodPreview[] {
 	const gl = glOn01(n);
 	const gj = gaussJacobi32(n);
-	const ts = tanhSinhRule(n % 2 === 0 ? n + 1 : n); // tanh-sinh wants odd N
+	const ts = tanhSinh01(n); // tanh-sinh wants odd N (rounds up internally)
 	return [
 		{
 			id: "q-gl",
@@ -289,7 +253,6 @@ function drawMethodPanel(
 	ctx.fillText("λ", (x0 + x1) / 2, cssH - 6);
 }
 
-const CONV_NS = [4, 6, 8, 12, 16, 24, 32, 48, 64, 96, 128];
 const N_REF = 1025;
 
 /**
@@ -301,7 +264,8 @@ const N_REF = 1025;
  * there will hit the noise floor early, reflecting that it has converged
  * to its high-N family member. Use the left panel as the calibration:
  * everything that's true on the right is also visible on the left (with
- * a closed-form anchor), so the reader can cross-check.
+ * a closed-form anchor), so the reader can cross-check. Numbers come from
+ * `bridgeConvergence` — the same helper the static Appendix C figure uses.
  */
 function drawConvergence(
 	canvas: HTMLCanvasElement,
@@ -309,23 +273,11 @@ function drawConvergence(
 	ref: number,
 	titleSuffix: string,
 ): void {
-	const errGL: number[] = [];
-	const errGJ: number[] = [];
-	const errTS: number[] = [];
-	for (const n of CONV_NS) {
-		const vGL = ruleValue(glOn01(n), (l) => fullW(l, x));
-		const vGJ = ruleValue(gaussJacobi32(n), (l) => bareG(l, x));
-		const vTS = ruleValue(tanhSinhRule(n % 2 === 0 ? n + 1 : n), (l) =>
-			fullW(l, x),
-		);
-		errGL.push(Math.abs(vGL - ref));
-		errGJ.push(Math.abs(vGJ - ref));
-		errTS.push(Math.abs(vTS - ref));
-	}
+	const { ns, errGL, errGJ, errTS } = bridgeConvergence(x, ref);
 	const series: ConvergenceSeries[] = [
-		{ label: "Gauss–Legendre", color: "#dc2626", ns: CONV_NS, errs: errGL },
-		{ label: "Gauss–Jacobi(3/2)", color: "#2563eb", ns: CONV_NS, errs: errGJ },
-		{ label: "tanh–sinh", color: "#0d9488", ns: CONV_NS, errs: errTS },
+		{ label: "Gauss–Legendre", color: "#dc2626", ns, errs: errGL },
+		{ label: "Gauss–Jacobi(3/2)", color: "#2563eb", ns, errs: errGJ },
+		{ label: "tanh–sinh", color: "#0d9488", ns, errs: errTS },
 	];
 	drawQuadConvergence(
 		canvas,
@@ -376,7 +328,7 @@ export function setupQuadraturePanel(
 		const refRight =
 			x === 0
 				? K1_PEAK_EXACT
-				: ruleValue(tanhSinhRule(N_REF), (l) => fullW(l, x));
+				: ruleValue(tanhSinh01(N_REF), (l) => fullW(l, x));
 		const refLabelRight =
 			x === 0
 				? "reference: closed form 3√(2π)/128"

@@ -13,12 +13,24 @@ export interface Series {
 	dash?: string;
 	width?: number;
 }
+export interface AxisTick {
+	value: number;
+	label: string;
+}
 export interface PanelOpts {
 	title: string;
 	xlabel: string;
 	ylabel: string;
 	zeroLine?: boolean;
 	atmLine?: boolean;
+	/**
+	 * Explicit ticks override the auto "nice number" axis and pin the domain to
+	 * the tick extremes. Used for the log-log convergence figure (x = log₂ n
+	 * labelled with n, y = log₁₀|error| labelled with powers of ten); callers
+	 * pre-transform their series into the same coordinates.
+	 */
+	xTicks?: AxisTick[];
+	yTicks?: AxisTick[];
 }
 
 const W = 760;
@@ -71,17 +83,37 @@ function panel(series: Series[], o: PanelOpts, yTop: number): string {
 				if (yv > yMax) yMax = yv;
 			}
 		}
-	const padY = 0.06 * (yMax - yMin || 1);
-	yMin -= padY;
-	yMax += padY;
-	if (o.zeroLine) {
-		yMin = Math.min(yMin, 0);
-		yMax = Math.max(yMax, 0);
+	// Y domain + ticks: explicit ticks pin the domain to their extremes;
+	// otherwise the auto "nice number" axis (with zero-line padding) is used.
+	let yTicks: AxisTick[];
+	if (o.yTicks) {
+		yMin = Math.min(...o.yTicks.map((t) => t.value));
+		yMax = Math.max(...o.yTicks.map((t) => t.value));
+		yTicks = o.yTicks;
+	} else {
+		const padY = 0.06 * (yMax - yMin || 1);
+		yMin -= padY;
+		yMax += padY;
+		if (o.zeroLine) {
+			yMin = Math.min(yMin, 0);
+			yMax = Math.max(yMax, 0);
+		}
+		const yA = niceAxis(yMin, yMax);
+		yMin = yA.lo;
+		yMax = yA.hi;
+		yTicks = yA.ticks.map((v) => ({ value: v, label: v.toFixed(yA.decimals) }));
 	}
-	const yA = niceAxis(yMin, yMax);
-	yMin = yA.lo;
-	yMax = yA.hi;
-	const xA = niceAxis(xMin, xMax);
+	// X domain + ticks: explicit ticks pin the domain; otherwise keep the tight
+	// data domain with "nice number" ticks drawn inside it (existing behaviour).
+	let xTicks: AxisTick[];
+	if (o.xTicks) {
+		xMin = Math.min(...o.xTicks.map((t) => t.value));
+		xMax = Math.max(...o.xTicks.map((t) => t.value));
+		xTicks = o.xTicks;
+	} else {
+		const xA = niceAxis(xMin, xMax);
+		xTicks = xA.ticks.map((v) => ({ value: v, label: v.toFixed(xA.decimals) }));
+	}
 	const x0 = PAD.l;
 	const x1 = W - PAD.r;
 	const y0 = yTop + PANEL_H - PAD.b;
@@ -93,25 +125,25 @@ function panel(series: Series[], o: PanelOpts, yTop: number): string {
 	parts.push(
 		`<text x="${W / 2}" y="${yTop + 20}" text-anchor="middle" font-weight="600" font-size="14">${esc(o.title)}</text>`,
 	);
-	// grid + ticks (rounded "nice" values within the data range)
-	for (const yv of yA.ticks) {
-		if (yv < yMin - 1e-9 || yv > yMax + 1e-9) continue;
-		const yy = py(yv);
+	// grid + ticks (rounded "nice" values, or caller-supplied, within range)
+	for (const t of yTicks) {
+		if (t.value < yMin - 1e-9 || t.value > yMax + 1e-9) continue;
+		const yy = py(t.value);
 		parts.push(
-			`<line x1="${x0}" y1="${yy}" x2="${x1}" y2="${yy}" stroke="${Math.abs(yv) < 1e-12 ? "#a1a1aa" : "#ececf0"}"/>`,
+			`<line x1="${x0}" y1="${yy}" x2="${x1}" y2="${yy}" stroke="${Math.abs(t.value) < 1e-12 ? "#a1a1aa" : "#ececf0"}"/>`,
 		);
 		parts.push(
-			`<text x="${x0 - 8}" y="${yy + 4}" text-anchor="end" font-size="11" fill="#52525b">${yv.toFixed(yA.decimals)}</text>`,
+			`<text x="${x0 - 8}" y="${yy + 4}" text-anchor="end" font-size="11" fill="#52525b">${esc(t.label)}</text>`,
 		);
 	}
-	for (const xv of xA.ticks) {
-		if (xv < xMin - 1e-12 || xv > xMax + 1e-12) continue;
-		const xx = px(xv);
+	for (const t of xTicks) {
+		if (t.value < xMin - 1e-12 || t.value > xMax + 1e-12) continue;
+		const xx = px(t.value);
 		parts.push(
 			`<line x1="${xx}" y1="${y1}" x2="${xx}" y2="${y0}" stroke="#ececf0"/>`,
 		);
 		parts.push(
-			`<text x="${xx}" y="${y0 + 16}" text-anchor="middle" font-size="11" fill="#52525b">${xv.toFixed(xA.decimals)}</text>`,
+			`<text x="${xx}" y="${y0 + 16}" text-anchor="middle" font-size="11" fill="#52525b">${esc(t.label)}</text>`,
 		);
 	}
 	if (o.zeroLine)

@@ -411,7 +411,8 @@ each carry one such layer (the universal kernel), while GHLOW2cc
 carries two (universal kernel + the extension piece), one $c$
 per layer.
 The bridge integral \eqref{eq:K1} is evaluated with a 32-point
-Gauss--Legendre rule.
+Gauss--Legendre rule, converged well below the bps display precision of
+the figures (Appendix~\ref{app:quad}).
 
 Table~\ref{tab:summary} summarizes every method, kernel, and term
 introduced above.
@@ -867,6 +868,68 @@ K_1(0,0) = \frac{2}{\sqrt{2\pi}}\cdot\frac{3\pi}{128}
 = \frac{3\sqrt{2\pi}}{128}
 \approx 0.05875.
 \]
+
+\section{Quadrature for the bridge integral}\label{app:quad}
+
+The integrand of \eqref{eq:K1} factors as the endpoint-vanishing weight
+$(\lambda(1-\lambda))^{3/2}$ --- a Jacobi weight with
+$\alpha=\beta=\tfrac32$ --- times the truncated-moment factor
+$f(\eta(\lambda;x))$. The two natural ways to handle the weight give
+the two rules below; a third, tanh--sinh, is included for reference.
+
+\paragraph{Gauss--Legendre (shipped).} The figures use a 32-point
+Gauss--Legendre rule applied to the full weighted product
+$(\lambda(1-\lambda))^{3/2} f(\eta)$. The weight is $C^1$ and vanishes
+at both endpoints, so the rule converges; at 32 nodes the residual is
+negligible against the bps scale of the plots. Convergence is only
+algebraic --- the weight's half-integer endpoint behaviour caps the
+order --- but with a fixed, generous node count that is immaterial here.
+
+\paragraph{Gauss--Jacobi (exact-weight).} The natural alternative is
+Gauss--Jacobi$(\tfrac32,\tfrac32)$, which absorbs the weight into its
+nodes and weights through the Golub--Welsch construction (eigenvalues
+of the symmetric tridiagonal Jacobi matrix built from the
+ultraspherical three-term recurrence) and applies the rule to the bare
+$f(\eta)$. At the ATM peak $x=0$ the shift $\eta\equiv0$, so
+$f(\eta)\equiv f(0)$ is constant and the one-node Jacobi rule already
+reproduces the closed-form peak $K_1(0,0)=3\sqrt{2\pi}/128$ of
+Appendix~\ref{app:K1-ATM} exactly --- and stays at machine precision
+for every larger node count (Figure~\ref{fig:quad}, top). Away from ATM
+($x\neq0$) the advantage reverses: the bare integrand that Jacobi sees
+is singular at the upper endpoint --- as $\lambda\to1$, $\eta\to\infty$
+and $f(\eta)\sim\eta^3\sim(1-\lambda)^{-3/2}$, a blow-up that only the
+\emph{absorbed} weight cancels in the product --- so Gauss--Jacobi loses
+its exact-weight footing and converges slowest of the three, while
+Gauss--Legendre and tanh--sinh act on the bounded weighted product and
+are unaffected (Figure~\ref{fig:quad}, bottom). This is why the shipped
+kernel keeps Gauss--Legendre on the full product rather than switching
+to Gauss--Jacobi: GL is uniformly accurate in $x$, whereas the Jacobi
+rule is special only at the peak, where the closed form already gives
+the answer.
+
+\paragraph{Convergence.} Figure~\ref{fig:quad} plots $|\text{rule}-
+\text{reference}|$ against node count for the three rules, at ATM (top,
+against the closed form $3\sqrt{2\pi}/128$) and off ATM (bottom, $x=2$,
+against a high-order tanh--sinh reference). The companion interactive
+page carries the live version of this panel: a slider sweeps $x$ and the
+three rules' node placements and errors redraw continuously, so the
+weight's effect on each rule is visible directly.
+
+\begin{figure}[!htbp]
+\centering\includegraphics[width=0.82\textwidth]{F5_quadrature}
+\caption{Convergence of three quadrature rules for the $K_1$ bridge
+integral \eqref{eq:K1}, $|\text{rule}-\text{reference}|$ versus node
+count (both axes log). \emph{Top} ($x=0$): Gauss--Jacobi
+reproduces the closed-form peak $3\sqrt{2\pi}/128$ from a single node
+and holds machine precision, while Gauss--Legendre converges only
+algebraically and tanh--sinh super-algebraically. \emph{Bottom}
+($x=2$): the bare integrand Gauss--Jacobi sees is endpoint-singular, so
+it now converges slowest; Gauss--Legendre and tanh--sinh, acting on the
+bounded weighted product, are unaffected (tanh--sinh is the reference
+here, so its own curve collapses to the floor). The shipped kernel uses
+Gauss--Legendre, robust across $x$.}
+\label{fig:quad}
+\end{figure}
 
 \section{\texorpdfstring{$\delta$-variation of BBF0 and PHL1 at $w=0$}{delta-variation of BBF0 and PHL1 at w=0}}\label{app:delta-var}
 

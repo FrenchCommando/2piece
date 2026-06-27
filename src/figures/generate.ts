@@ -9,10 +9,16 @@ import { fileURLToPath } from "node:url";
 import PDFDocument from "pdfkit";
 import SVGtoPDF from "svg-to-pdfkit";
 import examples from "../../examples/params.json";
+import {
+	applyRule,
+	bridgeConvergence,
+	bridgeWeighted,
+	tanhSinh01,
+} from "../math/bridgeQuad";
 import { K1_PEAK } from "../math/kernel";
 import { computeCurves, type ModelInputs } from "../math/model";
 import { findOrThrow } from "../util";
-import { renderSvg, type Series } from "./svg";
+import { type AxisTick, renderSvg, type Series } from "./svg";
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), "..", "..");
 const OUT = join(ROOT, "figures");
@@ -281,6 +287,87 @@ writeFigure(
 );
 // eslint-disable-next-line no-console
 console.log("F1_kernel.svg: K_1 peak =", K1_PEAK.toFixed(6));
+
+// F5: quadrature convergence for the K_1 bridge integral (paper Appendix C).
+// Log-log: x = log₂(node count), y = log₁₀|rule − reference|. Two panels —
+// at ATM (x=0) Gauss-Jacobi is exact from one node (flat on the floor) while
+// Gauss-Legendre converges only algebraically; off ATM (x=2) Gauss-Jacobi is
+// no longer exact but still converges fastest. tanh-sinh is the reference rule
+// away from ATM, so its own curve there collapses to the noise floor.
+const Q_FLOOR = 1e-16; // log₁₀ floor — matches the bottom y-tick (1e-16)
+const X_TICKS: AxisTick[] = [4, 8, 16, 32, 64, 128].map((n) => ({
+	value: Math.log2(n),
+	label: String(n),
+}));
+const Y_TICKS: AxisTick[] = [0, -4, -8, -12, -16].map((v) => ({
+	value: v,
+	label: v === 0 ? "1" : `1e${v}`,
+}));
+const Q_COLORS = {
+	gl: "#dc2626",
+	gj: "#2563eb",
+	ts: "#0d9488",
+} as const;
+
+function logErrSeries(
+	label: string,
+	color: string,
+	ns: number[],
+	errs: number[],
+): Series {
+	return {
+		label,
+		color,
+		width: 1.8,
+		x: ns.map((n) => Math.log2(n)),
+		y: errs.map((e) => Math.log10(Math.min(Math.max(e, Q_FLOOR), 1))),
+	};
+}
+
+function quadPanel(
+	title: string,
+	x: number,
+	ref: number,
+): { series: Series[]; opts: Parameters<typeof renderSvg>[0][number]["opts"] } {
+	const c = bridgeConvergence(x, ref);
+	return {
+		series: [
+			logErrSeries("Gauss–Legendre", Q_COLORS.gl, c.ns, c.errGL),
+			logErrSeries("Gauss–Jacobi(3/2)", Q_COLORS.gj, c.ns, c.errGJ),
+			logErrSeries("tanh–sinh", Q_COLORS.ts, c.ns, c.errTS),
+		],
+		opts: {
+			title,
+			xlabel: "node count n  (log scale)",
+			ylabel: "|quadrature − reference|  (log scale)",
+			xTicks: X_TICKS,
+			yTicks: Y_TICKS,
+		},
+	};
+}
+
+const X_OFF = 2.0;
+const refOff = applyRule(tanhSinh01(1025), (l) => bridgeWeighted(l, X_OFF));
+writeFigure(
+	"F5_quadrature",
+	renderSvg([
+		quadPanel(
+			"K₁ bridge integral at ATM (x = 0) — reference: closed form 3√(2π)/128",
+			0,
+			K1_PEAK,
+		),
+		quadPanel(
+			`K₁ bridge integral off ATM (x = ${X_OFF.toFixed(1)}) — reference: tanh–sinh n = 1025`,
+			X_OFF,
+			refOff,
+		),
+	]),
+);
+const atmConv = bridgeConvergence(0, K1_PEAK);
+// eslint-disable-next-line no-console
+console.log(
+	`F5_quadrature.svg: max GJ error at ATM = ${Math.max(...atmConv.errGJ).toExponential(1)}`,
+);
 
 // Wait for all PDF stream writes to flush before exiting.
 await Promise.all(pendingPdfs);

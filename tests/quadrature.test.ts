@@ -17,45 +17,19 @@
  *     n=128 to 1e-9.
  */
 import { describe, expect, it } from "vitest";
-import { gaussLegendre } from "../src/math/gl";
+import {
+	bridgeBare as bareG,
+	bridgeConvergence,
+	bridgeWeighted as fullW,
+	gaussLegendre01 as glOn01,
+	applyRule as ruleValue,
+} from "../src/math/bridgeQuad";
 import { gaussJacobi32 } from "../src/math/jacobi";
-import { normCdf, normPdf } from "../src/math/normal";
 import { tanhSinhRule } from "../src/math/tanhsinh";
 
 const K1_PEAK = (3 * Math.sqrt(2 * Math.PI)) / 128;
 // ∫₀¹ (λ(1-λ))^{3/2} dλ = B(5/2, 5/2) = Γ(5/2)²/Γ(5) = (9π/16)/24 = 3π/128.
 const BETA_5_2 = (3 * Math.PI) / 128;
-
-function fEta(eta: number): number {
-	return (eta ** 3 + 3 * eta) * normCdf(eta) + (2 + eta * eta) * normPdf(eta);
-}
-const eta = (l: number, x: number): number => x * Math.sqrt(l / (1 - l));
-// tanh-sinh's outermost nodes saturate to λ = 0 or 1 in f64, so
-// (l(1-l))^{3/2}·f(η) becomes 0·∞ = NaN. Mathematically the integrand
-// is 0 there (the weight wins); collapse the boundary explicitly.
-function fullW(l: number, x: number): number {
-	const m = l * (1 - l);
-	if (m === 0) return 0;
-	return m ** 1.5 * fEta(eta(l, x));
-}
-const bareG = (l: number, x: number): number => fEta(eta(l, x));
-
-function ruleValue(
-	r: { nodes: number[]; weights: number[] },
-	fn: (l: number) => number,
-): number {
-	let acc = 0;
-	for (let i = 0; i < r.nodes.length; i++) acc += r.weights[i] * fn(r.nodes[i]);
-	return acc;
-}
-
-function glOn01(n: number): { nodes: number[]; weights: number[] } {
-	const gl = gaussLegendre(n);
-	return {
-		nodes: gl.nodes.map((u) => 0.5 * (u + 1)),
-		weights: gl.weights.map((w) => 0.5 * w),
-	};
-}
 
 /** Analytic moment ∫₀¹ (λ(1-λ))^{3/2} λ^d dλ = B(d+5/2, 5/2), closed form. */
 function jacobiMoment(d: number): number {
@@ -108,3 +82,17 @@ describe("tanh-sinh on [0, 1]", () => {
 	});
 });
 
+describe("bridge convergence (Appendix C figure data)", () => {
+	it("at x=0, Gauss-Jacobi is at machine floor for every node count", () => {
+		// The figure's headline: GJ reproduces the closed form 3√(2π)/128 at
+		// n=1 and stays there. If this regresses, the ATM panel is wrong.
+		const { errGJ } = bridgeConvergence(0, K1_PEAK);
+		for (const e of errGJ) expect(e).toBeLessThan(1e-14);
+	});
+
+	it("at x=0, Gauss-Legendre converges (algebraically) as n grows", () => {
+		const { errGL } = bridgeConvergence(0, K1_PEAK);
+		expect(errGL[errGL.length - 1]).toBeLessThan(errGL[0]);
+		expect(errGL[errGL.length - 1]).toBeLessThan(1e-6);
+	});
+});
