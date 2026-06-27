@@ -83,7 +83,7 @@ export function reciprocalSeries(h: number[], n: number): number[] {
 }
 
 /** Horner evaluation of sum_i coeffs[i]*k^i. */
-function horner(coeffs: number[], k: number): number {
+export function horner(coeffs: number[], k: number): number {
 	let v = 0;
 	for (let i = coeffs.length - 1; i >= 0; i--) v = v * k + coeffs[i];
 	return v;
@@ -199,5 +199,3 @@ export function sigma2PolyCoeffsFromCubic(
 
 	return sPoly.slice(2);
 }
-
-export { horner };

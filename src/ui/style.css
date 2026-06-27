@@ -117,7 +117,6 @@ main {
 .field label {
 	font-size: 11px;
 	color: var(--muted);
-	text-transform: uppercase;
 	letter-spacing: 0.04em;
 }
 .field input {
