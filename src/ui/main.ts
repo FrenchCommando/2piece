@@ -73,8 +73,9 @@ app.innerHTML = `
 <main>
   <section id="view-tool">
     <p class="hint">Drag a box on any chart to zoom (both axes); double-click
-    to reset. Use the checkboxes to hide methods (e.g. turn off BBF0 to see
-    the rest). New to this? See the <b>About</b> tab.</p>
+    to reset. Use the checkboxes to toggle methods — BBF0 is off by default
+    because it sits ~1% away and squashes the y-axis. New to this? See the
+    <b>About</b> tab.</p>
     <div class="controls" id="controls"></div>
     <p class="preset-src" id="preset-src"></p>
     <div class="toggles" id="toggles"></div>
@@ -316,8 +317,8 @@ controls.append(presets);
 setInputs();
 setPresetSrc(`Calibrated snapshot: ${EXAMPLES[0].source}`, true);
 
-// Method on/off toggles.
-const visible = new Map<MethodKey, boolean>(METHODS.map((m) => [m.key, true]));
+// Method on/off toggles. The checkbox is the source of truth for visibility.
+const toggles = new Map<MethodKey, HTMLInputElement>();
 const togglesEl = byId("toggles");
 for (const m of METHODS) {
 	const id = `t-${m.key}`;
@@ -327,11 +328,9 @@ for (const m of METHODS) {
 	const cb = document.createElement("input");
 	cb.type = "checkbox";
 	cb.id = id;
-	cb.checked = true;
-	cb.addEventListener("change", () => {
-		visible.set(m.key, cb.checked);
-		draw();
-	});
+	cb.checked = m.key !== "bbf0";
+	cb.addEventListener("change", draw);
+	toggles.set(m.key, cb);
 	wrap.append(cb, document.createTextNode(` ${m.label}`));
 	togglesEl.append(wrap);
 }
@@ -369,7 +368,7 @@ function recompute(): void {
 }
 
 function vis(key: MethodKey, s: Series): Series[] {
-	return visible.get(key) ? [s] : [];
+	return toggles.get(key)?.checked ? [s] : [];
 }
 
 function draw(): void {
