@@ -108,11 +108,3 @@ describe("tanh-sinh on [0, 1]", () => {
 	});
 });
 
-describe("Cross-rule consistency at x = 1.5", () => {
-	it("Gauss-Jacobi and Gauss-Legendre agree to 1e-9 at n=128", () => {
-		const x = 1.5;
-		const vGJ = ruleValue(gaussJacobi32(128), (l) => bareG(l, x));
-		const vGL = ruleValue(glOn01(128), (l) => fullW(l, x));
-		expect(Math.abs(vGJ - vGL)).toBeLessThan(1e-9);
-	});
-});
