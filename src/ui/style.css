@@ -87,7 +87,7 @@ header p {
 	color: #94959b;
 	margin: 4px 0 12px;
 }
-header code {
+code {
 	background: #f4f4f5;
 	padding: 1px 5px;
 	border-radius: 4px;
@@ -210,4 +210,29 @@ main {
 	.grid {
 		grid-template-columns: 1fr;
 	}
+}
+
+/* Quadrature tab: 3-col method previews above 881px (defers to .grid's
+   1-col rule below). The smile grid is 2×2, but three rules per row pack
+   wide enough that taller canvases would look stretched. */
+@media (min-width: 881px) {
+	#view-quad .grid {
+		grid-template-columns: 1fr 1fr 1fr;
+	}
+	#view-quad .grid .card canvas {
+		height: 240px;
+	}
+}
+/* Slider value readouts (mono digits) and the derived-x line that wraps
+   onto its own row in the .toggles flex. */
+.toggles input[type="range"] + span {
+	font-variant-numeric: tabular-nums;
+	font-family: ui-monospace, monospace;
+	color: var(--muted);
+	min-width: 3.2em;
+}
+#quad-x-derived {
+	font-size: 12px;
+	color: var(--muted);
+	flex-basis: 100%;
 }

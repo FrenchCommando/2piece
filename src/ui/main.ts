@@ -15,6 +15,7 @@ import {
 } from "../math/model";
 import { byId, getContext2D, mapGet } from "../util";
 import { drawChart, type PlotMap, type Series } from "./chart";
+import { setupQuadraturePanel } from "./quadrature";
 
 interface Example extends ModelInputs {
 	id: string;
@@ -65,6 +66,7 @@ app.innerHTML = `
   <h1>Implied volatility at a cubic local-vol knot pinned at the money</h1>
   <nav class="tabs">
     <button id="tab-tool" class="tab active">Tool</button>
+    <button id="tab-quad" class="tab">Quadrature</button>
     <button id="tab-about" class="tab">About</button>
   </nav>
 </header>
@@ -83,6 +85,60 @@ app.innerHTML = `
       <div class="card"><canvas id="c-ker"></canvas></div>
     </div>
     <p class="note" id="status"></p>
+  </section>
+
+  <section id="view-quad" hidden>
+    <h2>Quadrature comparison for the K₁ bridge integral</h2>
+    <p class="hint">
+      K₁(x,&nbsp;0) is the one closed-form-free integral in the asymptotic
+      family. The three rules below all approximate it; each draws the
+      function it actually operates on (red curve) and the sample positions
+      it picks (blue dots, radius ∝ log₁₀ weight, grey stem from the axis).
+      Sweep <i>x</i> to see how each rule adapts. The left convergence plot
+      is anchored at <i>x</i>&nbsp;=&nbsp;0 where the closed-form value
+      K₁(0,&nbsp;0)&nbsp;=&nbsp;3√(2π)/128 is the truth; the right one
+      tracks the slider and is anchored against tanh–sinh at
+      <i>n</i>&nbsp;=&nbsp;1025, which we name explicitly because the whole
+      point of numerical quadrature is that no closed-form reference exists.
+    </p>
+    <div class="toggles">
+      <label>
+        log-moneyness <i>k</i> =
+        <input id="quad-k" type="range" min="-0.2" max="0.2" step="0.001" value="0.05"/>
+        <span id="quad-k-val">0.050</span>
+      </label>
+      <label>
+        <i>n</i> =
+        <input id="quad-n" type="range" min="4" max="128" step="2" value="32"/>
+        <span id="quad-n-val">32</span>
+      </label>
+      <span id="quad-x-derived"></span>
+    </div>
+    <div class="grid">
+      <div class="card"><canvas id="q-gl"></canvas></div>
+      <div class="card"><canvas id="q-gj"></canvas></div>
+      <div class="card"><canvas id="q-ts"></canvas></div>
+    </div>
+    <div class="card"><canvas id="q-conv-x"></canvas></div>
+    <div class="card"><canvas id="q-conv-atm"></canvas></div>
+
+    <h3>Takeaway</h3>
+    <p>K₁ is the only integral in the asymptotic family that genuinely
+    needs quadrature — every other map (BBF0, σ₁, σ₂) is closed-form for
+    a cubic σ_loc. Among the three rules:</p>
+    <ul>
+      <li>32-point <b>Gauss–Legendre</b> is the production choice:
+      algebraic-rate convergence, robust across <i>x</i>, hits 1e-9 at
+      <i>n</i>&nbsp;=&nbsp;32.</li>
+      <li><b>Gauss–Jacobi(3/2,&nbsp;3/2)</b> looks tailored — it absorbs
+      the (λ(1−λ))^{3/2} weight and is exact at <i>x</i>&nbsp;=&nbsp;0
+      with just one node — but for <i>x</i>&nbsp;≠&nbsp;0 the residual
+      f(η) blows up at λ&nbsp;→&nbsp;1 exactly where its nodes are
+      sparsest, so it doesn't beat Legendre in practice.</li>
+      <li><b>tanh–sinh</b> converges fastest in <i>n</i> but needs many
+      more nodes to start; it's the right escape hatch if precision
+      beyond 1e-12 is ever needed.</li>
+    </ul>
   </section>
 
   <section id="view-about" hidden>
@@ -306,6 +362,10 @@ function recompute(): void {
 		`vol scale = ${curves.scale.toFixed(1)} · PDE + maps computed in ${ms} ms in-browser` +
 		(curves.hasKnot ? " · knot active at k=0" : " · no knot (δ=0)");
 	draw();
+	// σ / DTE feed the quadrature panel's σ_total (k → x mapping); keep it in
+	// sync even when its tab is hidden — when the user switches tabs the
+	// canvases are already populated with the right values.
+	redrawQuadPanel?.();
 }
 
 function vis(key: MethodKey, s: Series): Series[] {
@@ -567,21 +627,31 @@ for (const id of ["c-iv", "c-err", "c-loc", "c-ker"]) {
 }
 
 // Tab switching.
-const tabTool = byId("tab-tool");
-const tabAbout = byId("tab-about");
-const viewTool = byId("view-tool");
-const viewAbout = document.getElementById("view-about") as HTMLElement;
-function showTab(tool: boolean): void {
-	viewTool.hidden = !tool;
-	viewAbout.hidden = tool;
-	tabTool.classList.toggle("active", tool);
-	tabAbout.classList.toggle("active", !tool);
-	if (tool) draw(); // canvases may have been resized while hidden
+type TabKey = "tool" | "quad" | "about";
+const tabs: { key: TabKey; button: HTMLElement; view: HTMLElement }[] = [
+	{ key: "tool", button: byId("tab-tool"), view: byId("view-tool") },
+	{ key: "quad", button: byId("tab-quad"), view: byId("view-quad") },
+	{ key: "about", button: byId("tab-about"), view: byId("view-about") },
+];
+function showTab(active: TabKey): void {
+	for (const t of tabs) {
+		t.view.hidden = t.key !== active;
+		t.button.classList.toggle("active", t.key === active);
+	}
+	// Canvases that were hidden have zero client dimensions; redraw on show.
+	if (active === "tool") draw();
+	if (active === "quad") redrawQuadPanel();
 }
-tabTool.addEventListener("click", () => showTab(true));
-tabAbout.addEventListener("click", () => showTab(false));
+for (const t of tabs) t.button.addEventListener("click", () => showTab(t.key));
 
+const redrawQuadPanel = setupQuadraturePanel(() => ({
+	sigma: state.sigma,
+	dte: state.dte,
+}));
 window.addEventListener("resize", () => {
-	if (!viewTool.hidden) draw();
+	const active = tabs.find((t) => !t.view.hidden);
+	if (active?.key === "tool") draw();
+	if (active?.key === "quad") redrawQuadPanel();
 });
 recompute();
+redrawQuadPanel();
